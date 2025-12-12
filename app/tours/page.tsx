@@ -1,0 +1,318 @@
+'use client';
+
+import { useState } from 'react';
+import { Play, Pause, Maximize, Compass, Sun, Cloud, MapPin, Clock } from 'lucide-react';
+
+const virtualTours = [
+  {
+    id: 1,
+    title: 'Palm Jumeirah Villa Tour',
+    property: 'Palm Jumeirah Luxury Villa',
+    duration: '5:30',
+    type: '360° Interactive',
+    features: ['Day/Night View', 'Seasonal Changes', 'Sun Path Simulation', 'Neighborhood Map'],
+    thumbnailColor: 'from-bayt-cool to-bayt-dark' // Updated to Bayt colors
+  },
+  {
+    id: 2,
+    title: 'Downtown Sky Villa Experience',
+    property: 'Downtown Dubai Sky Villa',
+    duration: '4:15',
+    type: 'VR Ready',
+    features: ['Burj Khalifa View', 'Floor-by-Floor', 'Amenities Tour', 'Qibla Direction'],
+    thumbnailColor: 'from-bayt-warm to-bayt-dark' // Updated to Bayt colors
+  },
+  {
+    id: 3,
+    title: 'Arabian Ranches Walkthrough',
+    property: 'Arabian Ranches Family Home',
+    duration: '6:45',
+    type: 'Interactive 3D',
+    features: ['Golf Course View', 'Garden Tour', 'Interior Design', 'Family Areas'],
+    thumbnailColor: 'from-bayt-cultural to-bayt-dark' // Updated to Bayt colors
+  },
+  {
+    id: 4,
+    title: 'Marina Bay Apartment Tour',
+    property: 'Marina Bay Luxury Apartment',
+    duration: '3:30',
+    type: '360° Panorama',
+    features: ['Marina View', 'Balcony Vista', 'Smart Features', 'Building Amenities'],
+    thumbnailColor: 'from-yellow-700 to-bayt-dark' // Using a rich yellow/dark gradient
+  },
+  {
+    id: 5,
+    title: 'Al Reem Island Penthouse',
+    property: 'Al Reem Island Penthouse',
+    duration: '7:15',
+    type: 'VR Experience',
+    features: ['Skyline Tour', 'Private Pool', 'Luxury Finishes', 'City Context'],
+    thumbnailColor: 'from-bayt-cool to-bayt-dark'
+  },
+  {
+    id: 6,
+    title: 'Jeddah Corniche Heritage',
+    property: 'Jeddah Corniche Villa',
+    duration: '8:00',
+    type: 'Cultural Tour',
+    features: ['Sea View', 'Traditional Design', 'Family Quarters', 'Local Context'],
+    thumbnailColor: 'from-bayt-cultural to-bayt-dark'
+  }
+];
+
+export default function ToursPage() {
+  const [activeTour, setActiveTour] = useState(1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [viewMode, setViewMode] = useState('day');
+  const [season, setSeason] = useState('winter');
+
+  return (
+    // Base background is the dark primary color
+    <div className="min-h-screen bg-bayt-dark text-white">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        {/* Gradient overlay using dark and cool accents */}
+        <div className="absolute inset-0 bg-gradient-to-r from-bayt-dark/80 to-bayt-cool/50"></div>
+        <div className="relative container mx-auto px-6 py-20">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              Immersive Virtual Tours
+            </h1>
+            <p className="text-xl text-bayt-light mb-10 max-w-3xl mx-auto">
+              Experience properties like never before with 360° tours, VR compatibility,
+              and intelligent simulations.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              {/* Primary CTA button uses the warm accent color */}
+              <button className="px-6 py-3 bg-bayt-warm text-bayt-dark font-bold rounded-xl hover:bg-yellow-700 transition-all">
+                <Maximize className="inline w-5 h-5 mr-2" />
+                Enter VR Mode
+              </button>
+              {/* Secondary CTA button uses the cool accent border */}
+              <button className="px-6 py-3 bg-transparent border-2 border-bayt-cool text-white font-bold rounded-xl hover:bg-bayt-cool/20 transition-all">
+                <Compass className="inline w-5 h-5 mr-2" />
+                View All Tours
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Main Tour Viewer */}
+          <div className="lg:col-span-2">
+            {/* Main viewer block uses dark background and cool accent border */}
+            <div className="bg-gradient-to-br from-bayt-dark/90 to-bayt-dark rounded-3xl overflow-hidden border border-bayt-cool/50 shadow-2xl">
+              {/* Tour Controls */}
+              <div className="p-6 border-b border-bayt-cool/50">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-bayt-light">
+                      {virtualTours.find(t => t.id === activeTour)?.title}
+                    </h2>
+                    <p className="text-bayt-cool">
+                      {virtualTours.find(t => t.id === activeTour)?.property}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {/* Play button uses warm accent color */}
+                    <button 
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="bg-bayt-warm hover:bg-yellow-700 p-3 rounded-full text-bayt-dark"
+                    >
+                      {isPlaying ? 
+                        <Pause className="w-6 h-6" /> : 
+                        <Play className="w-6 h-6" />
+                      }
+                    </button>
+                    <button className="bg-bayt-cool/50 hover:bg-bayt-cool p-3 rounded-full text-bayt-dark">
+                      <Maximize className="w-6 h-6" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tour Display */}
+              <div className="relative h-96 bg-gradient-to-br from-bayt-dark/70 to-bayt-cool/30">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-6xl mb-4 text-bayt-warm">🏠</div>
+                    <p className="text-xl font-semibold text-bayt-light">Virtual Tour Active</p>
+                    <p className="text-bayt-cool">Use mouse to navigate or VR headset for immersion</p>
+                  </div>
+                </div>
+
+                {/* Simulation Controls */}
+                <div className="absolute bottom-6 left-6 right-6">
+                  <div className="bg-bayt-dark/90 backdrop-blur-sm rounded-xl p-4 border border-bayt-cool/50">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-sm text-bayt-cool mb-2">Time of Day</label>
+                        <div className="flex gap-2">
+                          {['day', 'dusk', 'night'].map(time => (
+                            <button
+                              key={time}
+                              onClick={() => setViewMode(time)}
+                              className={`px-3 py-2 rounded-lg text-sm capitalize ${
+                                viewMode === time 
+                                  ? 'bg-bayt-warm text-bayt-dark' // Active state uses warm accent
+                                  : 'bg-bayt-cool/30 text-bayt-light hover:bg-bayt-cool/50' // Inactive uses cool accent
+                              }`}
+                            >
+                              {time}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-bayt-cool mb-2">Season</label>
+                        <div className="flex gap-2">
+                          {['winter', 'spring', 'summer', 'autumn'].map(s => (
+                            <button
+                              key={s}
+                              onClick={() => setSeason(s)}
+                              className={`px-3 py-2 rounded-lg text-sm capitalize ${
+                                season === s 
+                                  ? 'bg-bayt-cultural text-white' // Active state uses cultural accent
+                                  : 'bg-bayt-cool/30 text-bayt-light hover:bg-bayt-cool/50' // Inactive uses cool accent
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-bayt-cool mb-2">Sun Position</label>
+                        <div className="flex items-center gap-2">
+                          <Sun className="w-5 h-5 text-bayt-warm" />
+                          {/* Range slider track color should ideally be customized in CSS to match theme */}
+                          <input type="range" min="0" max="100" defaultValue="50" className="flex-1 accent-bayt-warm" />
+                          <Cloud className="w-5 h-5 text-bayt-cool" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-bayt-cool mb-2">Prayer Room View</label>
+                        {/* Cultural accent for prayer/Qibla features */}
+                        <button className="w-full px-4 py-2 bg-gradient-to-r from-bayt-cultural to-emerald-700 rounded-lg font-semibold hover:from-emerald-700 hover:to-bayt-cultural">
+                          Show Qibla Direction
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tour Info */}
+              <div className="p-6">
+                <h3 className="text-xl font-bold mb-4 text-bayt-light">Tour Features</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {virtualTours.find(t => t.id === activeTour)?.features.map((feature, index) => (
+                    <div key={index} className="bg-bayt-cool/10 rounded-xl p-4 text-center border border-bayt-cool/30">
+                      <div className="text-2xl mb-2 text-bayt-warm">🌟</div>
+                      <div className="text-sm text-bayt-light">{feature}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tour List */}
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-bayt-light">Available Tours</h3>
+            <div className="space-y-4">
+              {virtualTours.map(tour => (
+                <button
+                  key={tour.id}
+                  onClick={() => setActiveTour(tour.id)}
+                  className={`w-full text-left p-4 rounded-xl transition-all ${
+                    activeTour === tour.id
+                      ? 'bg-gradient-to-r from-bayt-dark/70 to-bayt-cool/30 border-2 border-bayt-warm' // Active border uses warm accent
+                      : 'bg-bayt-dark/50 hover:bg-bayt-dark/70 border border-bayt-cool/50' // Inactive uses dark/cool theme
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${tour.thumbnailColor} flex items-center justify-center`}>
+                      <Play className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg text-bayt-light">{tour.title}</h4>
+                      <p className="text-sm text-bayt-cool">{tour.property}</p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="flex items-center gap-1 text-sm text-bayt-cool">
+                          <Clock className="w-4 h-4 text-bayt-warm" />
+                          {tour.duration}
+                        </span>
+                        <span className="bg-bayt-cool/30 text-bayt-light px-2 py-1 rounded text-xs">
+                          {tour.type}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Tour Stats */}
+            <div className="bg-bayt-dark/70 rounded-2xl p-6 mt-8 border border-bayt-cool/50">
+              <h4 className="font-bold text-lg mb-4 text-bayt-light">Tour Analytics</h4>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1 text-bayt-cool">
+                    <span>User Engagement</span>
+                    <span className='text-bayt-cultural'>85%</span>
+                  </div>
+                  <div className="h-2 bg-bayt-cool/30 rounded-full overflow-hidden">
+                    <div className="h-full bg-bayt-cultural rounded-full" style={{ width: '85%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1 text-bayt-cool">
+                    <span>Tour Completion</span>
+                    <span className='text-bayt-cool'>72%</span>
+                  </div>
+                  <div className="h-2 bg-bayt-cool/30 rounded-full overflow-hidden">
+                    <div className="h-full bg-bayt-cool rounded-full" style={{ width: '72%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1 text-bayt-cool">
+                    <span>Lead Conversion</span>
+                    <span className='text-bayt-warm'>45%</span>
+                  </div>
+                  <div className="h-2 bg-bayt-cool/30 rounded-full overflow-hidden">
+                    <div className="h-full bg-bayt-warm rounded-full" style={{ width: '45%' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Sun Path Feature uses Warm Accent */}
+          <div className="bg-gradient-to-br from-bayt-warm/20 to-bayt-dark/30 rounded-2xl p-8 border border-bayt-warm/50">
+            <div className="text-4xl mb-4 text-bayt-warm">🌅</div>
+            <h4 className="text-xl font-bold mb-3 text-bayt-light">Sun Path Simulation</h4>
+            <p className="text-gray-300">Visualize sunlight through property at different times</p>
+          </div>
+          {/* Seasonal View Feature uses Cultural Accent */}
+          <div className="bg-gradient-to-br from-bayt-cultural/20 to-bayt-dark/30 rounded-2xl p-8 border border-bayt-cultural/50">
+            <div className="text-4xl mb-4 text-bayt-cultural">🍃</div>
+            <h4 className="text-xl font-bold mb-3 text-bayt-light">Seasonal View Preview</h4>
+            <p className="text-gray-300">See property during "green season" vs summer</p>
+          </div>
+          {/* Neighborhood Context uses Cool Accent */}
+          <div className="bg-gradient-to-br from-bayt-cool/20 to-bayt-dark/30 rounded-2xl p-8 border border-bayt-cool/50">
+            <div className="text-4xl mb-4 text-bayt-cool">🕌</div>
+            <h4 className="text-xl font-bold mb-3 text-bayt-light">Neighborhood Context</h4>
+            <p className="text-gray-300">Highlights nearby mosques, schools, clinics</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

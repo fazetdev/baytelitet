@@ -1,0 +1,27 @@
+{
+  "app": {
+    "title": "بايت النخبة",
+    "description": "منصة تمكين المبيعات الكاملة لمطوري الخليج"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "properties": "العقارات",
+    "tours": "الجولات الافتراضية",
+    "calculator": "حاسبة الدفعات",
+    "agents": "لوحة الوكيل",
+    "settings": "الإعدادات"
+  },
+  "calculator": {
+    "title": "حاسبة الدفعات الديناميكية",
+    "propertyPrice": "سعر العقار",
+    "downPayment": "الدفعة الأولى",
+    "loanTerm": "مدة القرض",
+    "calculate": "احسب",
+    "results": "خطة الدفع"
+  },
+  "property": {
+    "viewDetails": "عرض التفاصيل",
+    "bookTour": "حجز جولة افتراضية",
+    "contactAgent": "اتصل بالوكيل"
+  }
+}

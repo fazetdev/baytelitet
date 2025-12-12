@@ -1,0 +1,27 @@
+{
+  "app": {
+    "title": "Bayt Elite",
+    "description": "Complete Sales Enablement Platform for Gulf Developers"
+  },
+  "navigation": {
+    "home": "Home",
+    "properties": "Properties",
+    "tours": "Virtual Tours",
+    "calculator": "Payment Calculator",
+    "agents": "Agent Dashboard",
+    "settings": "Settings"
+  },
+  "calculator": {
+    "title": "Dynamic Payment Calculator",
+    "propertyPrice": "Property Price",
+    "downPayment": "Down Payment",
+    "loanTerm": "Loan Term",
+    "calculate": "Calculate",
+    "results": "Payment Plan"
+  },
+  "property": {
+    "viewDetails": "View Details",
+    "bookTour": "Book Virtual Tour",
+    "contactAgent": "Contact Agent"
+  }
+}
