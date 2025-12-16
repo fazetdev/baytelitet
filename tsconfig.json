@@ -11,11 +11,11 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
+"module": "esnext",
+"moduleResolution": "node",     // ← CHANGE "bundler" TO "node"
+"resolveJsonModule": true,
+"isolatedModules": true,
+"jsx": "preserve",              // ← CHANGE "react-jsx" TO "preserve",
     "incremental": true,
     "plugins": [
       {

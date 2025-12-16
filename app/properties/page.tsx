@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import PropertyCard from './components/PropertyCard';
-import PropertyFilters from './components/PropertyFilters';
-import { Search, Filter, MapPin, Bed, Bath, Square } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 
 const mockProperties = [
   {
@@ -152,14 +151,81 @@ const mockProperties = [
   }
 ];
 
-export default function PropertiesPage() {
+export default function PropertiesPage({ language = 'en' }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedCity, setSelectedCity] = useState('all');
   const [priceRange, setPriceRange] = useState([0, 20000000]);
 
-  const propertyTypes = ['All', 'Villa', 'Apartment', 'Penthouse', 'Townhouse'];
-  const cities = ['All', 'Dubai', 'Abu Dhabi', 'Sharjah', 'Jeddah', 'Riyadh', 'Doha'];
+  // Bilingual content
+  const content = {
+    en: {
+      title: 'Premium Properties',
+      subtitle: 'Discover exclusive real estate opportunities across the Gulf region',
+      searchPlaceholder: 'Search properties...',
+      all: 'All',
+      villa: 'Villa',
+      apartment: 'Apartment',
+      penthouse: 'Penthouse',
+      townhouse: 'Townhouse',
+      dubai: 'Dubai',
+      abuDhabi: 'Abu Dhabi',
+      sharjah: 'Sharjah',
+      jeddah: 'Jeddah',
+      riyadh: 'Riyadh',
+      doha: 'Doha',
+      allPrices: 'All Prices',
+      customRange: 'Custom Range',
+      upTo2M: 'Up to 2M',
+      twoTo5M: '2M - 5M',
+      fiveMPlus: '5M+',
+      propertiesFound: 'Properties Found',
+      sortBy: 'Sort By',
+      noProperties: 'No properties found',
+      tryAdjusting: 'Try adjusting your search criteria',
+      totalListings: 'Total Listings',
+      transactionVolume: 'Transaction Volume',
+      clientSatisfaction: 'Client Satisfaction',
+      developers: 'Developers',
+      currency: 'AED'
+    },
+    ar: {
+      title: 'العقارات المميزة',
+      subtitle: 'اكتشف فرص عقارية حصرية في جميع أنحاء منطقة الخليج',
+      searchPlaceholder: 'ابحث عن عقارات...',
+      all: 'الكل',
+      villa: 'فيلا',
+      apartment: 'شقة',
+      penthouse: 'بنتهاوس',
+      townhouse: 'تاون هاوس',
+      dubai: 'دبي',
+      abuDhabi: 'أبوظبي',
+      sharjah: 'الشارقة',
+      jeddah: 'جدة',
+      riyadh: 'الرياض',
+      doha: 'الدوحة',
+      allPrices: 'جميع الأسعار',
+      customRange: 'نطاق مخصص',
+      upTo2M: 'حتى 2 مليون',
+      twoTo5M: '2-5 مليون',
+      fiveMPlus: '5 مليون+',
+      propertiesFound: 'عقار تم العثور عليه',
+      sortBy: 'فرز حسب',
+      noProperties: 'لم يتم العثور على عقارات',
+      tryAdjusting: 'حاول تعديل معايير البحث',
+      totalListings: 'إجمالي القوائم',
+      transactionVolume: 'حجم المعاملات',
+      clientSatisfaction: 'رضا العملاء',
+      developers: 'المطورين',
+      currency: 'درهم'
+    }
+  };
+
+  const t = content[language];
+  const isRTL = language === 'ar';
+
+  const propertyTypes = [t.all, t.villa, t.apartment, t.penthouse, t.townhouse];
+  const cities = [t.all, t.dubai, t.abuDhabi, t.sharjah, t.jeddah, t.riyadh, t.doha];
 
   const filteredProperties = mockProperties.filter(property => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -171,17 +237,41 @@ export default function PropertiesPage() {
     return matchesSearch && matchesType && matchesCity && matchesPrice;
   });
 
+  const getTypeValue = (type) => {
+    const typeMap = {
+      [t.all]: 'all',
+      [t.villa]: 'villa',
+      [t.apartment]: 'apartment',
+      [t.penthouse]: 'penthouse',
+      [t.townhouse]: 'townhouse'
+    };
+    return typeMap[type] || type.toLowerCase();
+  };
+
+  const getCityValue = (city) => {
+    const cityMap = {
+      [t.all]: 'all',
+      [t.dubai]: 'Dubai',
+      [t.abuDhabi]: 'Abu Dhabi',
+      [t.sharjah]: 'Sharjah',
+      [t.jeddah]: 'Jeddah',
+      [t.riyadh]: 'Riyadh',
+      [t.doha]: 'Doha'
+    };
+    return cityMap[city] || city;
+  };
+
   return (
     // Background uses light color from homepage
-    <div className="min-h-screen bg-bayt-light">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-bayt-light">
       {/* Hero Section */}
-      {/* Hero uses the dark primary color from homepage */}
       <div className="bg-bayt-dark text-white">
         <div className="container mx-auto px-6 py-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Premium Properties</h1>
-          {/* Accent text uses the cool color */}
-          <p className="text-xl text-bayt-cool max-w-3xl">
-            Discover exclusive real estate opportunities across the Gulf region
+          <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${isRTL ? 'text-right' : ''}`}>
+            {t.title}
+          </h1>
+          <p className={`text-xl text-bayt-cool max-w-3xl ${isRTL ? 'text-right' : ''}`}>
+            {t.subtitle}
           </p>
         </div>
       </div>
@@ -192,14 +282,13 @@ export default function PropertiesPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search Input */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-bayt-cool w-5 h-5" />
+              <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-bayt-cool w-5 h-5`} />
               <input
                 type="text"
-                placeholder="Search properties..."
+                placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                // Input borders and focus use the cool/warm accents
-                className="w-full pl-10 pr-4 py-3 border border-bayt-cool/50 rounded-xl focus:ring-2 focus:ring-bayt-warm focus:border-transparent"
+                className={`w-full ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3 border border-bayt-cool/50 rounded-xl focus:ring-2 focus:ring-bayt-warm focus:border-transparent`}
               />
             </div>
 
@@ -207,10 +296,12 @@ export default function PropertiesPage() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm focus:border-transparent"
+              className={`border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm focus:border-transparent ${isRTL ? 'text-right' : ''}`}
             >
               {propertyTypes.map(type => (
-                <option key={type} value={type.toLowerCase()}>{type}</option>
+                <option key={type} value={getTypeValue(type)}>
+                  {type}
+                </option>
               ))}
             </select>
 
@@ -218,10 +309,12 @@ export default function PropertiesPage() {
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm focus:border-transparent"
+              className={`border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm focus:border-transparent ${isRTL ? 'text-right' : ''}`}
             >
               {cities.map(city => (
-                <option key={city} value={city.toLowerCase()}>{city}</option>
+                <option key={city} value={getCityValue(city)}>
+                  {city}
+                </option>
               ))}
             </select>
 
@@ -232,19 +325,19 @@ export default function PropertiesPage() {
                 onChange={(e) => {
                   if (e.target.value === 'all') setPriceRange([0, 20000000]);
                 }}
-                className="w-full border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm focus:border-transparent"
+                className={`w-full border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm focus:border-transparent ${isRTL ? 'text-right' : ''}`}
               >
-                <option value="all">All Prices</option>
-                <option value="custom">Custom Range</option>
-                <option value="0-2m">Up to 2M AED</option>
-                <option value="2m-5m">2M - 5M AED</option>
-                <option value="5m+">5M+ AED</option>
+                <option value="all">{t.allPrices}</option>
+                <option value="custom">{t.customRange}</option>
+                <option value="0-2m">{t.upTo2M} {t.currency}</option>
+                <option value="2m-5m">{t.twoTo5M} {t.currency}</option>
+                <option value="5m+">{t.fiveMPlus} {t.currency}</option>
               </select>
             </div>
           </div>
 
           {/* Active Filters */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          <div className={`flex flex-wrap gap-2 mt-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
             {/* Type Filter Chip: Uses Cool Accent */}
             {selectedType !== 'all' && (
               <span className="inline-flex items-center gap-1 bg-bayt-cool/20 text-bayt-dark px-3 py-1 rounded-full text-sm">
@@ -262,7 +355,7 @@ export default function PropertiesPage() {
             {/* Price Filter Chip: Uses Warm Gold Accent */}
             {priceRange[1] !== 20000000 && (
               <span className="inline-flex items-center gap-1 bg-bayt-warm/20 text-bayt-dark px-3 py-1 rounded-full text-sm">
-                AED {priceRange[0].toLocaleString()} - {priceRange[1].toLocaleString()}
+                {t.currency} {priceRange[0].toLocaleString()} - {priceRange[1].toLocaleString()}
                 <button onClick={() => setPriceRange([0, 20000000])}>×</button>
               </span>
             )}
@@ -272,23 +365,22 @@ export default function PropertiesPage() {
 
       {/* Properties Grid */}
       <div className="container mx-auto px-6 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-bayt-dark">
-            {filteredProperties.length} Properties Found
+        <div className={`flex justify-between items-center mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <h2 className={`text-2xl font-bold text-bayt-dark ${isRTL ? 'text-right' : ''}`}>
+            {filteredProperties.length} {t.propertiesFound}
           </h2>
           <div className="flex items-center gap-4">
-            {/* Sort Button uses cool accent border */}
-            <button className="flex items-center gap-2 px-4 py-2 border border-bayt-cool/50 rounded-xl hover:bg-bayt-light/50">
+            <button className={`flex items-center gap-2 px-4 py-2 border border-bayt-cool/50 rounded-xl hover:bg-bayt-light/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <Filter className="w-4 h-4 text-bayt-dark" />
-              Sort By
+              {t.sortBy}
             </button>
           </div>
         </div>
 
-        {/* Properties Grid (PropertyCard component will need styling, but the grid is fine) */}
+        {/* Properties Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProperties.map(property => (
-            <PropertyCard key={property.id} property={property} />
+            <PropertyCard key={property.id} property={property} language={language} />
           ))}
         </div>
 
@@ -296,28 +388,30 @@ export default function PropertiesPage() {
         {filteredProperties.length === 0 && (
           <div className="text-center py-16">
             <div className="text-bayt-cool mb-4">🏠</div>
-            <h3 className="text-xl font-semibold text-bayt-dark mb-2">No properties found</h3>
-            <p className="text-gray-500">Try adjusting your search criteria</p>
+            <h3 className={`text-xl font-semibold text-bayt-dark mb-2 ${isRTL ? 'text-right' : ''}`}>
+              {t.noProperties}
+            </h3>
+            <p className={`text-gray-500 ${isRTL ? 'text-right' : ''}`}>{t.tryAdjusting}</p>
           </div>
         )}
 
         {/* Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow border border-bayt-cool/50">
+          <div className={`bg-white p-6 rounded-xl shadow border border-bayt-cool/50 ${isRTL ? 'text-right' : ''}`}>
             <div className="text-2xl font-bold text-bayt-cool">500+</div>
-            <div className="text-gray-600">Total Listings</div>
+            <div className="text-gray-600">{t.totalListings}</div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow border border-bayt-cool/50">
-            <div className="text-2xl font-bold text-bayt-cultural">AED 2.5B</div>
-            <div className="text-gray-600">Transaction Volume</div>
+          <div className={`bg-white p-6 rounded-xl shadow border border-bayt-cool/50 ${isRTL ? 'text-right' : ''}`}>
+            <div className="text-2xl font-bold text-bayt-cultural">{t.currency} 2.5B</div>
+            <div className="text-gray-600">{t.transactionVolume}</div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow border border-bayt-cool/50">
+          <div className={`bg-white p-6 rounded-xl shadow border border-bayt-cool/50 ${isRTL ? 'text-right' : ''}`}>
             <div className="text-2xl font-bold text-bayt-warm">98%</div>
-            <div className="text-gray-600">Client Satisfaction</div>
+            <div className="text-gray-600">{t.clientSatisfaction}</div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow border border-bayt-cool/50">
+          <div className={`bg-white p-6 rounded-xl shadow border border-bayt-cool/50 ${isRTL ? 'text-right' : ''}`}>
             <div className="text-2xl font-bold text-bayt-dark">50+</div>
-            <div className="text-gray-600">Developers</div>
+            <div className="text-gray-600">{t.developers}</div>
           </div>
         </div>
       </div>
