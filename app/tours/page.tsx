@@ -3,7 +3,18 @@
 import { useState } from 'react';
 import { Play, Pause, Maximize, Compass, Sun, Cloud, Clock } from 'lucide-react';
 
-const virtualTours = [
+// Defined the shape of the tours for TypeScript
+interface VirtualTour {
+  id: number;
+  title: string;
+  property: string;
+  duration: string;
+  type: string;
+  features: string[];
+  thumbnailColor: string;
+}
+
+const virtualTours: VirtualTour[] = [
   {
     id: 1,
     title: 'Palm Jumeirah Villa Tour',
@@ -60,13 +71,13 @@ const virtualTours = [
   }
 ];
 
-export default function ToursPage({ language = 'en' }) {
+// Added type for the language prop to ensure it matches 'en' or 'ar'
+export default function ToursPage({ language = 'en' }: { language?: 'en' | 'ar' }) {
   const [activeTour, setActiveTour] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [viewMode, setViewMode] = useState('day');
   const [season, setSeason] = useState('winter');
 
-  // Bilingual content
   const content = {
     en: {
       title: 'Immersive Virtual Tours',
@@ -139,9 +150,9 @@ export default function ToursPage({ language = 'en' }) {
   const t = content[language];
   const isRTL = language === 'ar';
 
-  // Get season display text based on language
-  const getSeasonDisplay = (seasonKey) => {
-    const seasonMap = {
+  // Added ': string' type to seasonKey to fix the red line in screenshot
+  const getSeasonDisplay = (seasonKey: string) => {
+    const seasonMap: Record<string, string> = {
       winter: language === 'en' ? 'winter' : 'شتاء',
       spring: language === 'en' ? 'spring' : 'ربيع',
       summer: language === 'en' ? 'summer' : 'صيف',
@@ -150,9 +161,9 @@ export default function ToursPage({ language = 'en' }) {
     return seasonMap[seasonKey] || seasonKey;
   };
 
-  // Get time of day display text
-  const getTimeDisplay = (timeKey) => {
-    const timeMap = {
+  // Added ': string' type to timeKey to fix the red line in screenshot
+  const getTimeDisplay = (timeKey: string) => {
+    const timeMap: Record<string, string> = {
       day: language === 'en' ? 'day' : 'نهار',
       dusk: language === 'en' ? 'dusk' : 'غسق',
       night: language === 'en' ? 'night' : 'ليل'
@@ -161,11 +172,8 @@ export default function ToursPage({ language = 'en' }) {
   };
 
   return (
-    // Base background is the dark primary color
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-bayt-dark text-white">
-      {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Gradient overlay using dark and cool accents */}
         <div className="absolute inset-0 bg-gradient-to-r from-bayt-dark/80 to-bayt-cool/50"></div>
         <div className="relative container mx-auto px-6 py-20">
           <div className="max-w-4xl mx-auto text-center">
@@ -176,12 +184,10 @@ export default function ToursPage({ language = 'en' }) {
               {t.subtitle}
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              {/* Primary CTA button uses the warm accent color */}
               <button className={`px-6 py-3 bg-bayt-warm text-bayt-dark font-bold rounded-xl hover:bg-yellow-700 transition-all ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <Maximize className={`inline w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                 {t.enterVRMode}
               </button>
-              {/* Secondary CTA button uses the cool accent border */}
               <button className={`px-6 py-3 bg-transparent border-2 border-bayt-cool text-white font-bold rounded-xl hover:bg-bayt-cool/20 transition-all ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <Compass className={`inline w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                 {t.viewAllTours}
@@ -193,11 +199,8 @@ export default function ToursPage({ language = 'en' }) {
 
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main Tour Viewer */}
           <div className="lg:col-span-2">
-            {/* Main viewer block uses dark background and cool accent border */}
             <div className="bg-gradient-to-br from-bayt-dark/90 to-bayt-dark rounded-3xl overflow-hidden border border-bayt-cool/50 shadow-2xl">
-              {/* Tour Controls */}
               <div className="p-6 border-b border-bayt-cool/50">
                 <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <div className={isRTL ? 'text-right' : ''}>
@@ -209,15 +212,11 @@ export default function ToursPage({ language = 'en' }) {
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
-                    {/* Play button uses warm accent color */}
                     <button 
                       onClick={() => setIsPlaying(!isPlaying)}
                       className="bg-bayt-warm hover:bg-yellow-700 p-3 rounded-full text-bayt-dark"
                     >
-                      {isPlaying ? 
-                        <Pause className="w-6 h-6" /> : 
-                        <Play className="w-6 h-6" />
-                      }
+                      {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
                     </button>
                     <button className="bg-bayt-cool/50 hover:bg-bayt-cool p-3 rounded-full text-bayt-dark">
                       <Maximize className="w-6 h-6" />
@@ -226,7 +225,6 @@ export default function ToursPage({ language = 'en' }) {
                 </div>
               </div>
 
-              {/* Tour Display */}
               <div className="relative h-96 bg-gradient-to-br from-bayt-dark/70 to-bayt-cool/30">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
@@ -236,7 +234,6 @@ export default function ToursPage({ language = 'en' }) {
                   </div>
                 </div>
 
-                {/* Simulation Controls */}
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="bg-bayt-dark/90 backdrop-blur-sm rounded-xl p-4 border border-bayt-cool/50">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -286,7 +283,6 @@ export default function ToursPage({ language = 'en' }) {
                       </div>
                       <div className={isRTL ? 'text-right' : ''}>
                         <label className="block text-sm text-bayt-cool mb-2">{t.prayerRoomView}</label>
-                        {/* Cultural accent for prayer/Qibla features */}
                         <button className="w-full px-4 py-2 bg-gradient-to-r from-bayt-cultural to-emerald-700 rounded-lg font-semibold hover:from-emerald-700 hover:to-bayt-cultural">
                           {t.showQibla}
                         </button>
@@ -296,7 +292,6 @@ export default function ToursPage({ language = 'en' }) {
                 </div>
               </div>
 
-              {/* Tour Info */}
               <div className="p-6">
                 <h3 className={`text-xl font-bold mb-4 text-bayt-light ${isRTL ? 'text-right' : ''}`}>
                   {t.tourFeatures}
@@ -313,7 +308,6 @@ export default function ToursPage({ language = 'en' }) {
             </div>
           </div>
 
-          {/* Tour List */}
           <div className="space-y-6">
             <h3 className={`text-2xl font-bold text-bayt-light ${isRTL ? 'text-right' : ''}`}>
               {t.availableTours}
@@ -351,7 +345,6 @@ export default function ToursPage({ language = 'en' }) {
               ))}
             </div>
 
-            {/* Tour Stats */}
             <div className={`bg-bayt-dark/70 rounded-2xl p-6 mt-8 border border-bayt-cool/50 ${isRTL ? 'text-right' : ''}`}>
               <h4 className={`font-bold text-lg mb-4 text-bayt-light ${isRTL ? 'text-right' : ''}`}>
                 {t.tourAnalytics}
@@ -389,21 +382,17 @@ export default function ToursPage({ language = 'en' }) {
           </div>
         </div>
 
-        {/* Features Section */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Sun Path Feature uses Warm Accent */}
           <div className={`bg-gradient-to-br from-bayt-warm/20 to-bayt-dark/30 rounded-2xl p-8 border border-bayt-warm/50 ${isRTL ? 'text-right' : ''}`}>
             <div className="text-4xl mb-4 text-bayt-warm">🌅</div>
             <h4 className="text-xl font-bold mb-3 text-bayt-light">{t.sunPathSimulation}</h4>
             <p className="text-gray-300">{t.sunPathDescription}</p>
           </div>
-          {/* Seasonal View Feature uses Cultural Accent */}
           <div className={`bg-gradient-to-br from-bayt-cultural/20 to-bayt-dark/30 rounded-2xl p-8 border border-bayt-cultural/50 ${isRTL ? 'text-right' : ''}`}>
             <div className="text-4xl mb-4 text-bayt-cultural">🍃</div>
             <h4 className="text-xl font-bold mb-3 text-bayt-light">{t.seasonalViewPreview}</h4>
             <p className="text-gray-300">{t.seasonalDescription}</p>
           </div>
-          {/* Neighborhood Context uses Cool Accent */}
           <div className={`bg-gradient-to-br from-bayt-cool/20 to-bayt-dark/30 rounded-2xl p-8 border border-bayt-cool/50 ${isRTL ? 'text-right' : ''}`}>
             <div className="text-4xl mb-4 text-bayt-cool">🕌</div>
             <h4 className="text-xl font-bold mb-3 text-bayt-light">{t.neighborhoodContext}</h4>
