@@ -37,9 +37,3 @@ export default function RootLayout({
     </html>
   );
 }
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
-
-// Then use in body:
-<body className={`${inter.className} ...`}>

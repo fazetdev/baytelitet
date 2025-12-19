@@ -1,9 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calculator, Home, Map, Users, Settings, Globe } from 'lucide-react';
-
-// The color definitions have been moved to tailwind.config.js
-// We use classes like 'bg-bayt-dark' instead of complex Hex strings
+import { Calculator, Home, Map, Users, Settings, Globe, Search } from 'lucide-react';
 
 export default function HomePage() {
   const features = [
@@ -11,7 +10,6 @@ export default function HomePage() {
       icon: <Calculator className="w-8 h-8" />,
       title: 'Dynamic Payment Calculator',
       description: 'Real-time payment plans with Hijri/Gregorian timelines',
-      // Financial features use the warm gold accent
       color: 'from-bayt-warm to-yellow-800', 
       href: '/calculator'
     },
@@ -19,7 +17,6 @@ export default function HomePage() {
       icon: <Home className="w-8 h-8" />,
       title: 'Smart Property Listings',
       description: '360° virtual tours with neighborhood context',
-      // Property/Listing features use the cool gray accent
       color: 'from-bayt-cool to-gray-500', 
       href: '/properties'
     },
@@ -34,7 +31,6 @@ export default function HomePage() {
       icon: <Globe className="w-8 h-8" />,
       title: 'Cultural Intelligence',
       description: 'Prayer times, Qibla direction & Ramadan modes',
-      // Cultural features use the dedicated green accent
       color: 'from-bayt-cultural to-emerald-700', 
       href: '/settings'
     },
@@ -42,7 +38,6 @@ export default function HomePage() {
       icon: <Users className="w-8 h-8" />,
       title: 'Agent Dashboard',
       description: 'Lead tracking & analytics for developers',
-      // Agent/Sales features use the warm gold accent
       color: 'from-bayt-warm to-yellow-800', 
       href: '/agents'
     },
@@ -64,20 +59,22 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Uses Image with Dark Overlay */}
-      <section className="relative bg-bayt-dark text-white overflow-hidden">
-        {/* Background Image */}
-        <Image
-          src="/images/bayt1.jpg"
-          alt="Luxury Dubai interior with skyline view"
-          layout="fill"
-          objectFit="cover"
-          quality={80}
-          className="z-0"
-        />
-        {/* Dark Overlay (Primary Dark Color with Opacity) */}
-        <div className="absolute inset-0 bg-bayt-dark opacity-80 z-10"></div>
-        
+      {/* Hero Section - FIXED Image component */}
+      <section className="relative bg-bayt-dark text-white overflow-hidden min-h-[600px]">
+        {/* Background Image Container */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-bayt-dark to-gray-900 z-10" />
+          <Image
+            src="/images/bayt1.jpg"
+            alt="Luxury Dubai interior with skyline view"
+            fill
+            priority
+            quality={80}
+            className="z-0 object-cover opacity-50"
+            sizes="100vw"
+          />
+        </div>
+
         <div className="relative z-20 container mx-auto px-6 py-32 md:py-48">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
@@ -91,13 +88,14 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 href="/properties"
-                className="px-8 py-4 bg-bayt-warm text-bayt-dark font-bold rounded-xl hover:bg-opacity-90 transition-all transform hover:-translate-y-1 shadow-2xl"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-bayt-warm text-bayt-dark font-bold rounded-xl hover:bg-yellow-600 transition-all transform hover:-translate-y-1 shadow-2xl"
               >
+                <Search className="w-5 h-5" />
                 Explore Properties
               </Link>
               <Link 
                 href="/calculator"
-                className="px-8 py-4 bg-transparent border-2 border-bayt-warm text-bayt-warm font-bold rounded-xl hover:bg-bayt-warm hover:text-bayt-dark transition-all transform hover:-translate-y-1"
+                className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-bayt-warm text-bayt-warm font-bold rounded-xl hover:bg-bayt-warm hover:text-bayt-dark transition-all transform hover:-translate-y-1"
               >
                 Try Calculator
               </Link>
@@ -137,9 +135,9 @@ export default function HomePage() {
               <Link 
                 key={index} 
                 href={feature.href}
-                className="group"
+                className="group block"
               >
-                <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:border-bayt-warm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hover:border-bayt-warm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 h-full">
                   <div className={`inline-flex p-4 rounded-xl bg-gradient-to-r ${feature.color} text-white mb-6`}>
                     {feature.icon}
                   </div>
@@ -206,13 +204,13 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href="/properties"
-              className="px-8 py-4 bg-bayt-dark text-bayt-warm font-bold rounded-xl hover:bg-opacity-90 transition-all shadow-2xl"
+              className="inline-flex items-center justify-center px-8 py-4 bg-bayt-dark text-bayt-warm font-bold rounded-xl hover:bg-opacity-90 transition-all shadow-2xl"
             >
               Browse Properties
             </Link>
             <Link 
               href="/agents"
-              className="px-8 py-4 bg-transparent border-2 border-bayt-dark text-bayt-dark font-bold rounded-xl hover:bg-white/10 transition-all"
+              className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-bayt-dark text-bayt-dark font-bold rounded-xl hover:bg-white/10 transition-all"
             >
               Agent Dashboard
             </Link>
