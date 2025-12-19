@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Basic config - no experimental options
   reactStrictMode: true,
-  experimental: {
-    // Keep empty or add other experimental features
-  },
+  swcMinify: true,
 };
 
 module.exports = nextConfig;

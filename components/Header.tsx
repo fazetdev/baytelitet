@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import useLanguage from '../context/useLanguage'; // default import
+import { useLanguage } from '../context/useLanguage'; // default import
 import { Home, Calculator, Building, Map, Users, Settings, Menu, X, Globe } from 'lucide-react';
 
 export default function Header() {
