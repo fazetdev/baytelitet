@@ -2,33 +2,194 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Body */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #fefcf3;
-  color: #1f2937;
+@layer base {
+  /* Base styles that work with Tailwind */
+  :root {
+    --color-bayt-dark: #141A23;
+    --color-bayt-light: #E6E8EB;
+    --color-bayt-warm: #D0AC7A;
+    --color-bayt-cool: #99AAB5;
+    --color-bayt-cultural: #529B7F;
+  }
+
+  /* Dark mode variables */
+  .dark {
+    --color-bayt-dark: #E6E8EB;
+    --color-bayt-light: #141A23;
+  }
+
+  /* Body styles */
+  body {
+    @apply bg-bayt-light text-bayt-dark font-sans transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-bayt-dark text-bayt-light;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-bayt-warm/30 text-bayt-dark;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-bayt-cool/20;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-bayt-warm rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-bayt-warm/80;
+  }
 }
 
-/* Link hover */
-a {
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-a:hover {
-  color: #facc15; /* Gulf Gold */
-  transform: scale(1.05);
+@layer components {
+  /* Custom button styles */
+  .btn-primary {
+    @apply bg-bayt-warm text-bayt-dark font-semibold py-3 px-6 rounded-xl 
+           hover:bg-yellow-700 hover:scale-[1.02] active:scale-95 
+           transition-all duration-300 shadow-md hover:shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-bayt-cool text-white font-semibold py-3 px-6 rounded-xl 
+           hover:bg-blue-700 hover:scale-[1.02] active:scale-95 
+           transition-all duration-300 border border-bayt-cool/50;
+  }
+
+  .btn-outline {
+    @apply border-2 border-bayt-warm text-bayt-dark font-semibold py-3 px-6 rounded-xl 
+           hover:bg-bayt-warm/10 hover:scale-[1.02] active:scale-95 
+           transition-all duration-300;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-card 
+           hover:shadow-card-dark transition-all duration-300 
+           border border-bayt-cool/20 dark:border-gray-700;
+  }
+
+  /* Input styles */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-bayt-cool/50 
+           bg-white dark:bg-gray-800 text-bayt-dark dark:text-white
+           focus:outline-none focus:ring-2 focus:ring-bayt-warm 
+           focus:border-transparent transition-all duration-300;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .badge-primary {
+    @apply bg-bayt-warm/20 text-bayt-dark;
+  }
+
+  .badge-success {
+    @apply bg-bayt-cultural/20 text-bayt-cultural;
+  }
+
+  .badge-info {
+    @apply bg-bayt-cool/20 text-bayt-cool;
+  }
 }
 
-/* Buttons */
-button {
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-button:hover {
-  transform: scale(1.05);
+@layer utilities {
+  /* RTL utilities */
+  .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+
+  .rtl\:text-right {
+    text-align: right;
+  }
+
+  .rtl\:text-left {
+    text-align: left;
+  }
+
+  .rtl\:flex-row-reverse {
+    flex-direction: row-reverse;
+  }
+
+  /* Arabic font utility */
+  .font-arabic {
+    font-family: '"Noto Sans Arabic"', 'Segoe UI', sans-serif;
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  /* Custom shadows */
+  .shadow-card {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-card-dark {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Text balance */
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
-/* Containers */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+/* Keyframes for animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
