@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import { ReactNode } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { LanguageProvider } from '../context/useLanguage'; // Path to your language context
+import { LanguageProvider } from '../context/useLanguage';
 
 export const metadata = {
   title: 'Bayt Elite',
@@ -15,7 +15,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="bg-black text-white antialiased">
         <LanguageProvider>
           <Header />
-          {/* Using min-h-screen ensures the footer stays at the bottom */}
           <main className="min-h-screen">
             {children}
           </main>

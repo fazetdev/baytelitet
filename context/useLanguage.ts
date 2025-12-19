@@ -21,8 +21,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
+  
+  // Safe for SSR/SSG - return default values if context is undefined
   if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    // During SSR/SSG or if not wrapped in Provider, return defaults
+    return {
+      lang: 'en',
+      setLang: () => {
+        console.warn('LanguageProvider not found. setLang called outside provider.');
+      }
+    };
   }
+  
   return context;
 }
