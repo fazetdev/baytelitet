@@ -1,12 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, TrendingUp, DollarSign, Clock, MessageSquare, Download, Filter } from 'lucide-react';
+import { Users, TrendingUp, DollarSign, Clock, MessageSquare, Download } from 'lucide-react';
 import LeadCard from './components/LeadCard';
 import EngagementChart from './components/EngagementChart';
 import HotLeadNotifications from './components/HotLeadNotifications';
 import PDFAnalytics from './components/PDFAnalytics';
 import { getStatusDisplay, getAnalyticsData } from './utils/leadUtils';
+
+// Define the Status type for better type safety
+type LeadStatus = 'hot' | 'warm' | 'cold';
+type StatusFilter = 'all' | LeadStatus;
 
 const leads = [
   {
@@ -71,8 +75,16 @@ const leads = [
   }
 ];
 
+// Tailwind-safe color mapping to avoid dynamic class generation issues
+const colorMap: Record<string, string> = {
+  'bayt-cool': 'bg-blue-100 text-blue-600',
+  'bayt-cultural': 'bg-emerald-100 text-emerald-600',
+  'bayt-warm': 'bg-orange-100 text-orange-600',
+  'amber': 'bg-amber-100 text-amber-600'
+};
+
 export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar' }) {
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const isRTL = language === 'ar';
 
@@ -100,26 +112,22 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
   const analytics = getAnalyticsData(language);
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-bayt-light">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-bayt-dark text-white">
+      <div className="bg-slate-900 text-white">
         <div className="container mx-auto px-6 py-8">
-          <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <div className={isRTL ? 'text-right' : ''}>
-              <h1 className={`text-3xl font-bold ${isRTL ? 'text-right' : ''}`}>
-                {t.title}
-              </h1>
-              <p className={`text-bayt-cool ${isRTL ? 'text-right' : ''}`}>
-                {t.subtitle}
-              </p>
+          <div className={`flex flex-col md:flex-row justify-between items-center gap-4 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
+            <div className={isRTL ? 'text-right w-full md:w-auto' : 'w-full md:w-auto'}>
+              <h1 className="text-3xl font-bold">{t.title}</h1>
+              <p className="text-slate-400">{t.subtitle}</p>
             </div>
-            <div className={`flex gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <button className={`px-6 py-3 bg-white text-bayt-dark font-bold rounded-xl hover:bg-gray-100 transition-all border border-bayt-cool ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <Download className={`inline w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+            <div className="flex gap-4 w-full md:w-auto">
+              <button className="flex-1 md:flex-none px-6 py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center">
+                <Download className={`w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                 {t.exportReport}
               </button>
-              <button className={`px-6 py-3 bg-bayt-warm text-bayt-dark font-bold rounded-xl hover:bg-opacity-90 transition-all ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <MessageSquare className={`inline w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+              <button className="flex-1 md:flex-none px-6 py-3 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-all flex items-center justify-center">
+                <MessageSquare className={`w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                 {t.newLead}
               </button>
             </div>
@@ -131,19 +139,19 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {analytics.map((stat, index) => (
-            <div key={index} className={`bg-white rounded-2xl shadow-lg p-6 border border-bayt-cool/50 ${isRTL ? 'text-right' : ''}`}>
+            <div key={index} className={`bg-white rounded-2xl shadow-sm p-6 border border-gray-200 ${isRTL ? 'text-right' : ''}`}>
               <div className={`flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div>
-                  <div className={`p-3 rounded-xl bg-${stat.color}-100 text-${stat.color}-600 inline-block mb-4`}>
+                  <div className={`p-3 rounded-xl inline-block mb-4 ${colorMap[stat.color] || 'bg-gray-100 text-gray-600'}`}>
                     {stat.color === 'bayt-cool' && <Users className="w-6 h-6" />}
                     {stat.color === 'bayt-cultural' && <TrendingUp className="w-6 h-6" />}
                     {stat.color === 'bayt-warm' && <DollarSign className="w-6 h-6" />}
                     {stat.color === 'amber' && <Clock className="w-6 h-6" />}
                   </div>
-                  <div className="text-2xl font-bold text-bayt-dark">{stat.value}</div>
-                  <div className="text-gray-600">{stat.label}</div>
+                  <div className="text-2xl font-bold text-slate-900">{stat.value}</div>
+                  <div className="text-gray-500 text-sm">{stat.label}</div>
                 </div>
-                <div className={`text-sm font-semibold ${stat.change.startsWith('+') ? 'text-bayt-cultural' : 'text-red-600'}`}>
+                <div className={`text-sm font-semibold ${stat.change.startsWith('+') ? 'text-emerald-600' : 'text-red-600'}`}>
                   {stat.change}
                 </div>
               </div>
@@ -152,27 +160,23 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Leads Table */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-lg border border-bayt-cool/50">
-              {/* Table Header */}
-              <div className="p-6 border-b border-gray-200">
-                <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <h2 className={`text-xl font-bold text-bayt-dark ${isRTL ? 'text-right' : ''}`}>
-                    {t.recentLeads}
-                  </h2>
-                  <div className={`flex gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-100">
+                <div className={`flex flex-col md:flex-row justify-between items-center gap-4 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
+                  <h2 className="text-xl font-bold text-slate-900">{t.recentLeads}</h2>
+                  <div className="flex gap-4 w-full md:w-auto">
                     <input
                       type="text"
                       placeholder={t.searchLeads}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className={`border border-bayt-cool/50 rounded-xl px-4 py-2 focus:ring-2 focus:ring-bayt-warm focus:border-transparent ${isRTL ? 'text-right' : ''}`}
+                      className="flex-1 md:w-64 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                     />
                     <select
                       value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value)}
-                      className={`border border-bayt-cool/50 rounded-xl px-4 py-2 focus:ring-2 focus:ring-bayt-warm focus:border-transparent ${isRTL ? 'text-right' : ''}`}
+                      onChange={(e) => setSelectedStatus(e.target.value as StatusFilter)}
+                      className="border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                     >
                       <option value="all">{t.allStatus}</option>
                       <option value="hot">{t.hot}</option>
@@ -183,8 +187,7 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
                 </div>
               </div>
 
-              {/* Leads List */}
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-50">
                 {filteredLeads.map(lead => (
                   <LeadCard 
                     key={lead.id} 
@@ -197,7 +200,6 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
             </div>
           </div>
 
-          {/* Sidebar - Analytics */}
           <div className="space-y-6">
             <EngagementChart language={language} />
             <HotLeadNotifications language={language} />
