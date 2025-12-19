@@ -8,7 +8,6 @@ import HotLeadNotifications from './components/HotLeadNotifications';
 import PDFAnalytics from './components/PDFAnalytics';
 import { getStatusDisplay, getAnalyticsData } from './utils/leadUtils';
 
-// Explicit types to satisfy the TypeScript compiler
 type LeadStatus = 'hot' | 'warm' | 'cold';
 type StatusFilter = 'all' | LeadStatus;
 
@@ -168,12 +167,12 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
                       placeholder={t.searchLeads}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="flex-1 md:w-64 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
+                      className="flex-1 md:w-64 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                     />
                     <select
                       value={selectedStatus}
                       onChange={(e) => setSelectedStatus(e.target.value as StatusFilter)}
-                      className="border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
+                      className="border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                     >
                       <option value="all">{t.allStatus}</option>
                       <option value="hot">{t.hot}</option>
