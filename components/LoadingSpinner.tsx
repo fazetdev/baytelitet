@@ -1,8 +1,21 @@
-export default function LoadingSpinner() {
+interface LoadingSpinnerProps {
+  size?: 'sm' | 'md' | 'lg';
+  color?: string;
+}
+
+export default function LoadingSpinner({ size = 'md', color = 'currentColor' }: LoadingSpinnerProps) {
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12'
+  };
+
   return (
-    <div className="flex justify-center items-center p-8">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      <span className="ml-3">Loading...</span>
+    <div className="flex items-center justify-center">
+      <div 
+        className={`${sizeClasses[size]} animate-spin rounded-full border-t-2 border-b-2`}
+        style={{ borderColor: color }}
+      />
     </div>
   );
 }

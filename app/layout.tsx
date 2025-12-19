@@ -1,24 +1,27 @@
 import '../styles/globals.css';
-import { ReactNode } from 'react';
+import { Inter } from 'next/font/google';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { LanguageProvider } from '../context/useLanguage.tsx';
+import { LanguageProvider } from '../context/useLanguage';
+import { PropertiesProvider } from '../context/useProperties';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Bayt Elite',
-  description: 'Complete Sales Enablement Platform for Gulf Developers',
+  title: 'BaytElite',
+  description: 'Premium Gulf Properties',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-black text-white antialiased">
+      <body className={inter.className}>
         <LanguageProvider>
-          <Header />
-          <main className="min-h-screen">
+          <PropertiesProvider>
+            <Header />
             {children}
-          </main>
-          <Footer />
+            <Footer />
+          </PropertiesProvider>
         </LanguageProvider>
       </body>
     </html>

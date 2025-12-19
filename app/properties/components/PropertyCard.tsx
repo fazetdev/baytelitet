@@ -1,9 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { MapPin, Bed, Bath, Square, Eye, Heart, Share2 } from 'lucide-react';
 import Link from 'next/link';
-// Assuming formatCurrency is available in this path
-import { formatCurrency } from '@/lib/formatters'; 
+import { formatCurrency } from '@/lib/formatters';
 
 interface PropertyCardProps {
   property: {
@@ -21,12 +21,17 @@ interface PropertyCardProps {
     virtualTour: boolean;
     goldenVisaEligible: boolean;
     rentalYield: string;
+    images?: string[];
   };
   language?: 'ar' | 'en';
 }
 
 export default function PropertyCard({ property, language = 'en' }: PropertyCardProps) {
-  // Bilingual content
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+
   const content = {
     en: {
       beds: 'Beds',
@@ -38,6 +43,7 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
       viewDetails: 'View Details',
       calculatePayment: 'Calculate Payment',
       more: 'more',
+      linkCopied: 'Link copied!',
       type: {
         villa: 'Villa',
         apartment: 'Apartment',
@@ -59,6 +65,7 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
       viewDetails: 'عرض التفاصيل',
       calculatePayment: 'حساب السداد',
       more: 'المزيد',
+      linkCopied: 'تم نسخ الرابط!',
       type: {
         villa: 'فيلا',
         apartment: 'شقة',
@@ -75,7 +82,6 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
   const t = content[language];
   const isRTL = language === 'ar';
 
-  // Get property type display name
   const getTypeDisplay = (type: string) => {
     const typeMap: Record<string, string> = {
       villa: t.type.villa,
@@ -86,52 +92,123 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
     return typeMap[type.toLowerCase()] || type;
   };
 
-  // Get status display name
   const getStatusDisplay = (status: string) => {
     if (status.toLowerCase().includes('ready')) return t.status.ready;
     if (status.toLowerCase().includes('construction')) return t.status.construction;
     return status;
   };
 
-  // Format area with Arabic numerals if needed
   const formatArea = (area: number) => {
     if (language === 'ar') {
-      // Convert to Arabic numerals
       return area.toLocaleString('ar-EG');
     }
     return area.toLocaleString();
   };
 
+  // Toggle favorite
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    // Save to localStorage
+    const favorites = JSON.parse(localStorage.getItem('baytelite-favorites') || '[]');
+    if (!isFavorite) {
+      favorites.push(property.id);
+    } else {
+      const index = favorites.indexOf(property.id);
+      if (index > -1) favorites.splice(index, 1);
+    }
+    localStorage.setItem('baytelite-favorites', JSON.stringify(favorites));
+  };
+
+  // Share property
+  const handleShare = async () => {
+    setIsSharing(true);
+    const shareUrl = `${window.location.origin}/properties/${property.id}`;
+    const shareText = `${property.title} - ${property.location} - ${formatCurrency(property.price)}`;
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: property.title,
+          text: shareText,
+          url: shareUrl,
+        });
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        alert(t.linkCopied);
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  // Load favorite status from localStorage on mount
+  useState(() => {
+    const favorites = JSON.parse(localStorage.getItem('baytelite-favorites') || '[]');
+    setIsFavorite(favorites.includes(property.id));
+  });
+
   return (
-    // Card uses cool accent border on hover
     <div dir={isRTL ? 'rtl' : 'ltr'} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-bayt-cool/50 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
       {/* Image Section */}
-      {/* Image background uses a gradient blend of bayt-dark and the warm accent for a rich look */}
       <div className="relative h-64 bg-gradient-to-br from-bayt-dark to-bayt-warm">
+        {/* Image or Placeholder */}
+        {property.images?.[0] && !imageError ? (
+          <>
+            <img 
+              src={property.images[0]}
+              alt={property.title}
+              className={`w-full h-full object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-white text-4xl">🏠</div>
+          </div>
+        )}
+        
         <div className="absolute inset-0 bg-gradient-to-t from-bayt-dark/70 to-transparent"></div>
+        
         <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'}`}>
-          {/* Type Badge uses bayt-dark background */}
           <span className="bg-bayt-dark text-white px-3 py-1 rounded-full text-sm font-semibold">
             {getTypeDisplay(property.type)}
           </span>
         </div>
+        
         <div className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} flex gap-2`}>
-          {/* Action buttons use white/dark blur */}
-          <button className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30">
-            <Heart className="w-5 h-5 text-white" />
+          <button 
+            onClick={toggleFavorite}
+            className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-500/80' : 'bg-white/20 backdrop-blur-sm hover:bg-white/30'}`}
+            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <Heart className={`w-5 h-5 ${isFavorite ? 'text-white fill-white' : 'text-white'}`} />
           </button>
-          <button className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30">
+          <button 
+            onClick={handleShare}
+            disabled={isSharing}
+            className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 disabled:opacity-50"
+            aria-label="Share property"
+          >
             <Share2 className="w-5 h-5 text-white" />
           </button>
         </div>
+        
         <div className={`absolute bottom-4 ${isRTL ? 'right-4' : 'left-4'} text-white`}>
-          {/* Price uses the warm gold accent color for emphasis */}
           <div className="text-2xl font-bold text-bayt-warm">{formatCurrency(property.price)}</div>
           <div className="text-sm opacity-90 text-bayt-light">{getStatusDisplay(property.status)}</div>
         </div>
       </div>
 
-      {/* Content Section */}
+      {/* Content Section (same as before) */}
       <div className="p-6">
         <h3 className={`text-xl font-bold text-bayt-dark mb-2 hover:text-bayt-warm cursor-pointer ${isRTL ? 'text-right' : ''}`}>
           {property.title}
@@ -142,7 +219,6 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
           <span className={`text-sm ${isRTL ? 'text-right' : ''}`}>{property.location}</span>
         </div>
 
-        {/* Property Features (Beds, Baths, Area) */}
         <div className={`flex items-center gap-6 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <div className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Bed className="w-5 h-5 text-bayt-warm" />
@@ -161,7 +237,6 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
           </div>
         </div>
 
-        {/* Key Features Tags */}
         <div className={`flex flex-wrap gap-2 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {property.features.slice(0, 3).map((feature, index) => (
             <span key={index} className="bg-bayt-light text-bayt-dark px-3 py-1 rounded-full text-sm">
@@ -175,42 +250,34 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
           )}
         </div>
 
-        {/* Badges */}
         <div className={`flex flex-wrap gap-2 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          {/* Virtual Tour Badge uses Cool Accent */}
           {property.virtualTour && (
             <span className={`inline-flex items-center gap-1 bg-bayt-cool/20 text-bayt-dark px-3 py-1 rounded-full text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
               <Eye className="w-3 h-3" />
               {t.virtualTour}
             </span>
           )}
-          {/* Golden Visa Badge uses Warm Gold Accent */}
           {property.goldenVisaEligible && (
             <span className="inline-flex items-center gap-1 bg-bayt-warm/20 text-bayt-dark px-3 py-1 rounded-full text-sm">
               🏆 {t.goldenVisa}
             </span>
           )}
-          {/* Rental Yield Badge uses Cultural Green Accent */}
           <span className={`inline-flex items-center gap-1 bg-bayt-cultural/20 text-bayt-dark px-3 py-1 rounded-full text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
             📈 {property.rentalYield} {t.yield}
           </span>
         </div>
 
-        {/* Description */}
         <p className={`text-gray-600 text-sm mb-6 line-clamp-2 ${isRTL ? 'text-right' : ''}`}>
           {property.description}
         </p>
 
-        {/* Actions */}
         <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          {/* View Details Button (Primary Action) uses warm gold accent */}
           <Link 
             href={`/properties/${property.id}`}
             className={`flex-1 bg-gradient-to-r from-bayt-warm to-yellow-700 text-bayt-dark text-center py-3 rounded-xl font-semibold hover:from-yellow-700 hover:to-bayt-warm transition-all ${isRTL ? 'text-right' : ''}`}
           >
             {t.viewDetails}
           </Link>
-          {/* Calculate Payment Button (Secondary Action) uses cool accent border */}
           <Link 
             href={`/calculator?property=${property.id}`}
             className={`flex-1 border-2 border-bayt-cool text-bayt-dark text-center py-3 rounded-xl font-semibold hover:bg-bayt-light transition-all ${isRTL ? 'text-right' : ''}`}
