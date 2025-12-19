@@ -8,7 +8,7 @@ import HotLeadNotifications from './components/HotLeadNotifications';
 import PDFAnalytics from './components/PDFAnalytics';
 import { getStatusDisplay, getAnalyticsData } from './utils/leadUtils';
 
-// Define the Status type for better type safety
+// Types to match the lead structure and status logic
 type LeadStatus = 'hot' | 'warm' | 'cold';
 type StatusFilter = 'all' | LeadStatus;
 
@@ -75,7 +75,6 @@ const leads = [
   }
 ];
 
-// Tailwind-safe color mapping to avoid dynamic class generation issues
 const colorMap: Record<string, string> = {
   'bayt-cool': 'bg-blue-100 text-blue-600',
   'bayt-cultural': 'bg-emerald-100 text-emerald-600',
@@ -136,7 +135,6 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
       </div>
 
       <div className="container mx-auto px-6 py-8">
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {analytics.map((stat, index) => (
             <div key={index} className={`bg-white rounded-2xl shadow-sm p-6 border border-gray-200 ${isRTL ? 'text-right' : ''}`}>
@@ -171,12 +169,12 @@ export default function AgentsPage({ language = 'en' }: { language?: 'en' | 'ar'
                       placeholder={t.searchLeads}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="flex-1 md:w-64 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                      className="flex-1 md:w-64 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:orange-500 outline-none transition-all"
                     />
                     <select
                       value={selectedStatus}
                       onChange={(e) => setSelectedStatus(e.target.value as StatusFilter)}
-                      className="border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                      className="border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:orange-500 outline-none transition-all"
                     >
                       <option value="all">{t.allStatus}</option>
                       <option value="hot">{t.hot}</option>
