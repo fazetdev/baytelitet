@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import { ReactNode } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { LanguageProvider } from '../context/useLanguage';
+import { LanguageProvider } from '../context/useLanguage.tsx';
 
 export const metadata = {
   title: 'Bayt Elite',
