@@ -162,7 +162,7 @@ export default function AgentsPage({ language = 'en' }) {
     }
   };
 
-  const t = content[language];
+  const t = content[language as 'en' | 'ar'];
   const isRTL = language === 'ar';
 
   const filteredLeads = leads.filter(lead => {
