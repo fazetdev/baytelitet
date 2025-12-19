@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   experimental: {
-    // Remove turbopack if it's causing issues
+    // Keep empty or add other experimental features
   },
 };
 
