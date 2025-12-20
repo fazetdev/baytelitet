@@ -1,17 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
-// 1. Create a placeholder to show while the map is loading
-const MapPlaceholder = () => (
-  <div className="h-[420px] w-full rounded-2xl bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">
-    Loading Map...
-  </div>
-);
-
-// 2. Define the internal map component
 interface Property {
   id: string | number;
   title: string;
@@ -25,54 +16,42 @@ interface Props {
   onSelect: (property: Property) => void;
 }
 
-function MapComponent({ properties, onSelect }: Props) {
-  // We import Leaflet inside a useEffect or ensuring it's client-side
-  const [L, setL] = useState<any>(null);
-
-  useEffect(() => {
-    import('leaflet').then((leaflet) => {
-      delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
-      leaflet.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
-      setL(leaflet);
-    });
-  }, []);
-
-  // Dynamically import react-leaflet components
+// Map logic separated into a component that is ONLY loaded on the client
+const MapContainerComponent = ({ properties, onSelect }: Props) => {
   const { MapContainer, TileLayer, Marker, Popup } = require('react-leaflet');
+  const L = require('leaflet');
 
-  if (!properties.length || !L) return <MapPlaceholder />;
+  // Fix Leaflet icon issue
+  delete L.Icon.Default.prototype._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
+
+  if (!properties.length) return null;
 
   return (
-    <div className="h-[420px] rounded-2xl overflow-hidden shadow-md">
+    <div className="h-[420px] rounded-2xl overflow-hidden shadow-md border border-gray-100">
       <MapContainer
         center={[properties[0].lat, properties[0].lng]}
         zoom={12}
-        scrollWheelZoom={false}
         className="h-full w-full"
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
-
         {properties.map((p) => (
           <Marker
             key={p.id}
             position={[p.lat, p.lng]}
-            eventHandlers={{
-              click: () => onSelect(p),
-            }}
+            eventHandlers={{ click: () => onSelect(p) }}
           >
             <Popup>
               <div className="p-1">
-                <div className="font-bold text-bayt-dark">{p.title}</div>
-                <div className="text-bayt-warm font-semibold">
-                  {typeof p.price === 'number' ? p.price.toLocaleString() : p.price}
-                </div>
+                <div className="font-bold text-gray-900">{p.title}</div>
+                <div className="text-bayt-warm">{p.price}</div>
               </div>
             </Popup>
           </Marker>
@@ -80,10 +59,14 @@ function MapComponent({ properties, onSelect }: Props) {
       </MapContainer>
     </div>
   );
-}
+};
 
-// 3. Export as a dynamic component with SSR disabled
-export default dynamic(() => Promise.resolve(MapComponent), {
+// Exporting with ssr: false is the crucial part
+export default dynamic(() => Promise.resolve(MapContainerComponent), {
   ssr: false,
-  loading: () => <MapPlaceholder />
+  loading: () => (
+    <div className="h-[420px] w-full rounded-2xl bg-gray-50 animate-pulse flex items-center justify-center text-gray-400">
+      Initializing Map...
+    </div>
+  ),
 });
