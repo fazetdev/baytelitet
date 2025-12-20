@@ -40,7 +40,8 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
   // Only render interactive elements after mount (SSR safety)
   useEffect(() => {
     setMounted(true);
-    if (typeof navigator !== 'undefined' && navigator.share) setCanShare(true);
+    // FIX: Use 'in' operator to check for the share function
+    if (typeof navigator !== 'undefined' && 'share' in navigator) setCanShare(true);
   }, []);
 
   const content = {
