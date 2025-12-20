@@ -1,7 +1,6 @@
 'use client';
 
 import HeroSection from './home/HeroSection';
-import RoleSelector from './home/RoleSelector';
 import MarketHighlights from './home/MarketHighlights';
 import FeaturesSection from './home/FeaturesSection';
 import TrustSection from './home/TrustSection';
@@ -13,7 +12,6 @@ export default function HomePage() {
     <div className="min-h-screen">
       <HeroSection />
       <ChooseRole />
-      <RoleSelector />
       <MarketHighlights />
       <FeaturesSection />
       <TrustSection />
