@@ -3,20 +3,10 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { X } from 'lucide-react';
-
-// Temporary interface - adjust based on your actual Property type
-interface Property {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  city: string;
-  price: string;
-  images?: string[];
-}
+import { Property } from '@/context/useProperties'; // Import the correct type
 
 interface PropertyDetailsModalProps {
-  property: Property;
+  property: Property; // Use the imported type
   isOpen: boolean;
   onClose: () => void;
 }
@@ -55,7 +45,7 @@ export default function PropertyDetailsModal({ property, isOpen, onClose }: Prop
         </button>
 
         <h2 className="text-2xl font-bold mb-4">{property.title}</h2>
-        <p className="text-gray-700 mb-4">{property.description}</p>
+        <p className="text-gray-700 mb-4">{property.description || 'No description available'}</p>
 
         {/* Images */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -79,15 +69,21 @@ export default function PropertyDetailsModal({ property, isOpen, onClose }: Prop
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <span className="px-3 py-1 bg-bayt-warm text-bayt-dark rounded-full text-sm font-medium">
-            {property.type}
-          </span>
-          <span className="px-3 py-1 bg-bayt-cool text-bayt-dark rounded-full text-sm font-medium">
-            {property.city}
-          </span>
-          <span className="px-3 py-1 bg-bayt-cultural text-bayt-dark rounded-full text-sm font-medium">
-            {property.price}
-          </span>
+          {property.type && (
+            <span className="px-3 py-1 bg-bayt-warm text-bayt-dark rounded-full text-sm font-medium">
+              {property.type}
+            </span>
+          )}
+          {property.city && (
+            <span className="px-3 py-1 bg-bayt-cool text-bayt-dark rounded-full text-sm font-medium">
+              {property.city}
+            </span>
+          )}
+          {property.price && (
+            <span className="px-3 py-1 bg-bayt-cultural text-bayt-dark rounded-full text-sm font-medium">
+              AED {property.price.toLocaleString()}
+            </span>
+          )}
         </div>
       </div>
     </div>

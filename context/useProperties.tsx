@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
+// EXPANDED Property interface with all needed fields
 export interface Property {
   id: number;
   title: string;
@@ -10,108 +11,87 @@ export interface Property {
   type: string;
   bedrooms: number;
   bathrooms: number;
+  description?: string;
+  city?: string;
+  area?: number;
+  features?: string[];
+  status?: string;
+  virtualTour?: boolean;
+  goldenVisaEligible?: boolean;
+  rentalYield?: string;
+  images?: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
 interface PropertiesContextValue {
-  // Data
   properties: Property[];
   filteredProperties: Property[];
-  
-  // States
-  loading: boolean;
-  error: string | null;
-  
-  // Filters
   searchQuery: string;
+  setSearchQuery: (query: string) => void;
   selectedType: string;
+  setSelectedType: (type: string) => void;
   selectedCity: string;
+  setSelectedCity: (city: string) => void;
   priceRange: [number, number];
-  
-  // Setters
-  setSearchQuery: (value: string) => void;
-  setSelectedType: (value: string) => void;
-  setSelectedCity: (value: string) => void;
-  setPriceRange: (value: [number, number]) => void;
-  
-  // Actions
-  refresh: () => void;
+  setPriceRange: (range: [number, number]) => void;
 }
 
 const PropertiesContext = createContext<PropertiesContextValue | undefined>(undefined);
 
-export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+export const PropertiesProvider = ({ children }: { children: ReactNode }) => {
+  const [properties, setProperties] = useState<Property[]>([
+    // Example properties with all fields
+    {
+      id: 1,
+      title: 'Luxury Villa in Palm Jumeirah',
+      price: 12500000,
+      location: 'Palm Jumeirah, Dubai',
+      type: 'villa',
+      bedrooms: 5,
+      bathrooms: 6,
+      description: 'Stunning luxury villa with private beach access',
+      city: 'Dubai',
+      area: 8500,
+      features: ['Private Pool', 'Beach Access', 'Smart Home'],
+      status: 'ready',
+      virtualTour: true,
+      goldenVisaEligible: true,
+      rentalYield: '7.2%',
+      images: ['/images/properties/villa1.jpg'],
+      latitude: 25.113194,
+      longitude: 55.138294
+    }
+  ]);
 
-  // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedCity, setSelectedCity] = useState('all');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000000]);
 
-  // Fetch properties from API
-  const fetchProperties = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams();
-      if (selectedType !== 'all') params.append('type', selectedType);
-      if (selectedCity !== 'all') params.append('city', selectedCity);
-      params.append('minPrice', priceRange[0].toString());
-      params.append('maxPrice', priceRange[1].toString());
-
-      const res = await fetch(`/api/properties?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to fetch properties');
-      const data: Property[] = await res.json();
-      setProperties(data);
-    } catch (err: any) {
-      setError(err.message || 'Unknown error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Client-side search filtering
-  const filteredProperties = useMemo(() => {
-    return properties.filter(property => {
-      const matchesSearch =
-        property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        property.location.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = selectedType === 'all' || property.type.toLowerCase() === selectedType.toLowerCase();
-      const matchesCity = selectedCity === 'all' || property.location.toLowerCase().includes(selectedCity.toLowerCase());
-      const matchesPrice = property.price >= priceRange[0] && property.price <= priceRange[1];
-      return matchesSearch && matchesType && matchesCity && matchesPrice;
-    });
-  }, [properties, searchQuery, selectedType, selectedCity, priceRange]);
-
-  // Fetch on filter change (server-side)
-  useEffect(() => {
-    fetchProperties();
-  }, [selectedType, selectedCity, priceRange]); // Note: searchQuery not here (client-side only)
-
-  const refresh = () => {
-    fetchProperties();
-  };
+  const filteredProperties = properties.filter(property => {
+    const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         property.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = selectedType === 'all' || property.type === selectedType;
+    const matchesCity = selectedCity === 'all' || property.city === selectedCity;
+    const matchesPrice = property.price >= priceRange[0] && property.price <= priceRange[1];
+    
+    return matchesSearch && matchesType && matchesCity && matchesPrice;
+  });
 
   return (
-    <PropertiesContext.Provider
-      value={{
-        properties,
-        filteredProperties,
-        loading,
-        error,
-        searchQuery,
-        setSearchQuery,
-        selectedType,
-        setSelectedType,
-        selectedCity,
-        setSelectedCity,
-        priceRange,
-        setPriceRange,
-        refresh,
-      }}
-    >
+    <PropertiesContext.Provider value={{
+      properties,
+      filteredProperties,
+      searchQuery,
+      setSearchQuery,
+      selectedType,
+      setSelectedType,
+      selectedCity,
+      setSelectedCity,
+      priceRange,
+      setPriceRange
+    }}>
       {children}
     </PropertiesContext.Provider>
   );
