@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true,
+    unoptimized: false, // ← CHANGE THIS: Enable optimization for local images
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'unpkg.com' }
@@ -10,12 +10,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false
   },
-  // Turbopack configuration
   turbopack: {},
-
-  // For external packages in server components
   serverExternalPackages: [],
-
   reactStrictMode: true,
 };
 
