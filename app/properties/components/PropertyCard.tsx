@@ -37,10 +37,8 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
   const [canShare, setCanShare] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Only render interactive elements after mount (SSR safety)
   useEffect(() => {
     setMounted(true);
-    // FIX: Use 'in' operator to check for the share function
     if (typeof navigator !== 'undefined' && 'share' in navigator) setCanShare(true);
   }, []);
 
@@ -77,6 +75,11 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
 
   const t = content[language] || content['en'];
   const isRTL = language === 'ar';
+  
+  // FIX 1: Type-safe property type access
+  const typeKey = property.type.toLowerCase() as keyof typeof t.type;
+  // FIX 2: Type-safe property status access
+  const statusKey = property.status?.toLowerCase() as keyof typeof t.status;
 
   const formatArea = (area?: number) => (area ? area.toLocaleString(language === 'ar' ? 'ar-EG' : undefined) : '0');
 
@@ -134,7 +137,10 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
         <div className="absolute inset-0 bg-gradient-to-t from-bayt-dark/70 to-transparent"></div>
 
         <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'}`}>
-          <span className="bg-bayt-dark text-white px-3 py-1 rounded-full text-sm font-semibold">{t.type[property.type.toLowerCase()] || property.type}</span>
+          <span className="bg-bayt-dark text-white px-3 py-1 rounded-full text-sm font-semibold">
+            {/* FIXED: Type-safe type access */}
+            {t.type[typeKey] || property.type}
+          </span>
         </div>
 
         {mounted && (
@@ -150,7 +156,10 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
 
         <div className={`absolute bottom-4 ${isRTL ? 'right-4' : 'left-4'} text-white`}>
           <div className="text-2xl font-bold text-bayt-warm">{formatCurrency(property.price)}</div>
-          <div className="text-sm opacity-90 text-bayt-light">{property.status ? t.status[property.status.toLowerCase()] || property.status : ''}</div>
+          <div className="text-sm opacity-90 text-bayt-light">
+            {/* FIXED: Type-safe status access */}
+            {property.status ? t.status[statusKey] || property.status : ''}
+          </div>
         </div>
       </div>
 
