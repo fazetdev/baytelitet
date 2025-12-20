@@ -1,38 +1,23 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import '@/styles/globals.css';
+'use client';
+
+import { ReactNode } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { RoleProvider } from '@/context/useUserRole';
+import ClientProviders from '@/components/ClientProviders';
+import '@/styles/globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'BaytElite - Premium Real Estate',
-  description: 'Find your dream property in the UAE',
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <head>
-        {/* Arabic font for RTL support */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" 
-          rel="stylesheet" 
-        />
-        {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+    <html lang="en">
+      <body className="bg-bayt-light text-bayt-dark">
+        <ClientProviders>
+          <RoleProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </RoleProvider>
+        </ClientProviders>
       </body>
     </html>
   );

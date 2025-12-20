@@ -16,12 +16,14 @@ export default function CTASection() {
           <Link 
             href="/properties"
             className="inline-flex items-center justify-center px-8 py-4 bg-bayt-dark text-bayt-warm font-bold rounded-xl hover:bg-opacity-90 transition-all shadow-2xl"
+            aria-label="Browse Properties listings"
           >
             Browse Properties
           </Link>
           <Link 
             href="/agents"
             className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-bayt-dark text-bayt-dark font-bold rounded-xl hover:bg-white/10 transition-all"
+            aria-label="Access Agent Dashboard"
           >
             Agent Dashboard
           </Link>
