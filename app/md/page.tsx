@@ -3,29 +3,19 @@
 import { useLanguage } from '@/context/useLanguage';
 import Link from 'next/link';
 
-export default function Page() {
+export default function MdPage() {
   const { lang } = useLanguage();
   const isRTL = lang === 'ar';
-  
-  const pageTitles = {
-    developer: isRTL ? 'أريد متابعة مشروعي' : 'I want to track my project',
-    md: isRTL ? 'هل شركتي آمنة ومربحة؟' : 'Is my company safe & profitable?',
-    agent: isRTL ? 'أريد البيع بسرعة' : 'I want to sell fast'
-  };
-  
-  const pageDescriptions = {
-    developer: isRTL ? 'تابع تقدم المبيعات وتحديثات البناء' : 'Monitor sales progress and construction updates',
-    md: isRTL ? 'شاهد إجمالي المبيعات وشهادات الامتثال' : 'See total sales and compliance badges',
-    agent: isRTL ? 'شارك القوائم مع العملاء فوراً' : 'Share listings instantly to clients'
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="text-center max-w-md">
         <h1 className="text-3xl font-bold text-bayt-dark mb-4">
-          {pageTitles[window.location.pathname.slice(1)]}
+          {isRTL ? 'هل شركتي آمنة ومربحة؟' : 'Is my company safe & profitable?'}
         </h1>
-        <p className="text-gray-600 mb-6">{pageDescriptions[window.location.pathname.slice(1)]}</p>
+        <p className="text-gray-600 mb-6">
+          {isRTL ? 'شاهد إجمالي المبيعات وشهادات الامتثال' : 'See total sales and compliance badges'}
+        </p>
         <div className="bg-white p-8 rounded-2xl shadow-card">
           <p className="text-gray-500 mb-4">🚧 {isRTL ? 'قيد التطوير' : 'Under Development'}</p>
           <Link 
@@ -39,3 +29,4 @@ export default function Page() {
     </div>
   );
 }
+// Build: 2025-12-21 00:03:52
