@@ -1,4 +1,5 @@
 'use client';
+import ChooseRole from './home/components/ChooseRole';
 
 import HeroSection from './home/HeroSection';
 import RoleSelector from './home/RoleSelector';
@@ -11,6 +12,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <HeroSection />
+      <ChooseRole />
       <RoleSelector />
       <MarketHighlights />
       <FeaturesSection />
