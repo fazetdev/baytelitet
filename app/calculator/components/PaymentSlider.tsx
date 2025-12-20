@@ -3,6 +3,7 @@
 import { formatCurrency } from '@/lib/formatters';
 
 interface PaymentSliderProps {
+  language?: string;
   propertyPrice: number;
   downPaymentPercent: number;
   loanTerm: number;
