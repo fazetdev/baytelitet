@@ -19,3 +19,7 @@ export default function HomePage() {
     </div>
   );
 }
+import ChooseRole from './home/components/ChooseRole';
+
+// In the return statement, add:
+<ChooseRole />
