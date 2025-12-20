@@ -18,9 +18,10 @@ export default function PropertiesPage() {
     priceRange, 
     setPriceRange 
   } = useProperties();
-  
+
   const { lang } = useLanguage();
-  const t = useTranslations(lang);
+  // Fixed type error by casting lang to the expected union type
+  const t = useTranslations(lang as 'en' | 'ar');
 
   const isRTL = lang === 'ar';
 
@@ -128,7 +129,7 @@ export default function PropertiesPage() {
       <div className="container mx-auto px-6 py-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProperties.map(property => (
-            <PropertyCard key={property.id} property={property} language={lang} />
+            <PropertyCard key={property.id} property={property} language={lang as 'en' | 'ar'} />
           ))}
         </div>
 
