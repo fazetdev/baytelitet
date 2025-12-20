@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PropertiesProvider, useProperties } from '@/context/useProperties';
+import { PropertiesProvider, useProperties, Property } from '@/context/useProperties';
 import { useLanguage } from '@/context/useLanguage';
 import { useTranslations } from '@/hooks/useTranslations';
 import PropertyCard from './components/PropertyCard';
@@ -9,24 +9,8 @@ import PropertyDetailsModal from './components/PropertyDetailsModal';
 import PropertyMap from './components/PropertyMap';
 import { Search } from 'lucide-react';
 
-interface Property {
-  id: number;
-  title: string;
-  description?: string;
-  type: string;
-  city: string;
-  price: number;
-  location: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  area?: number;
-  features?: string[];
-  status?: string;
-  images?: string[];
-  virtualTour?: boolean;
-  goldenVisaEligible?: boolean;
-  rentalYield?: string;
-}
+// REMOVED: The old conflicting Property interface
+// USE INSTEAD: The Property type imported from '@/context/useProperties'
 
 export default function PropertiesPage() {
   return (
@@ -54,6 +38,7 @@ function PropertiesContent() {
   const t = useTranslations(currentLang);
 
   const [mounted, setMounted] = useState(false);
+  // FIX: Use the imported Property type from context
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   useEffect(() => {
@@ -133,7 +118,6 @@ function PropertiesContent() {
             value={currentPriceRangeIndex !== -1 ? currentPriceRangeIndex : 0}
             onChange={(e) => {
               const index = Number(e.target.value);
-              // FIX: Add type assertion for the price range tuple
               setPriceRange?.(priceRanges[index].value as [number, number]);
             }}
             className="border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm outline-none"
