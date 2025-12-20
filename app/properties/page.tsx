@@ -9,9 +9,6 @@ import PropertyDetailsModal from './components/PropertyDetailsModal';
 import PropertyMap from './components/PropertyMap';
 import { Search } from 'lucide-react';
 
-// REMOVED: The old conflicting Property interface
-// USE INSTEAD: The Property type imported from '@/context/useProperties'
-
 export default function PropertiesPage() {
   return (
     <PropertiesProvider>
@@ -38,7 +35,6 @@ function PropertiesContent() {
   const t = useTranslations(currentLang);
 
   const [mounted, setMounted] = useState(false);
-  // FIX: Use the imported Property type from context
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   useEffect(() => {
@@ -156,19 +152,22 @@ function PropertiesContent() {
         )}
       </div>
 
-      {/* Property Details Modal */}
+      {/* Property Map - RENDER SEPARATELY, not as child */}
+      <div className="container mx-auto px-6 py-6">
+        <PropertyMap 
+          latitude={25.276987} 
+          longitude={55.296249} 
+          zoom={12} 
+        />
+      </div>
+
+      {/* Property Details Modal - NO CHILDREN */}
       {mounted && selectedProperty && (
         <PropertyDetailsModal
           property={selectedProperty}
           isOpen={!!selectedProperty}
           onClose={() => setSelectedProperty(null)}
-        >
-          <PropertyMap 
-            latitude={25.276987} 
-            longitude={55.296249} 
-            zoom={12} 
-          />
-        </PropertyDetailsModal>
+        />
       )}
     </div>
   );
