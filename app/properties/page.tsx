@@ -133,7 +133,8 @@ function PropertiesContent() {
             value={currentPriceRangeIndex !== -1 ? currentPriceRangeIndex : 0}
             onChange={(e) => {
               const index = Number(e.target.value);
-              setPriceRange?.(priceRanges[index].value);
+              // FIX: Add type assertion for the price range tuple
+              setPriceRange?.(priceRanges[index].value as [number, number]);
             }}
             className="border border-bayt-cool/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-bayt-warm outline-none"
           >
