@@ -1,76 +1,55 @@
 'use client';
 
-import { Globe, Check } from 'lucide-react';
 import { useLanguage } from '@/context/useLanguage';
+import { Globe, Check } from 'lucide-react';
 
 interface LanguageToggleProps {
   className?: string;
 }
 
 export default function LanguageToggle({ className = '' }: LanguageToggleProps) {
-  const { language, setLanguage, isRTL } = useLanguage();
+  const { lang, setLang } = useLanguage();
+  const isRTL = lang === 'ar';
 
   const languages = [
-    { code: 'en', name: 'English', native: 'English', flag: '🇺🇸' },
-    { code: 'ar', name: 'Arabic', native: 'العربية', flag: '🇸🇦', rtl: true }
+    { code: 'en' as const, name: 'English', native: 'English', flag: '🇺🇸' },
+    { code: 'ar' as const, name: 'Arabic', native: 'العربية', flag: '🇦🇪' }
   ];
 
   return (
-    <div className={className}>
-      <h3 className="text-lg font-semibold text-bayt-dark mb-4 flex items-center gap-2">
-        <Globe className="w-5 h-5 text-bayt-cool" />
-        Language / اللغة
-      </h3>
-      
-      <div className="space-y-3">
-        {languages.map((lang) => (
-          <button
-            key={lang.code}
-            onClick={() => setLanguage(lang.code as 'en' | 'ar')}
-            className={`w-full p-4 rounded-xl border-2 text-left transition-all duration-300 ${
-              language === lang.code
-                ? 'border-bayt-cool bg-bayt-cool/10 shadow-md'
-                : 'border-bayt-cool/30 hover:border-bayt-cool hover:bg-bayt-cool/5'
-            }`}
-            dir={lang.rtl ? 'rtl' : 'ltr'}
-          >
-            <div className="flex items-center justify-between">
+    <div className={className} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="flex items-center gap-2 mb-4">
+        <Globe className="w-5 h-5 text-bayt-cultural" />
+        <h3 className="text-lg font-semibold text-bayt-dark">
+          {lang === 'ar' ? 'لغة العرض' : 'Display Language'}
+        </h3>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {languages.map((language) => {
+          const isSelected = lang === language.code;
+
+          return (
+            <button
+              key={language.code}
+              onClick={() => setLang(language.code)}
+              className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-300 ${
+                isSelected
+                  ? 'border-bayt-cultural bg-bayt-cultural/10'
+                  : 'border-gray-200 hover:border-bayt-cultural/50'
+              }`}
+            >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{lang.flag}</span>
-                <div>
-                  <div className="font-semibold text-bayt-dark">{lang.name}</div>
-                  <div className="text-sm text-gray-600">{lang.native}</div>
+                <span className="text-2xl">{language.flag}</span>
+                <div className={isRTL ? 'text-right' : 'text-left'}>
+                  <div className="font-bold text-bayt-dark">{language.native}</div>
+                  <div className="text-xs text-gray-500">{language.name}</div>
                 </div>
               </div>
-              
-              {language === lang.code && (
-                <div className="flex items-center gap-2 text-bayt-cool">
-                  <Check className="w-5 h-5" />
-                  <span className="text-sm font-medium">Selected</span>
-                </div>
-              )}
-            </div>
-            
-            {/* Language description */}
-            {lang.code === 'en' && (
-              <p className="mt-2 text-sm text-gray-500">
-                Default interface language for international users
-              </p>
-            )}
-            
-            {lang.code === 'ar' && (
-              <p className="mt-2 text-sm text-gray-500 text-right">
-                الواجهة العربية مع دعم التخطيط من اليمين لليسار
-              </p>
-            )}
-          </button>
-        ))}
-      </div>
-      
-      <div className="mt-4 p-3 bg-bayt-light/50 rounded-lg">
-        <p className="text-sm text-gray-600">
-          Changing language will update all text, dates, and layout direction across the app.
-        </p>
+              {isSelected && <Check className="w-5 h-5 text-bayt-cultural" />}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
