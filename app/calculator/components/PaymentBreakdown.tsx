@@ -132,7 +132,6 @@ export default function PaymentBreakdown({
 
   const displayMilestones = milestones.length > 0 ? milestones : defaultMilestones;
 
-  // Helper to get color class
   const getColorClass = (color?: 'cultural' | 'warm' | 'cool') => {
     switch (color) {
       case 'cultural': return 'bg-bayt-cultural';
@@ -142,23 +141,12 @@ export default function PaymentBreakdown({
     }
   };
 
-  // Helper to get background color class
-  const getBgColorClass = (color?: 'cultural' | 'warm' | 'cool') => {
-    switch (color) {
-      case 'cultural': return 'bg-bayt-cultural/20';
-      case 'cool': return 'bg-bayt-cool/20';
-      case 'warm':
-      default: return 'bg-bayt-warm/20';
-    }
-  };
-
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="bg-white rounded-2xl shadow-lg p-8 border border-bayt-cool/50">
       <h2 className={`text-2xl font-bold text-bayt-dark mb-6 ${isRTL ? 'text-right' : ''}`}>
         {t.title}
       </h2>
 
-      {/* Cost Breakdown */}
       <div className="space-y-4 mb-8">
         {breakdownItems.map((item, index) => (
           <div 
@@ -181,7 +169,6 @@ export default function PaymentBreakdown({
         ))}
       </div>
 
-      {/* Total Cost */}
       <div className="border-t border-bayt-cool/50 pt-6 mb-8">
         <div className={`flex justify-between items-center mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <span className="text-lg font-semibold text-bayt-dark">
@@ -196,83 +183,26 @@ export default function PaymentBreakdown({
         </p>
       </div>
 
-      {/* Construction Milestones */}
       <div className="mt-6 pt-6 border-t border-bayt-cool/50">
         <h3 className={`font-bold text-bayt-dark mb-4 ${isRTL ? 'text-right' : ''}`}>
           {t.constructionMilestones}
         </h3>
-        
-        {displayMilestones.length === 0 ? (
-          <div className="text-center py-4">
-            <p className="text-bayt-cool">{t.noMilestones}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {displayMilestones.map((milestone, index) => {
-              const colorClass = getColorClass(milestone.color);
-              const bgColorClass = getBgColorClass(milestone.color);
-              
-              return (
-                <div key={index} className="space-y-2">
-                  <div className={`flex justify-between text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <div className={`flex flex-col ${isRTL ? 'text-right' : ''}`}>
-                      <span className="font-medium text-bayt-dark">
-                        {milestone.label}
-                      </span>
-                      {milestone.description && (
-                        <span className="text-xs text-bayt-cool">
-                          {milestone.description}
-                        </span>
-                      )}
-                    </div>
-                    <div className={`text-right ${isRTL ? 'text-left' : ''}`}>
-                      <span className="font-bold text-bayt-dark">
-                        {currency} {formatCurrency(milestone.amount)}
-                      </span>
-                      <span className="text-xs text-bayt-cool block">
-                        {milestone.percent}%
-                      </span>
-                    </div>
-                  </div>
-                  <div className="h-2 bg-bayt-light rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
-                      style={{ width: `${milestone.percent}%` }}
-                    ></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
 
-      {/* Color Legend */}
-      <div className="mt-8 pt-6 border-t border-bayt-cool/50">
-        <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <div className={`text-sm text-bayt-cool ${isRTL ? 'text-right' : ''}`}>
-            {language === 'en' ? 'Milestone Colors' : 'ألوان المراحل'}
-          </div>
-          <div className="flex gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-bayt-cultural"></div>
-              <span className="text-xs text-bayt-dark">
-                {language === 'en' ? 'Initial' : 'ابتدائي'}
-              </span>
+        <div className="space-y-4">
+          {displayMilestones.map((milestone, index) => (
+            <div key={index} className="space-y-2">
+              <div className={`flex justify-between text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <span className="font-medium text-bayt-dark">{milestone.label}</span>
+                <span className="font-bold text-bayt-dark">{currency} {formatCurrency(milestone.amount)}</span>
+              </div>
+              <div className="h-2 bg-bayt-light rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${getColorClass(milestone.color)}`}
+                  style={{ width: `${milestone.percent}%` }}
+                ></div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-bayt-warm"></div>
-              <span className="text-xs text-bayt-dark">
-                {language === 'en' ? 'Construction' : 'بناء'}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-bayt-cool"></div>
-              <span className="text-xs text-bayt-dark">
-                {language === 'en' ? 'Final' : 'نهائي'}
-              </span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

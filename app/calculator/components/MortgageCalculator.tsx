@@ -43,7 +43,6 @@ export default function MortgageCalculator({
   const [localLoanTerm, setLocalLoanTerm] = useState(loanTermYears);
   const isRTL = language === 'ar';
 
-  // Use props if callbacks exist, otherwise use local state
   const currentInterestRate = onInterestRateChange ? interestRate : localInterestRate;
   const currentLoanTerm = onLoanTermChange ? loanTermYears : localLoanTerm;
 
@@ -98,7 +97,6 @@ export default function MortgageCalculator({
 
   const t = content[language];
 
-  // Bank rates could come from API/config
   const bankRates: BankRate[] = [
     { name: language === 'ar' ? 'الإمارات NBD' : 'Emirates NBD', rate: 4.25, type: 'competitive' },
     { name: language === 'ar' ? 'أبوظبي التجاري' : 'ADCB', rate: 4.0, type: 'competitive' },
@@ -114,7 +112,6 @@ export default function MortgageCalculator({
         {t.title}
       </h2>
 
-      {/* Loan Amount Summary */}
       <div className={`mb-6 p-4 bg-bayt-light/30 rounded-lg ${isRTL ? 'text-right' : ''}`}>
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -128,7 +125,6 @@ export default function MortgageCalculator({
         </div>
       </div>
 
-      {/* Interest Rate Control */}
       <div className="mb-6">
         <div className={`flex justify-between items-center mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <label className={`font-medium text-bayt-dark ${isRTL ? 'text-right' : ''}`}>
@@ -146,16 +142,9 @@ export default function MortgageCalculator({
           value={currentInterestRate}
           onChange={(e) => handleInterestRateChange(Number(e.target.value))}
           className="w-full h-2 bg-bayt-light rounded-lg appearance-none cursor-pointer accent-bayt-warm"
-          aria-label={`Adjust interest rate, current: ${currentInterestRate}%`}
         />
-        <div className={`flex justify-between text-sm text-bayt-cool mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <span>2%</span>
-          <span>5%</span>
-          <span>8%</span>
-        </div>
       </div>
 
-      {/* Loan Term Buttons */}
       <div className="mb-6">
         <label className={`font-medium text-bayt-dark mb-2 block ${isRTL ? 'text-right' : ''}`}>
           {t.loanTerm}
@@ -170,7 +159,6 @@ export default function MortgageCalculator({
                   ? 'bg-bayt-warm text-bayt-dark'
                   : 'bg-bayt-light/50 text-bayt-dark hover:bg-bayt-cool/20'
               }`}
-              aria-pressed={currentLoanTerm === years}
             >
               {years} {t.years}
             </button>
@@ -178,9 +166,7 @@ export default function MortgageCalculator({
         </div>
       </div>
 
-      {/* Results - Shows API-calculated values */}
       <div className="space-y-4 mb-6">
-        {/* Monthly Payment */}
         <div className={`flex justify-between items-center p-3 bg-bayt-warm/20 rounded-lg border border-bayt-warm/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <span className={`text-bayt-dark font-medium ${isRTL ? 'text-right' : ''}`}>
             {t.monthlyPayment}
@@ -190,7 +176,6 @@ export default function MortgageCalculator({
           </span>
         </div>
 
-        {/* Total Interest */}
         <div className={`flex justify-between items-center p-3 bg-bayt-light/30 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
           <span className={`text-bayt-dark ${isRTL ? 'text-right' : ''}`}>{t.totalInterest}</span>
           <span className="text-lg font-semibold text-bayt-warm">
@@ -198,7 +183,6 @@ export default function MortgageCalculator({
           </span>
         </div>
 
-        {/* Total Payment */}
         <div className={`flex justify-between items-center p-3 bg-bayt-light/30 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
           <span className={`text-bayt-dark ${isRTL ? 'text-right' : ''}`}>{t.totalPayment}</span>
           <span className="text-lg font-semibold text-bayt-dark">
@@ -207,7 +191,6 @@ export default function MortgageCalculator({
         </div>
       </div>
 
-      {/* Bank Rates */}
       <div className="mt-6 pt-6 border-t border-bayt-cool/50">
         <h4 className={`font-semibold text-bayt-dark mb-3 ${isRTL ? 'text-right' : ''}`}>
           {t.bankRates}
@@ -232,23 +215,13 @@ export default function MortgageCalculator({
             </div>
           ))}
         </div>
-        
+
         <button
           onClick={onCheckEligibility}
           className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-bayt-warm to-yellow-700 text-bayt-dark rounded-lg font-semibold hover:from-yellow-700 hover:to-bayt-warm transition-all shadow-md"
         >
           {t.checkEligibility}
         </button>
-      </div>
-
-      {/* Note about calculations */}
-      <div className="mt-4 pt-4 border-t border-bayt-cool/30">
-        <p className={`text-xs text-bayt-cool ${isRTL ? 'text-right' : ''}`}>
-          {language === 'en' 
-            ? 'Calculations based on standard mortgage formula. Rates are for indicative purposes only.'
-            : 'الحسابات تستند إلى صيغة الرهن العقاري القياسي. الأسعار للاسترشاد فقط.'
-          }
-        </p>
       </div>
     </div>
   );
