@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { MapPin, Bed, Bath, Square, Eye, Heart, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/formatters';
@@ -14,7 +15,6 @@ interface PropertyCardProps {
     type: string;
     bedrooms: number;
     bathrooms: number;
-    // Made these optional to match the data coming from context
     description?: string;
     area?: number;
     features?: string[];
@@ -23,6 +23,8 @@ interface PropertyCardProps {
     goldenVisaEligible?: boolean;
     rentalYield?: string;
     images?: string[];
+    latitude?: number;
+    longitude?: number;
   };
   language?: 'ar' | 'en';
 }
@@ -32,6 +34,14 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
   const [imageError, setImageError] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Only render interactive elements after mount (SSR safety)
+  useEffect(() => {
+    setMounted(true);
+    if (typeof navigator !== 'undefined' && navigator.share) setCanShare(true);
+  }, []);
 
   const content = {
     en: {
@@ -45,16 +55,8 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
       calculatePayment: 'Calculate Payment',
       more: 'more',
       linkCopied: 'Link copied!',
-      type: {
-        villa: 'Villa',
-        apartment: 'Apartment',
-        penthouse: 'Penthouse',
-        townhouse: 'Townhouse'
-      },
-      status: {
-        ready: 'Ready to Move',
-        construction: 'Under Construction'
-      }
+      type: { villa: 'Villa', apartment: 'Apartment', penthouse: 'Penthouse', townhouse: 'Townhouse' },
+      status: { ready: 'Ready to Move', construction: 'Under Construction' },
     },
     ar: {
       beds: 'غرف',
@@ -67,53 +69,22 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
       calculatePayment: 'حساب السداد',
       more: 'المزيد',
       linkCopied: 'تم نسخ الرابط!',
-      type: {
-        villa: 'فيلا',
-        apartment: 'شقة',
-        penthouse: 'بنتهاوس',
-        townhouse: 'تاون هاوس'
-      },
-      status: {
-        ready: 'جاهز للسكن',
-        construction: 'قيد الإنشاء'
-      }
-    }
+      type: { villa: 'فيلا', apartment: 'شقة', penthouse: 'بنتهاوس', townhouse: 'تاون هاوس' },
+      status: { ready: 'جاهز للسكن', construction: 'قيد الإنشاء' },
+    },
   };
 
-  const t = content[language];
+  const t = content[language] || content['en'];
   const isRTL = language === 'ar';
 
-  const getTypeDisplay = (type: string) => {
-    const typeMap: Record<string, string> = {
-      villa: t.type.villa,
-      apartment: t.type.apartment,
-      penthouse: t.type.penthouse,
-      townhouse: t.type.townhouse
-    };
-    return typeMap[type.toLowerCase()] || type;
-  };
-
-  const getStatusDisplay = (status?: string) => {
-    if (!status) return '';
-    if (status.toLowerCase().includes('ready')) return t.status.ready;
-    if (status.toLowerCase().includes('construction')) return t.status.construction;
-    return status;
-  };
-
-  const formatArea = (area?: number) => {
-    if (!area) return '0';
-    if (language === 'ar') {
-      return area.toLocaleString('ar-EG');
-    }
-    return area.toLocaleString();
-  };
+  const formatArea = (area?: number) => (area ? area.toLocaleString(language === 'ar' ? 'ar-EG' : undefined) : '0');
 
   const toggleFavorite = () => {
+    if (typeof window === 'undefined') return;
     setIsFavorite(!isFavorite);
     const favorites = JSON.parse(localStorage.getItem('baytelite-favorites') || '[]');
-    if (!isFavorite) {
-      favorites.push(property.id);
-    } else {
+    if (!isFavorite) favorites.push(property.id);
+    else {
       const index = favorites.indexOf(property.id);
       if (index > -1) favorites.splice(index, 1);
     }
@@ -121,17 +92,14 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
   };
 
   const handleShare = async () => {
+    if (typeof window === 'undefined') return;
     setIsSharing(true);
     const shareUrl = `${window.location.origin}/properties/${property.id}`;
     const shareText = `${property.title} - ${property.location} - ${formatCurrency(property.price)}`;
 
     try {
       if (navigator.share) {
-        await navigator.share({
-          title: property.title,
-          text: shareText,
-          url: shareUrl,
-        });
+        await navigator.share({ title: property.title, text: shareText, url: shareUrl });
       } else {
         await navigator.clipboard.writeText(shareUrl);
         alert(t.linkCopied);
@@ -147,20 +115,15 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
     <div dir={isRTL ? 'rtl' : 'ltr'} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-bayt-cool/50 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative h-64 bg-gradient-to-br from-bayt-dark to-bayt-warm">
         {property.images?.[0] && !imageError ? (
-          <>
-            <img 
-              src={property.images[0]}
-              alt={property.title}
-              className={`w-full h-full object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
-            />
-            {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              </div>
-            )}
-          </>
+          <Image
+            src={property.images[0]}
+            alt={property.title}
+            fill
+            className={`object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-white text-4xl">🏠</div>
@@ -170,37 +133,28 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
         <div className="absolute inset-0 bg-gradient-to-t from-bayt-dark/70 to-transparent"></div>
 
         <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'}`}>
-          <span className="bg-bayt-dark text-white px-3 py-1 rounded-full text-sm font-semibold">
-            {getTypeDisplay(property.type)}
-          </span>
+          <span className="bg-bayt-dark text-white px-3 py-1 rounded-full text-sm font-semibold">{t.type[property.type.toLowerCase()] || property.type}</span>
         </div>
 
-        <div className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} flex gap-2`}>
-          <button 
-            onClick={toggleFavorite}
-            className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-500/80' : 'bg-white/20 backdrop-blur-sm hover:bg-white/30'}`}
-          >
-            <Heart className={`w-5 h-5 ${isFavorite ? 'text-white fill-white' : 'text-white'}`} />
-          </button>
-          <button 
-            onClick={handleShare}
-            disabled={isSharing}
-            className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 disabled:opacity-50"
-          >
-            <Share2 className="w-5 h-5 text-white" />
-          </button>
-        </div>
+        {mounted && (
+          <div className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} flex gap-2`}>
+            <button onClick={toggleFavorite} className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-500/80' : 'bg-white/20 backdrop-blur-sm hover:bg-white/30'}`}>
+              <Heart className={`w-5 h-5 ${isFavorite ? 'text-white fill-white' : 'text-white'}`} />
+            </button>
+            <button onClick={handleShare} disabled={isSharing} className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 disabled:opacity-50">
+              <Share2 className="w-5 h-5 text-white" />
+            </button>
+          </div>
+        )}
 
         <div className={`absolute bottom-4 ${isRTL ? 'right-4' : 'left-4'} text-white`}>
           <div className="text-2xl font-bold text-bayt-warm">{formatCurrency(property.price)}</div>
-          <div className="text-sm opacity-90 text-bayt-light">{getStatusDisplay(property.status)}</div>
+          <div className="text-sm opacity-90 text-bayt-light">{property.status ? t.status[property.status.toLowerCase()] || property.status : ''}</div>
         </div>
       </div>
 
       <div className="p-6">
-        <h3 className={`text-xl font-bold text-bayt-dark mb-2 hover:text-bayt-warm cursor-pointer ${isRTL ? 'text-right' : ''}`}>
-          {property.title}
-        </h3>
+        <h3 className={`text-xl font-bold text-bayt-dark mb-2 hover:text-bayt-warm cursor-pointer ${isRTL ? 'text-right' : ''}`}>{property.title}</h3>
 
         <div className={`flex items-center text-bayt-cool mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <MapPin className={`w-4 h-4 ${isRTL ? 'ml-1' : 'mr-1'}`} />
@@ -225,55 +179,11 @@ export default function PropertyCard({ property, language = 'en' }: PropertyCard
           </div>
         </div>
 
-        <div className={`flex flex-wrap gap-2 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          {property.features?.slice(0, 3).map((feature, index) => (
-            <span key={index} className="bg-bayt-light text-bayt-dark px-3 py-1 rounded-full text-sm">
-              {feature}
-            </span>
-          ))}
-          {(property.features?.length || 0) > 3 && (
-            <span className="bg-bayt-light text-bayt-dark px-3 py-1 rounded-full text-sm">
-              +{(property.features?.length || 0) - 3} {t.more}
-            </span>
-          )}
-        </div>
-
-        <div className={`flex flex-wrap gap-2 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          {property.virtualTour && (
-            <span className={`inline-flex items-center gap-1 bg-bayt-cool/20 text-bayt-dark px-3 py-1 rounded-full text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <Eye className="w-3 h-3" />
-              {t.virtualTour}
-            </span>
-          )}
-          {property.goldenVisaEligible && (
-            <span className="inline-flex items-center gap-1 bg-bayt-warm/20 text-bayt-dark px-3 py-1 rounded-full text-sm">
-              🏆 {t.goldenVisa}
-            </span>
-          )}
-          {property.rentalYield && (
-            <span className={`inline-flex items-center gap-1 bg-bayt-cultural/20 text-bayt-dark px-3 py-1 rounded-full text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
-              📈 {property.rentalYield} {t.yield}
-            </span>
-          )}
-        </div>
-
-        <p className={`text-gray-600 text-sm mb-6 line-clamp-2 ${isRTL ? 'text-right' : ''}`}>
-          {property.description}
-        </p>
+        <p className={`text-gray-600 text-sm mb-6 line-clamp-2 ${isRTL ? 'text-right' : ''}`}>{property.description}</p>
 
         <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <Link 
-            href={`/properties/${property.id}`}
-            className="flex-1 bg-gradient-to-r from-bayt-warm to-yellow-700 text-bayt-dark text-center py-3 rounded-xl font-semibold hover:from-yellow-700 hover:to-bayt-warm transition-all"
-          >
-            {t.viewDetails}
-          </Link>
-          <Link 
-            href={`/calculator?property=${property.id}`}
-            className="flex-1 border-2 border-bayt-cool text-bayt-dark text-center py-3 rounded-xl font-semibold hover:bg-bayt-light transition-all"
-          >
-            {t.calculatePayment}
-          </Link>
+          <Link href={`/properties/${property.id}`} className="flex-1 bg-gradient-to-r from-bayt-warm to-yellow-700 text-bayt-dark text-center py-3 rounded-xl font-semibold hover:from-yellow-700 hover:to-bayt-warm transition-all">{t.viewDetails}</Link>
+          <Link href={`/calculator?property=${property.id}`} className="flex-1 border-2 border-bayt-cool text-bayt-dark text-center py-3 rounded-xl font-semibold hover:bg-bayt-light transition-all">{t.calculatePayment}</Link>
         </div>
       </div>
     </div>
