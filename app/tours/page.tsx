@@ -43,15 +43,13 @@ const sampleTours: VirtualTour[] = [
 
 export default function ToursPage() {
   const { lang } = useLanguage();
-  const isRTL = lang === 'ar';
+  // Cast lang to the specific type expected by components
+  const currentLang = (lang === 'ar' ? 'ar' : 'en') as 'en' | 'ar';
+  const isRTL = currentLang === 'ar';
   
   const [activeTour, setActiveTour] = useState<VirtualTour>(sampleTours[0]);
   const [viewMode, setViewMode] = useState('day');
   const [season, setSeason] = useState('summer');
-
-  const handleTourSelect = (tour: VirtualTour) => {
-    setActiveTour(tour);
-  };
 
   return (
     <div 
@@ -61,10 +59,10 @@ export default function ToursPage() {
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
-            {lang === 'ar' ? 'الجولات الافتراضية' : 'Virtual Tours'}
+            {currentLang === 'ar' ? 'الجولات الافتراضية' : 'Virtual Tours'}
           </h1>
           <p className="text-gray-400 text-lg">
-            {lang === 'ar' 
+            {currentLang === 'ar' 
               ? 'استكشف العقار بتجربة تفاعلية' 
               : 'Explore properties with an interactive experience'}
           </p>
@@ -74,32 +72,32 @@ export default function ToursPage() {
           <div className="lg:col-span-2 space-y-8">
             <VirtualTourViewer
               tourData={activeTour}
-              language={lang}
+              language={currentLang}
               isRTL={isRTL}
             />
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
               <h2 className="text-xl font-bold mb-4">
-                {lang === 'ar' ? 'عناصر تحكم تفاعلية' : 'Interactive Controls'}
+                {currentLang === 'ar' ? 'عناصر تحكم تفاعلية' : 'Interactive Controls'}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <SunPathSimulation
-                  language={lang}
+                  language={currentLang}
                   isRTL={isRTL}
                 />
 
                 <SeasonalView
                   season={season}
                   setSeason={setSeason}
-                  language={lang}
+                  language={currentLang}
                   isRTL={isRTL}
                 />
               </div>
             </div>
 
             <NeighborhoodMap
-              language={lang}
+              language={currentLang}
               isRTL={isRTL}
             />
           </div>
@@ -108,13 +106,13 @@ export default function ToursPage() {
             <div className="sticky top-8">
               <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
                 <h2 className="text-xl font-bold mb-4">
-                  {lang === 'ar' ? 'الجولات المتاحة' : 'Available Tours'}
+                  {currentLang === 'ar' ? 'الجولات المتاحة' : 'Available Tours'}
                 </h2>
                 <div className="space-y-4">
                   {sampleTours.map(tour => (
                     <button
                       key={tour.id}
-                      onClick={() => handleTourSelect(tour)}
+                      onClick={() => setActiveTour(tour)}
                       className={`w-full p-4 rounded-xl transition-all duration-300 ${
                         activeTour.id === tour.id
                           ? 'bg-bayt-cultural/20 border-2 border-bayt-cultural'
@@ -127,10 +125,10 @@ export default function ToursPage() {
                         </div>
                         <div className={isRTL ? 'text-right' : 'text-left'}>
                           <h3 className="font-bold">
-                            {lang === 'ar' ? tour.titleAr : tour.title}
+                            {currentLang === 'ar' ? tour.titleAr : tour.title}
                           </h3>
                           <p className="text-gray-400 text-sm">
-                            {tour.duration} • {lang === 'ar' ? tour.typeAr : tour.type}
+                            {tour.duration} • {currentLang === 'ar' ? tour.typeAr : tour.type}
                           </p>
                         </div>
                       </div>
