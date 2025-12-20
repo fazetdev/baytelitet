@@ -2,7 +2,6 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { Play, Pause, Maximize2, Video } from 'lucide-react';
-import LoadingSpinner from '@/components/LoadingSpinner';
 import { VirtualTour } from '../types';
 
 interface Props {
@@ -25,25 +24,21 @@ export default function VirtualTourViewer({ tourData, language, isRTL }: Props) 
   useEffect(() => {
     const handleFullscreenChange = () =>
       setIsFullscreen(Boolean(document.fullscreenElement));
-
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () =>
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
   if (!tourData) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-bayt-cool">
-        {language === 'ar' ? 'لا توجد جولة' : 'No tour selected'}
+      <div className="h-[300px] flex items-center justify-center text-gray-400">
+        {language === 'ar' ? 'لا توجد جولة مختارة' : 'No tour selected'}
       </div>
     );
   }
 
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
-    document.fullscreenElement
-      ? document.exitFullscreen()
-      : containerRef.current.requestFullscreen();
+    document.fullscreenElement ? document.exitFullscreen() : containerRef.current.requestFullscreen();
   };
 
   const togglePlayPause = () => {
@@ -56,18 +51,15 @@ export default function VirtualTourViewer({ tourData, language, isRTL }: Props) 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       if (videoRef.current) videoRef.current.srcObject = stream;
-
       const recorder = new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
       recordedChunksRef.current = [];
-
       recorder.ondataavailable = e => e.data.size && recordedChunksRef.current.push(e.data);
       recorder.onstop = () => {
         const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
         tourData.videoUrl = URL.createObjectURL(blob);
         stream.getTracks().forEach(t => t.stop());
       };
-
       recorder.start();
       setIsRecording(true);
     } catch {
@@ -75,47 +67,21 @@ export default function VirtualTourViewer({ tourData, language, isRTL }: Props) 
     }
   };
 
-  const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
-    setIsRecording(false);
-  };
-
   return (
-    <div ref={containerRef} className="bg-black rounded-2xl overflow-hidden border border-bayt-cool/50">
-      <div className="relative h-[500px] flex items-center justify-center">
+    <div ref={containerRef} className="bg-black rounded-2xl overflow-hidden border border-bayt-cool/50 relative">
+      <div className="h-[500px] flex items-center justify-center">
         {error && <p className="text-red-500">{error}</p>}
-
         {tourData.videoUrl ? (
-          <video
-            ref={videoRef}
-            src={tourData.videoUrl}
-            controls
-            className="w-full h-full object-contain"
-          />
+          <video ref={videoRef} src={tourData.videoUrl} className="w-full h-full object-contain" />
         ) : (
-          <p className="text-bayt-cool">
-            {language === 'ar' ? 'لا يوجد فيديو بعد' : 'No video yet'}
-          </p>
+          <p className="text-white">{language === 'ar' ? 'لا يوجد فيديو' : 'No video yet'}</p>
         )}
-
-        <div className={`absolute bottom-4 ${isRTL ? 'left-4' : 'right-4'} flex gap-2`}>
-          <button aria-label="Play pause" onClick={togglePlayPause}>
-            {isPlaying ? <Pause /> : <Play />}
+        <div className={`absolute bottom-4 ${isRTL ? 'left-4' : 'right-4'} flex gap-3 p-2 bg-black/50 rounded-lg`}>
+          <button className="text-white" onClick={togglePlayPause}>{isPlaying ? <Pause /> : <Play />}</button>
+          <button className="text-white" onClick={isRecording ? () => mediaRecorderRef.current?.stop() : startRecording}>
+            <Video className={isRecording ? 'text-red-500' : ''} />
           </button>
-
-          {!isRecording ? (
-            <button aria-label="Record" onClick={startRecording}>
-              <Video />
-            </button>
-          ) : (
-            <button aria-label="Stop recording" onClick={stopRecording}>
-              ●
-            </button>
-          )}
-
-          <button aria-label="Fullscreen" onClick={toggleFullscreen}>
-            <Maximize2 />
-          </button>
+          <button className="text-white" onClick={toggleFullscreen}><Maximize2 /></button>
         </div>
       </div>
     </div>
