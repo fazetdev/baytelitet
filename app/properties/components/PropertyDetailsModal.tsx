@@ -3,10 +3,10 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { X } from 'lucide-react';
-import { Property } from '@/context/useProperties'; // Import the correct type
+import { Property } from '@/context/useProperties';
 
 interface PropertyDetailsModalProps {
-  property: Property; // Use the imported type
+  property: Property;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -45,12 +45,16 @@ export default function PropertyDetailsModal({ property, isOpen, onClose }: Prop
         </button>
 
         <h2 className="text-2xl font-bold mb-4">{property.title}</h2>
-        <p className="text-gray-700 mb-4">{property.description || 'No description available'}</p>
+        
+        {/* Description - optional */}
+        <p className="text-gray-700 mb-4">
+          {property.description || `A beautiful ${property.type} located in ${property.location}.`}
+        </p>
 
-        {/* Images */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {property.images && property.images.length > 0 ? (
-            property.images.map((img, idx) => (
+        {/* Images - optional */}
+        {property.images && property.images.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {property.images.map((img, idx) => (
               <div key={idx} className="relative h-48 w-full rounded-lg overflow-hidden">
                 <Image
                   src={img}
@@ -60,28 +64,35 @@ export default function PropertyDetailsModal({ property, isOpen, onClose }: Prop
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
-            ))
-          ) : (
-            <div className="col-span-2 h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-              No images available
+            ))}
+          </div>
+        ) : (
+          <div className="mb-6">
+            <div className="h-48 bg-gradient-to-r from-bayt-dark to-bayt-warm rounded-lg flex items-center justify-center">
+              <div className="text-white text-4xl">🏠</div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2">
-          {property.type && (
-            <span className="px-3 py-1 bg-bayt-warm text-bayt-dark rounded-full text-sm font-medium">
-              {property.type}
+          {/* All fields are optional with fallbacks */}
+          <span className="px-3 py-1 bg-bayt-warm text-bayt-dark rounded-full text-sm font-medium">
+            {property.type || 'Property'}
+          </span>
+          <span className="px-3 py-1 bg-bayt-cool text-bayt-dark rounded-full text-sm font-medium">
+            {property.location || 'Location not specified'}
+          </span>
+          <span className="px-3 py-1 bg-bayt-cultural text-bayt-dark rounded-full text-sm font-medium">
+            AED {property.price?.toLocaleString() || '0'}
+          </span>
+          {property.bedrooms && (
+            <span className="px-3 py-1 bg-gray-200 text-bayt-dark rounded-full text-sm font-medium">
+              {property.bedrooms} Beds
             </span>
           )}
-          {property.city && (
-            <span className="px-3 py-1 bg-bayt-cool text-bayt-dark rounded-full text-sm font-medium">
-              {property.city}
-            </span>
-          )}
-          {property.price && (
-            <span className="px-3 py-1 bg-bayt-cultural text-bayt-dark rounded-full text-sm font-medium">
-              AED {property.price.toLocaleString()}
+          {property.bathrooms && (
+            <span className="px-3 py-1 bg-gray-200 text-bayt-dark rounded-full text-sm font-medium">
+              {property.bathrooms} Baths
             </span>
           )}
         </div>
