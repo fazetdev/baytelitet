@@ -3,8 +3,8 @@
 import { useLanguage } from '@/context/useLanguage';
 
 export default function LanguageToggle() {
-  const { lang, setLanguage } = useLanguage();
-
+  const { lang, setLang } = useLanguage();
+  
   return (
     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
       <div>
@@ -13,13 +13,13 @@ export default function LanguageToggle() {
       </div>
       <div className="flex bg-gray-200 rounded-lg p-1">
         <button
-          onClick={() => setLanguage('en')}
+          onClick={() => setLang('en')}
           className={`px-4 py-2 rounded-md transition-colors ${lang === 'en' ? 'bg-white shadow' : 'hover:bg-gray-100'}`}
         >
           English
         </button>
         <button
-          onClick={() => setLanguage('ar')}
+          onClick={() => setLang('ar')}
           className={`px-4 py-2 rounded-md transition-colors ${lang === 'ar' ? 'bg-white shadow' : 'hover:bg-gray-100'}`}
         >
           العربية
