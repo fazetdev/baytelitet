@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useLanguage } from '../context/useLanguage.tsx'; // default import
+import { useLanguage } from '@/context/useLanguage';
 import { Home, Calculator, Building, Map, Users, Settings, Menu, X, Globe } from 'lucide-react';
 
 export default function Header() {
@@ -71,20 +71,21 @@ export default function Header() {
             </button>
           </nav>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button */}
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-[#D4AF37]">
             {isMobileMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Items */}
+      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <nav className={`lg:hidden px-6 py-4 bg-black/90 border-t border-[#D4AF37]/20`}>
+        <nav className="lg:hidden px-6 py-4 bg-black/90 border-t border-[#D4AF37]/20 flex flex-col gap-2">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.path}
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                 pathname === item.path ? 'bg-[#D4AF37] text-black font-bold' : 'text-gray-300 hover:text-[#D4AF37] hover:bg-white/5'
               }`}
