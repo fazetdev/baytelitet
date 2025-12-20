@@ -17,7 +17,10 @@ interface Currency {
 }
 
 export default function CurrencySelector({ className = '' }: CurrencySelectorProps) {
-  const { lang, isRTL } = useLanguage();
+  const { lang } = useLanguage();
+  // Derived state instead of destructuring from context
+  const isRTL = lang === 'ar';
+  
   const [selectedCurrency, setSelectedCurrency] = useState<string>('AED');
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
