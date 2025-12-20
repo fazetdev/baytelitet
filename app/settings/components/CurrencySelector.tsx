@@ -17,7 +17,7 @@ interface Currency {
 }
 
 export default function CurrencySelector({ className = '' }: CurrencySelectorProps) {
-  const { language, isRTL } = useLanguage();
+  const { lang, isRTL } = useLanguage();
   const [selectedCurrency, setSelectedCurrency] = useState<string>('AED');
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -73,12 +73,12 @@ export default function CurrencySelector({ className = '' }: CurrencySelectorPro
   };
 
   const t = {
-    title: language === 'ar' ? 'العملة المفضلة' : 'Preferred Currency',
-    subtitle: language === 'ar' ? 'اختر عملة العرض للعقارات' : 'Select display currency for properties',
-    loading: language === 'ar' ? 'جاري تحميل أسعار الصرف...' : 'Loading exchange rates...',
-    selected: language === 'ar' ? 'محدد' : 'Selected',
-    defaultCurrency: language === 'ar' ? 'العملة الافتراضية للإمارات' : 'Default currency for UAE',
-    affects: language === 'ar' ? 'سيؤثر هذا على جميع الأسعار المعروضة' : 'This will affect all displayed prices'
+    title: lang === 'ar' ? 'العملة المفضلة' : 'Preferred Currency',
+    subtitle: lang === 'ar' ? 'اختر عملة العرض للعقارات' : 'Select display currency for properties',
+    loading: lang === 'ar' ? 'جاري تحميل أسعار الصرف...' : 'Loading exchange rates...',
+    selected: lang === 'ar' ? 'محدد' : 'Selected',
+    defaultCurrency: lang === 'ar' ? 'العملة الافتراضية للإمارات' : 'Default currency for UAE',
+    affects: lang === 'ar' ? 'سيؤثر هذا على جميع الأسعار المعروضة' : 'This will affect all displayed prices'
   };
 
   return (
@@ -141,7 +141,7 @@ export default function CurrencySelector({ className = '' }: CurrencySelectorPro
           <TrendingUp className="w-5 h-5 text-bayt-cultural mt-0.5" />
           <div>
             <p className="text-sm font-medium text-bayt-dark mb-1">
-              {language === 'ar' ? 'معلومات سعر الصرف' : 'Exchange Rate Information'}
+              {lang === 'ar' ? 'معلومات سعر الصرف' : 'Exchange Rate Information'}
             </p>
             <p className="text-sm text-gray-600">{t.affects}</p>
             {selectedCurrency !== 'AED' && exchangeRates[selectedCurrency] && (

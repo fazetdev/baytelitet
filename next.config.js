@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  // Remove all experimental options
+  experimental: {
+    appDir: true
+  },
+  turbopack: {}, // disables Turbopack errors
 };
 
 module.exports = nextConfig;
