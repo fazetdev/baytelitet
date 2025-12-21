@@ -1,12 +1,11 @@
 'use client';
 
-import React, { Suspense, useState, ErrorInfo } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sphere, useTexture, PerspectiveCamera } from '@react-three/drei';
-import * as THREE from 'three';
 import { AlertCircle } from 'lucide-react';
 
-// Error Boundary Component to prevent 3D crashes from breaking the UI
+// Error Boundary Component
 class TourErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
   constructor(props: {children: React.ReactNode}) {
     super(props);
@@ -19,7 +18,6 @@ class TourErrorBoundary extends React.Component<{children: React.ReactNode}, {ha
         <div className="flex flex-col items-center justify-center h-full bg-bayt-dark text-white p-4 text-center">
           <AlertCircle className="w-8 h-8 text-bayt-warm mb-2" />
           <p className="text-sm font-bold">360° View Unavailable</p>
-          <p className="text-[10px] opacity-60">WebGL Error or Invalid Texture</p>
         </div>
       );
     }
@@ -28,15 +26,14 @@ class TourErrorBoundary extends React.Component<{children: React.ReactNode}, {ha
 }
 
 function Scene({ imageUrl }: { imageUrl: string }) {
-  // Safe texture loading with fallback logic handled by Suspense
-  const texture = useTexture(imageUrl || '/images/placeholder-360.jpg');
+  const texture = useTexture(imageUrl || '');
   
   return (
     <>
       <ambientLight intensity={1.2} />
-      {/* Increased segments for smoothness; inverted via scale for internal viewing */}
+      {/* 2 is the numeric constant for THREE.BackSide */}
       <Sphere args={[10, 64, 32]} scale={[1, 1, -1]}>
-        <meshBasicMaterial map={texture} side={THREE.BackSide} />
+        <meshBasicMaterial map={texture} side={2} />
       </Sphere>
       <OrbitControls 
         enableZoom={false} 
@@ -50,13 +47,7 @@ function Scene({ imageUrl }: { imageUrl: string }) {
 }
 
 export default function VirtualTourViewer({ imageUrl }: { imageUrl: string }) {
-  if (!imageUrl) {
-    return (
-      <div className="flex items-center justify-center h-full bg-bayt-dark/10">
-        <p className="text-bayt-cool text-sm italic">No 360° Data for this property</p>
-      </div>
-    );
-  }
+  if (!imageUrl) return null;
 
   return (
     <div className="w-full h-full bg-bayt-dark relative overflow-hidden rounded-2xl">
@@ -72,10 +63,6 @@ export default function VirtualTourViewer({ imageUrl }: { imageUrl: string }) {
           </Canvas>
         </Suspense>
       </TourErrorBoundary>
-      
-      <div className="absolute bottom-4 left-4 bg-bayt-dark/40 backdrop-blur-md text-[10px] text-white px-3 py-1 rounded-full pointer-events-none uppercase tracking-widest border border-white/10">
-        Interactive Execution Mode
-      </div>
     </div>
   );
 }
