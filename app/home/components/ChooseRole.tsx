@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Home, TrendingUp, Building, ShieldCheck, Share2 } from 'lucide-react';
-import MarketTools from './MarketTools';
+import GoldenVisaChecker from './market-tools/GoldenVisaChecker';
+import RentalCalculator from './market-tools/RentalCalculator';
+import UtilityEstimator from './market-tools/UtilityEstimator';
 
 interface RoleCard {
-  key: 'buyer' | 'investor' | 'developer' | 'agent';
+  key: 'buyer' | 'investor' | 'developer' | 'md' | 'agent';
   titleEn: string;
   titleAr: string;
   subtextEn: string;
@@ -65,6 +67,19 @@ export default function ChooseRole() {
       featureAr: 'صور البناء'
     },
     { 
+      key: 'md', 
+      titleEn: 'Is my company safe & profitable?', 
+      titleAr: 'هل شركتي آمنة ومربحة؟',
+      subtextEn: 'See total sales and compliance badges', 
+      subtextAr: 'شاهد إجمالي المبيعات وشهادات الامتثال',
+      icon: ShieldCheck, 
+      ctaEn: 'View Dashboard', 
+      ctaAr: 'لوحة التحكم',
+      link: '/md', 
+      featureEn: 'RERA Compliance Badge', 
+      featureAr: 'شهادة الرERA'
+    },
+    { 
       key: 'agent', 
       titleEn: 'I want to sell fast', 
       titleAr: 'أريد البيع بسرعة',
@@ -99,7 +114,7 @@ export default function ChooseRole() {
               {isRTL ? 'اختر دورك في سوق العقارات' : 'Choose Your Role in Real Estate'}
             </h2>
             <p className="text-gray-600 max-w-2xl">
-              {isRTL ? 'اختر المسار المناسب لاحتياجاتك العقارية. سواء كنت مشترياً، مستثمراً، مطوراً، أو وسيطاً.' : 'Select the right path for your real estate needs. Whether you\'re a buyer, investor, developer, or agent.'}
+              {isRTL ? 'اختر المسار المناسب لاحتياجاتك العقارية. سواء كنت مشترياً، مستثمراً، مطوراً، مديراً، أو وسيطاً.' : 'Select the right path for your real estate needs. Whether you\'re a buyer, investor, developer, MD, or agent.'}
             </p>
           </div>
           
@@ -115,8 +130,8 @@ export default function ChooseRole() {
           </button>
         </div>
 
-        {/* Role Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Role Cards Grid - 5 roles */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           {roles.map((role) => {
             const Icon = role.icon;
             const isInvestor = role.key === 'investor';
@@ -127,43 +142,35 @@ export default function ChooseRole() {
                 {/* Role Card */}
                 <div 
                   className={`
-                    group bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl 
-                    transition-all duration-500 transform hover:-translate-y-2 
-                    flex flex-col h-full border-2
+                    group bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl 
+                    transition-all duration-300 transform hover:-translate-y-1 
+                    flex flex-col h-full border
                     ${isInvestor && isExpanded 
-                      ? 'border-bayt-warm shadow-2xl' 
-                      : 'border-transparent hover:border-bayt-warm/30'
+                      ? 'border-bayt-warm shadow-xl' 
+                      : 'border-bayt-cool/30 hover:border-bayt-warm'
                     }
-                    before:absolute before:inset-0 before:rounded-3xl 
-                    before:bg-gradient-to-br before:from-bayt-warm/0 before:via-transparent before:to-bayt-cultural/0 
-                    before:group-hover:from-bayt-warm/5 before:group-hover:to-bayt-cultural/5 
-                    before:transition-opacity before:duration-500 before:opacity-0 before:group-hover:opacity-100
                     overflow-hidden
                   `}
                 >
                   {/* Icon Container */}
-                  <div className="relative mb-6 p-5 rounded-2xl bg-gradient-to-br from-bayt-warm/10 to-bayt-cultural/10 group-hover:from-bayt-warm/20 group-hover:to-bayt-cultural/20 transition-all duration-500 w-16 h-16 flex items-center justify-center mx-auto">
-                    <Icon className="w-8 h-8 text-bayt-dark" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-bayt-warm/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="mb-4 p-4 rounded-full bg-gradient-to-br from-bayt-warm/10 to-bayt-cultural/10 w-14 h-14 flex items-center justify-center mx-auto">
+                    <Icon className="w-7 h-7 text-bayt-dark" />
                   </div>
 
                   {/* Content */}
-                  <h3 className="font-bold text-xl text-bayt-dark mb-3 text-center min-h-[3.5rem]">
+                  <h3 className="font-bold text-lg text-bayt-dark mb-2 text-center min-h-[3rem]">
                     {isRTL ? role.titleAr : role.titleEn}
                   </h3>
                   
-                  <p className="text-gray-600 mb-6 text-center flex-grow text-sm leading-relaxed">
+                  <p className="text-gray-600 mb-4 text-center text-sm flex-grow">
                     {isRTL ? role.subtextAr : role.subtextEn}
                   </p>
 
                   {/* Gulf Touch Feature */}
-                  <div className="mb-6">
-                    <div className="text-xs font-semibold text-bayt-cool uppercase tracking-wider mb-2">
-                      {isRTL ? 'لمسة خليجية' : 'Gulf Touch'}
-                    </div>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-bayt-light to-yellow-50/50 border border-bayt-cool/20">
-                      <span className="text-bayt-warm">✦</span>
-                      <span className="text-sm font-medium">
+                  <div className="mb-4">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bayt-light border border-bayt-cool/20">
+                      <span className="text-xs text-bayt-warm">✦</span>
+                      <span className="text-xs font-medium">
                         {isRTL ? role.featureAr : role.featureEn}
                       </span>
                     </div>
@@ -174,39 +181,40 @@ export default function ChooseRole() {
                     <button 
                       onClick={() => handleRoleClick('investor')}
                       className={`
-                        mt-auto w-full py-3.5 rounded-xl font-bold transition-all duration-300
-                        relative overflow-hidden group/btn
+                        mt-auto w-full py-2.5 rounded-xl font-semibold transition-all duration-300
                         ${isExpanded 
-                          ? 'bg-gradient-to-r from-bayt-dark to-gray-800 text-white hover:shadow-lg' 
-                          : 'bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-lg hover:shadow-bayt-warm/30'
+                          ? 'bg-bayt-dark text-white hover:bg-gray-800' 
+                          : 'bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-md'
                         }
                       `}
                     >
-                      <span className="relative z-10">
-                        {isExpanded 
-                          ? (isRTL ? 'إغلاق الأدوات' : 'Close Tools') 
-                          : (isRTL ? role.ctaAr : role.ctaEn)
-                        }
-                      </span>
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-600 to-bayt-warm opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                      {isExpanded 
+                        ? (isRTL ? 'إغلاق الأدوات' : 'Close Tools') 
+                        : (isRTL ? role.ctaAr : role.ctaEn)
+                      }
                     </button>
                   ) : (
                     <Link 
                       href={role.link}
-                      className="mt-auto w-full py-3.5 rounded-xl font-bold transition-all duration-300 bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-lg hover:shadow-bayt-warm/30 text-center block group/btn relative overflow-hidden"
+                      className="mt-auto w-full py-2.5 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-md text-center block"
                     >
-                      <span className="relative z-10">
-                        {isRTL ? role.ctaAr : role.ctaEn}
-                      </span>
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-600 to-bayt-warm opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                      {isRTL ? role.ctaAr : role.ctaEn}
                     </Link>
                   )}
                 </div>
 
-                {/* MarketTools Panel for Investor */}
+                {/* Investor Tools Panel - Show all 3 calculators directly */}
                 {isInvestor && isExpanded && (
-                  <div className="mt-8 animate-fadeIn">
-                    <MarketTools />
+                  <div className="mt-4 animate-fadeIn space-y-4">
+                    <div className="p-1">
+                      <GoldenVisaChecker />
+                    </div>
+                    <div className="p-1">
+                      <RentalCalculator />
+                    </div>
+                    <div className="p-1">
+                      <UtilityEstimator />
+                    </div>
                   </div>
                 )}
               </div>
@@ -215,7 +223,7 @@ export default function ChooseRole() {
         </div>
 
         {/* Footer Note */}
-        <div className="mt-16 pt-8 border-t border-bayt-cool/20 text-center">
+        <div className="mt-12 pt-8 border-t border-bayt-cool/20 text-center">
           <p className="text-gray-500 text-sm max-w-2xl mx-auto">
             {isRTL 
               ? 'بايت إيليت يوفر أدوات مخصصة لكل دور في سوق العقارات. ابدأ رحلتك اليوم.' 
@@ -227,11 +235,11 @@ export default function ChooseRole() {
 
       <style jsx global>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: fadeIn 0.3s ease-out;
         }
       `}</style>
     </section>
