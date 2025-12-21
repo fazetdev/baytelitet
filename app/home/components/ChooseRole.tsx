@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Home, TrendingUp, Building, ShieldCheck, Share2 } from 'lucide-react';
-import GoldenVisaChecker from './market-tools/GoldenVisaChecker';
-import RentalCalculator from './market-tools/RentalCalculator';
-import UtilityEstimator from './market-tools/UtilityEstimator';
+import { Home, TrendingUp, Building, ShieldCheck, Share2, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface RoleCard {
   key: 'buyer' | 'investor' | 'developer' | 'md' | 'agent';
@@ -19,11 +17,13 @@ interface RoleCard {
   link: string;
   featureEn: string;
   featureAr: string;
+  hasTools?: boolean; // New: indicates if role has market tools
 }
 
 export default function ChooseRole() {
   const [expandedRole, setExpandedRole] = useState<'investor' | null>(null);
   const [lang, setLang] = useState<'en' | 'ar'>('en');
+  const router = useRouter();
   const isRTL = lang === 'ar';
 
   const roles: RoleCard[] = [
@@ -38,7 +38,8 @@ export default function ChooseRole() {
       ctaAr: 'عرض العقارات',
       link: '/properties?role=buyer', 
       featureEn: 'Virtual Tour', 
-      featureAr: 'جولة افتراضية'
+      featureAr: 'جولة افتراضية',
+      hasTools: false
     },
     { 
       key: 'investor', 
@@ -49,9 +50,10 @@ export default function ChooseRole() {
       icon: TrendingUp, 
       ctaEn: 'Open Tools', 
       ctaAr: 'فتح الأدوات',
-      link: '#', 
+      link: '/market-tools', // Navigate to dedicated tools page
       featureEn: 'Golden Visa Status', 
-      featureAr: 'حالة الفيزا الذهبية'
+      featureAr: 'حالة الفيزا الذهبية',
+      hasTools: true
     },
     { 
       key: 'developer', 
@@ -64,7 +66,8 @@ export default function ChooseRole() {
       ctaAr: 'عرض المخزون',
       link: '/developer', 
       featureEn: 'Construction Photos', 
-      featureAr: 'صور البناء'
+      featureAr: 'صور البناء',
+      hasTools: false
     },
     { 
       key: 'md', 
@@ -77,7 +80,8 @@ export default function ChooseRole() {
       ctaAr: 'لوحة التحكم',
       link: '/md', 
       featureEn: 'RERA Compliance Badge', 
-      featureAr: 'شهادة الرERA'
+      featureAr: 'شهادة الرERA',
+      hasTools: false
     },
     { 
       key: 'agent', 
@@ -90,19 +94,74 @@ export default function ChooseRole() {
       ctaAr: 'ابدأ البيع',
       link: '/agent', 
       featureEn: 'Prayer Time Reminder', 
-      featureAr: 'تذكير أوقات الصلاة'
+      featureAr: 'تذكير أوقات الصلاة',
+      hasTools: false
     },
   ];
 
-  const handleRoleClick = (role: RoleCard['key']) => {
-    if (role === 'investor') {
-      setExpandedRole(expandedRole === 'investor' ? null : 'investor');
+  const handleRoleClick = (role: RoleCard) => {
+    if (role.key === 'investor') {
+      // Option 1: Navigate to market tools page
+      router.push('/market-tools');
+      
+      // Option 2: Or show quick tools preview (toggle)
+      // setExpandedRole(expandedRole === 'investor' ? null : 'investor');
+    } else {
+      // Navigate to role-specific page
+      router.push(role.link);
     }
   };
 
   const toggleLanguage = () => {
     setLang(lang === 'en' ? 'ar' : 'en');
   };
+
+  // Quick preview tools for investor (optional inline display)
+  const InvestorToolsPreview = () => (
+    <div className="mt-4 p-4 bg-gradient-to-br from-yellow-50 to-white rounded-xl border border-bayt-warm/30 animate-fadeIn">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-semibold text-bayt-dark">
+          {isRTL ? 'أدوات المستثمر السريعة' : 'Quick Investor Tools'}
+        </h4>
+        <Link 
+          href="/market-tools" 
+          className="text-sm text-bayt-warm hover:text-bayt-dark flex items-center gap-1"
+        >
+          {isRTL ? 'جميع الأدوات →' : 'All Tools →'}
+          <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+        </Link>
+      </div>
+      <p className="text-sm text-gray-600 mb-4">
+        {isRTL 
+          ? 'استخدم هذه الأدوات لحساب استثماراتك العقارية' 
+          : 'Use these tools to calculate your real estate investments'
+        }
+      </p>
+      <div className="grid grid-cols-1 gap-3">
+        <Link 
+          href="/market-tools#golden-visa" 
+          className="p-3 bg-white rounded-lg border hover:border-bayt-warm transition-colors flex items-center justify-between"
+        >
+          <span className="font-medium">🏆 Golden Visa Checker</span>
+          <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+        </Link>
+        <Link 
+          href="/market-tools#rental-calculator" 
+          className="p-3 bg-white rounded-lg border hover:border-bayt-warm transition-colors flex items-center justify-between"
+        >
+          <span className="font-medium">📈 Rental Yield Calculator</span>
+          <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+        </Link>
+        <Link 
+          href="/market-tools#utility-estimator" 
+          className="p-3 bg-white rounded-lg border hover:border-bayt-warm transition-colors flex items-center justify-between"
+        >
+          <span className="font-medium">⚡ Utility Estimator</span>
+          <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+        </Link>
+      </div>
+    </div>
+  );
 
   return (
     <section className="py-16 bg-gradient-to-br from-bayt-light via-white to-yellow-50" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -144,16 +203,17 @@ export default function ChooseRole() {
                   className={`
                     group bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl 
                     transition-all duration-300 transform hover:-translate-y-1 
-                    flex flex-col h-full border
+                    flex flex-col h-full border cursor-pointer
                     ${isInvestor && isExpanded 
                       ? 'border-bayt-warm shadow-xl' 
                       : 'border-bayt-cool/30 hover:border-bayt-warm'
                     }
                     overflow-hidden
                   `}
+                  onClick={() => handleRoleClick(role)}
                 >
                   {/* Icon Container */}
-                  <div className="mb-4 p-4 rounded-full bg-gradient-to-br from-bayt-warm/10 to-bayt-cultural/10 w-14 h-14 flex items-center justify-center mx-auto">
+                  <div className="mb-4 p-4 rounded-full bg-gradient-to-br from-bayt-warm/10 to-bayt-cultural/10 w-14 h-14 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-7 h-7 text-bayt-dark" />
                   </div>
 
@@ -177,59 +237,56 @@ export default function ChooseRole() {
                   </div>
 
                   {/* CTA Button */}
-                  {isInvestor ? (
-                    <button 
-                      onClick={() => handleRoleClick('investor')}
-                      className={`
-                        mt-auto w-full py-2.5 rounded-xl font-semibold transition-all duration-300
+                  <div className="mt-auto w-full">
+                    {isInvestor ? (
+                      <div className={`
+                        w-full py-2.5 rounded-xl font-semibold transition-all duration-300
+                        flex items-center justify-center gap-2
                         ${isExpanded 
                           ? 'bg-bayt-dark text-white hover:bg-gray-800' 
                           : 'bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-md'
                         }
-                      `}
-                    >
-                      {isExpanded 
-                        ? (isRTL ? 'إغلاق الأدوات' : 'Close Tools') 
-                        : (isRTL ? role.ctaAr : role.ctaEn)
-                      }
-                    </button>
-                  ) : (
-                    <Link 
-                      href={role.link}
-                      className="mt-auto w-full py-2.5 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-md text-center block"
-                    >
-                      {isRTL ? role.ctaAr : role.ctaEn}
-                    </Link>
-                  )}
+                      `}>
+                        {isExpanded 
+                          ? (isRTL ? 'إغلاق الأدوات' : 'Close Tools') 
+                          : (isRTL ? role.ctaAr : role.ctaEn)
+                        }
+                        <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                      </div>
+                    ) : (
+                      <div className="w-full py-2.5 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-md text-center flex items-center justify-center gap-2">
+                        {isRTL ? role.ctaAr : role.ctaEn}
+                        <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Investor Tools Panel - Show all 3 calculators directly */}
-                {isInvestor && isExpanded && (
-                  <div className="mt-4 animate-fadeIn space-y-4">
-                    <div className="p-1">
-                      <GoldenVisaChecker />
-                    </div>
-                    <div className="p-1">
-                      <RentalCalculator />
-                    </div>
-                    <div className="p-1">
-                      <UtilityEstimator />
-                    </div>
-                  </div>
-                )}
+                {/* Investor Tools Quick Preview (optional inline display) */}
+                {isInvestor && isExpanded && <InvestorToolsPreview />}
               </div>
             );
           })}
         </div>
 
-        {/* Footer Note */}
-        <div className="mt-12 pt-8 border-t border-bayt-cool/20 text-center">
-          <p className="text-gray-500 text-sm max-w-2xl mx-auto">
+        {/* Market Tools CTA Section */}
+        <div className="mt-12 p-8 bg-gradient-to-r from-bayt-warm/10 to-bayt-cultural/10 rounded-2xl border border-bayt-warm/30 text-center">
+          <h3 className="text-2xl font-bold text-bayt-dark mb-3">
+            {isRTL ? 'أدوات السوق المتكاملة' : 'Integrated Market Tools'}
+          </h3>
+          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
             {isRTL 
-              ? 'بايت إيليت يوفر أدوات مخصصة لكل دور في سوق العقارات. ابدأ رحلتك اليوم.' 
-              : 'BaytElite provides tailored tools for every role in real estate. Start your journey today.'
+              ? 'استخدم أدواتنا المتقدمة لحساب العوائد، التأشيرات الذهبية، وفواتير الخدمات لاتخاذ قرارات استثمارية ذكية.' 
+              : 'Use our advanced tools to calculate yields, golden visas, and utility bills for smart investment decisions.'
             }
           </p>
+          <Link 
+            href="/market-tools"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-bayt-warm to-yellow-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+          >
+            {isRTL ? 'استكشف جميع الأدوات' : 'Explore All Tools'}
+            <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+          </Link>
         </div>
       </div>
 
