@@ -1,19 +1,34 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-interface LanguageContextType {
-  lang: string;
-  setLang: (lang: string) => void;
+interface LanguageContextProps {
+  lang: 'en' | 'ar';
+  setLang: (lang: 'en' | 'ar') => void;
+  toggleLanguage: () => void;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState('en');
-  
+  const [lang, setLangState] = useState<'en' | 'ar'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('language') as 'en' | 'ar') || 'en';
+    }
+    return 'en';
+  });
+
+  const setLang = (value: 'en' | 'ar') => {
+    setLangState(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', value);
+    }
+  };
+
+  const toggleLanguage = () => setLang(lang === 'en' ? 'ar' : 'en');
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang }}>
+    <LanguageContext.Provider value={{ lang, setLang, toggleLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -21,17 +36,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
-  
-  // Safe for SSR/SSG - return default values if context is undefined
-  if (context === undefined) {
-    // During SSR/SSG or if not wrapped in Provider, return defaults
-    return {
-      lang: 'en',
-      setLang: () => {
-        console.warn('LanguageProvider not found. setLang called outside provider.');
-      }
-    };
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
   }
-  
   return context;
 }

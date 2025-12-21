@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, FC } from 'react';
 import Link from 'next/link';
 import { Home, TrendingUp, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ interface RoleCard {
   titleAr: string;
   subtextEn: string;
   subtextAr: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: FC<{ className?: string }>;
   ctaEn: string;
   ctaAr: string;
   link: string;
@@ -19,7 +19,7 @@ interface RoleCard {
   featureAr: string;
 }
 
-export default function ChooseRole() {
+const ChooseRole: FC = (): JSX.Element => {
   const [expandedRole, setExpandedRole] = useState<'investor' | null>(null);
   const [lang, setLang] = useState<'en' | 'ar'>('en');
   const router = useRouter();
@@ -54,26 +54,28 @@ export default function ChooseRole() {
     },
   ];
 
-  const handleRoleClick = (role: RoleCard) => {
-    if (role.key === 'investor') {
-      // Toggle preview
-      const isExpanding = expandedRole !== 'investor';
-      setExpandedRole(isExpanding ? 'investor' : null);
+  // Safe timeout navigation
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (expandedRole === 'investor') {
+      timeout = setTimeout(() => {
+        router.push('/market-tools');
+      }, 400);
+    }
+    return () => clearTimeout(timeout);
+  }, [expandedRole, router]);
 
-      // Navigate after short delay for visual effect
-      if (isExpanding) {
-        setTimeout(() => {
-          router.push(role.link);
-        }, 400); // 400ms matches animation
-      }
+  const handleRoleClick = (role: RoleCard): void => {
+    if (role.key === 'investor') {
+      setExpandedRole(expandedRole !== 'investor' ? 'investor' : null);
     } else {
       router.push(role.link);
     }
   };
 
-  const toggleLanguage = () => setLang(lang === 'en' ? 'ar' : 'en');
+  const toggleLanguage = (): void => setLang(lang === 'en' ? 'ar' : 'en');
 
-  const InvestorToolsPreview = () => (
+  const InvestorToolsPreview: FC = (): JSX.Element => (
     <div className="mt-4 p-4 bg-gradient-to-br from-yellow-50 to-white rounded-xl border border-bayt-warm/30 animate-fadeIn">
       <h4 className="font-semibold text-bayt-dark mb-3">
         {isRTL ? 'أدوات المستثمر السريعة' : 'Quick Investor Tools'}
@@ -114,7 +116,7 @@ export default function ChooseRole() {
             <p className="text-gray-600 max-w-2xl">
               {isRTL
                 ? 'اختر المسار المناسب لاحتياجاتك العقارية. سواء كنت مشترياً أو مستثمراً.'
-                : "Select the right path for your real estate needs. Buyer or Investor."}
+                : 'Select the right path for your real estate needs. Buyer or Investor.'}
             </p>
           </div>
 
@@ -190,4 +192,6 @@ export default function ChooseRole() {
       `}</style>
     </section>
   );
-}
+};
+
+export default ChooseRole;

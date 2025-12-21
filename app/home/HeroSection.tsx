@@ -6,24 +6,26 @@ import Image from 'next/image';
 import { Search } from 'lucide-react';
 
 export default function HeroSection() {
-  // Language state with persistence
-  const [lang, setLang] = useState<'en' | 'ar'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('language') as 'en' | 'ar') || 'en';
-    }
-    return 'en';
-  });
-
+  const [lang, setLang] = useState<'en' | 'ar'>('en');
   const [imageLoaded, setImageLoaded] = useState(false);
-
-  const toggleLanguage = () => setLang(lang === 'en' ? 'ar' : 'en');
   const isRTL = lang === 'ar';
 
+  // Initialize language from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedLang = localStorage.getItem('language') as 'en' | 'ar' | null;
+      if (storedLang) setLang(storedLang);
+    }
+  }, []);
+
+  // Persist language changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('language', lang);
     }
   }, [lang]);
+
+  const toggleLanguage = () => setLang((prev) => (prev === 'en' ? 'ar' : 'en'));
 
   return (
     <section
@@ -38,7 +40,7 @@ export default function HeroSection() {
           fill
           priority
           quality={80}
-          onLoad={() => setImageLoaded(true)}
+          onLoadingComplete={() => setImageLoaded(true)}
           className={`object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-50' : 'opacity-0'}`}
           sizes="100vw"
         />
@@ -56,7 +58,11 @@ export default function HeroSection() {
       >
         <span className={`font-medium ${lang === 'en' ? 'text-bayt-warm' : 'text-gray-600'}`}>EN</span>
         <div className="w-8 h-5 bg-bayt-cool/30 rounded-full relative">
-          <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-bayt-warm transition-transform duration-300 ${lang === 'ar' ? 'translate-x-4' : 'translate-x-0.5'}`} />
+          <div
+            className={`absolute top-0.5 w-4 h-4 rounded-full bg-bayt-warm transition-transform duration-300 ${
+              lang === 'ar' ? 'translate-x-4' : 'translate-x-0.5'
+            }`}
+          />
         </div>
         <span className={`font-medium ${lang === 'ar' ? 'text-bayt-warm' : 'text-gray-600'}`}>AR</span>
       </button>
@@ -88,6 +94,7 @@ export default function HeroSection() {
 
             <Link
               href="/agents"
+              role="link"
               className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-bayt-warm text-bayt-warm font-bold rounded-xl hover:bg-bayt-warm hover:text-bayt-dark transition-all transform hover:-translate-y-1 min-w-[200px]"
             >
               {isRTL ? 'احجز عرضاً خاصاً' : 'Book a Private Demo'}
