@@ -7,9 +7,8 @@ import { Search } from 'lucide-react';
 export default function HeroSection() {
   return (
     <section className="relative bg-bayt-dark text-white overflow-hidden min-h-[600px]">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-bayt-dark to-gray-900 z-10" />
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
         <Image
           src="/images/bayt1.jpg"
           alt="Gulf luxury real estate skyline"
@@ -20,6 +19,9 @@ export default function HeroSection() {
           sizes="100vw"
         />
       </div>
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-br from-bayt-dark to-gray-900" />
 
       {/* Content */}
       <div className="relative z-20 container mx-auto px-6 py-32 md:py-48">

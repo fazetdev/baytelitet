@@ -15,7 +15,6 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       alert('Settings saved successfully!');
     } catch (error) {
@@ -35,13 +34,10 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-bayt-light">
-      {/* Header */}
       <div className="bg-bayt-dark text-white">
         <div className="container mx-auto px-6 py-12">
           <h1 className="text-4xl font-bold mb-2">App Settings & Preferences</h1>
-          <p className="text-lg text-bayt-cool">
-            Customize your Bayt Elite experience
-          </p>
+          <p className="text-lg text-bayt-cool">Customize your Bayt Elite experience</p>
         </div>
       </div>
 
@@ -49,11 +45,8 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Settings */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Display & Language */}
             <div className="bg-white rounded-2xl shadow-lg p-8 border border-bayt-cool/50">
-              <h2 className="text-2xl font-bold text-bayt-dark mb-6">
-                Display & Language
-              </h2>
+              <h2 className="text-2xl font-bold text-bayt-dark mb-6">Display & Language</h2>
               <div className="space-y-8">
                 <ThemeToggle />
                 <div className="border-t border-gray-200 pt-8">
@@ -62,20 +55,13 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Currency & Region */}
             <div className="bg-white rounded-2xl shadow-lg p-8 border border-bayt-cool/50">
-              <h2 className="text-2xl font-bold text-bayt-dark mb-6">
-                Currency & Region
-              </h2>
+              <h2 className="text-2xl font-bold text-bayt-dark mb-6">Currency & Region</h2>
               <CurrencySelector />
             </div>
 
-            {/* Cultural Settings */}
             <div className="bg-gradient-to-br from-bayt-cultural/10 to-bayt-cultural/5 rounded-2xl shadow-lg p-8 border border-bayt-cultural/50">
-              <h2 className="text-2xl font-bold text-bayt-dark mb-6">
-                🕌 Cultural & Regional Settings
-              </h2>
-              
+              <h2 className="text-2xl font-bold text-bayt-dark mb-6">🕌 Cultural & Regional Settings</h2>
               <div className="space-y-6">
                 <div className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm rounded-xl">
                   <div className="flex items-center gap-3">
@@ -87,13 +73,9 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={() => setPrayerNotifications(!prayerNotifications)}
-                    className={`w-12 h-6 rounded-full transition-colors ${
-                      prayerNotifications ? 'bg-bayt-cultural' : 'bg-gray-300'
-                    }`}
+                    className={`w-12 h-6 rounded-full transition-colors ${prayerNotifications ? 'bg-bayt-cultural' : 'bg-gray-300'}`}
                   >
-                    <div className={`w-5 h-5 bg-white rounded-full transform transition-transform ${
-                      prayerNotifications ? 'translate-x-7' : 'translate-x-1'
-                    }`} />
+                    <div className={`w-5 h-5 bg-white rounded-full transform transition-transform ${prayerNotifications ? 'translate-x-7' : 'translate-x-1'}`} />
                   </button>
                 </div>
 
@@ -107,13 +89,9 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={() => setHijriCalendar(!hijriCalendar)}
-                    className={`w-12 h-6 rounded-full transition-colors ${
-                      hijriCalendar ? 'bg-bayt-cultural' : 'bg-gray-300'
-                    }`}
+                    className={`w-12 h-6 rounded-full transition-colors ${hijriCalendar ? 'bg-bayt-cultural' : 'bg-gray-300'}`}
                   >
-                    <div className={`w-5 h-5 bg-white rounded-full transform transition-transform ${
-                      hijriCalendar ? 'translate-x-7' : 'translate-x-1'
-                    }`} />
+                    <div className={`w-5 h-5 bg-white rounded-full transform transition-transform ${hijriCalendar ? 'translate-x-7' : 'translate-x-1'}`} />
                   </button>
                 </div>
 
@@ -127,26 +105,19 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={() => setRamadanMode(!ramadanMode)}
-                    className={`w-12 h-6 rounded-full transition-colors ${
-                      ramadanMode ? 'bg-bayt-cultural' : 'bg-gray-300'
-                    }`}
+                    className={`w-12 h-6 rounded-full transition-colors ${ramadanMode ? 'bg-bayt-cultural' : 'bg-gray-300'}`}
                   >
-                    <div className={`w-5 h-5 bg-white rounded-full transform transition-transform ${
-                      ramadanMode ? 'translate-x-7' : 'translate-x-1'
-                    }`} />
+                    <div className={`w-5 h-5 bg-white rounded-full transform transition-transform ${ramadanMode ? 'translate-x-7' : 'translate-x-1'}`} />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Sidebar - Quick Settings & Actions */}
+          {/* Sidebar - Quick Actions */}
           <div className="space-y-8">
-            {/* Save & Reset Actions */}
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-bayt-cool/50">
-              <h3 className="text-lg font-bold text-bayt-dark mb-4">
-                Quick Actions
-              </h3>
+              <h3 className="text-lg font-bold text-bayt-dark mb-4">Quick Actions</h3>
               <div className="space-y-4">
                 <button
                   onClick={handleSave}
@@ -156,7 +127,7 @@ export default function SettingsPage() {
                   <Save className="w-5 h-5" />
                   {isSaving ? 'Saving...' : 'Save All Changes'}
                 </button>
-                
+
                 <button
                   onClick={handleReset}
                   className="w-full flex items-center justify-center gap-2 p-4 border-2 border-bayt-cool text-bayt-dark rounded-xl font-semibold hover:bg-bayt-light/50 transition-colors"
@@ -167,11 +138,8 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Account & Security */}
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-bayt-cool/50">
-              <h3 className="text-lg font-bold text-bayt-dark mb-4">
-                Account & Security
-              </h3>
+              <h3 className="text-lg font-bold text-bayt-dark mb-4">Account & Security</h3>
               <div className="space-y-4">
                 <button className="w-full text-left p-4 rounded-xl border border-bayt-cool/50 hover:bg-bayt-light/50 transition-colors">
                   <div className="font-semibold text-bayt-dark">Profile Information</div>
@@ -189,42 +157,6 @@ export default function SettingsPage() {
                   <div>
                     <div className="font-semibold text-bayt-dark">Export My Data</div>
                     <div className="text-sm text-gray-600">Download all your information</div>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Market Tools */}
-            <div className="bg-gradient-to-br from-bayt-warm/10 to-yellow-50 rounded-2xl p-6 border border-bayt-warm/50">
-              <h3 className="text-lg font-bold text-bayt-dark mb-4">
-                Market Tools
-              </h3>
-              <div className="space-y-4">
-                <button className="w-full text-left p-4 bg-white rounded-xl border border-bayt-warm/50 hover:border-bayt-warm transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl text-bayt-warm">🏆</div>
-                    <div>
-                      <div className="font-semibold text-bayt-dark">Golden Visa Checker</div>
-                      <div className="text-sm text-gray-600">Check eligibility for UAE Golden Visa</div>
-                    </div>
-                  </div>
-                </button>
-                <button className="w-full text-left p-4 bg-white rounded-xl border border-bayt-warm/50 hover:border-bayt-warm transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl text-bayt-warm">📈</div>
-                    <div>
-                      <div className="font-semibold text-bayt-dark">Rental Yield Calculator</div>
-                      <div className="text-sm text-gray-600">Calculate potential rental income</div>
-                    </div>
-                  </div>
-                </button>
-                <button className="w-full text-left p-4 bg-white rounded-xl border border-bayt-warm/50 hover:border-bayt-warm transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl text-bayt-warm">⚡</div>
-                    <div>
-                      <div className="font-semibold text-bayt-dark">Utility Estimates</div>
-                      <div className="text-sm text-gray-600">Power/water consumption estimates</div>
-                    </div>
                   </div>
                 </button>
               </div>
