@@ -1,11 +1,12 @@
 'use client';
 
-import HeroSection from './home/components/HeroSection';
-import ChooseRole from './home/components/ChooseRole';
-import MarketHighlights from './home/components/MarketHighlights';
-import FeaturesSection from './home/components/FeaturesSection';
-import TrustSection from './home/components/TrustSection';
-import MarketTools from './home/MarketTools'; // Different path
+// CORRECT PATHS BASED ON YOUR FILE STRUCTURE:
+import HeroSection from './home/HeroSection';                // ✓ app/home/HeroSection.tsx
+import ChooseRole from './home/components/ChooseRole';      // ✓ app/home/components/ChooseRole.tsx
+import MarketHighlights from './home/MarketHighlights';     // ✓ app/home/MarketHighlights.tsx
+import FeaturesSection from './home/components/FeaturesSection'; // ✓ app/home/components/FeaturesSection.tsx
+import TrustSection from './home/TrustSection';             // ✓ app/home/TrustSection.tsx
+import MarketTools from './home/components/MarketTools';    // ✓ app/home/components/MarketTools.tsx
 
 export default function HomePage() {
   return (
