@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/useLanguage';
-import { Home, Calculator, Building, Map, Users, Settings, Menu, X, Globe } from 'lucide-react';
+import { Home, Building, Settings, Menu, X, Globe } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -15,10 +15,7 @@ export default function Header() {
   const navItems = [
     { name: isRTL ? 'الرئيسية' : 'Home', path: '/', icon: <Home className="w-5 h-5" /> },
     { name: isRTL ? 'العقارات' : 'Properties', path: '/properties', icon: <Building className="w-5 h-5" /> },
-    { name: isRTL ? 'الحاسبة' : 'Calculator', path: '/calculator', icon: <Calculator className="w-5 h-5" /> },
-    { name: isRTL ? 'الجولات' : 'Tours', path: '/tours', icon: <Map className="w-5 h-5" /> },
-    { name: isRTL ? 'الوكلاء' : 'Agents', path: '/agents', icon: <Users className="w-5 h-5" /> },
-    { name: isRTL ? 'الإعدادات' : 'Settings', path: '/settings', icon: <Settings className="w-5 h-5" /> },
+    { name: isRTL ? 'الإدارة' : 'Management', path: '/settings', icon: <Settings className="w-5 h-5" /> },
   ];
 
   return (
