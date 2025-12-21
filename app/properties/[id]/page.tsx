@@ -42,7 +42,7 @@ export default function PropertyExecutionPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-bayt-light p-4">
         <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
         <h1 className="text-2xl font-bold text-bayt-dark">Property Not Found</h1>
-        <p className="text-bayt-cool">The execution data for ID {id} is unavailable.</p>
+        <p className="text-bayt-cool">ID: {id}</p>
       </div>
     );
   }
@@ -52,6 +52,7 @@ export default function PropertyExecutionPage() {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
+        {/* Execution Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-4xl font-bold text-bayt-dark">{property.title}</h1>
@@ -65,13 +66,14 @@ export default function PropertyExecutionPage() {
           </div>
         </div>
 
+        {/* 360° Execution Layer */}
         <div className="relative aspect-video w-full bg-bayt-dark rounded-3xl mb-8 overflow-hidden shadow-2xl border-4 border-bayt-warm/10">
            {property.virtualTour ? (
              <VirtualTourViewer imageUrl={property.images?.[0] || ''} />
            ) : (
              <div className="flex flex-col items-center justify-center h-full text-white/50">
                <Globe className="w-12 h-12 mb-4 opacity-20" />
-               <p>Virtual Tour not enabled</p>
+               <p>{isRTL ? 'الجولة الافتراضية غير متوفرة' : 'Virtual Tour not enabled'}</p>
              </div>
            )}
         </div>
@@ -79,33 +81,38 @@ export default function PropertyExecutionPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <section className="bg-bayt-light/30 p-8 rounded-3xl">
-              <h2 className="text-2xl font-bold mb-4">{t.description || 'Description'}</h2>
+              {/* FIX: Using explicit strings to avoid translation hook type errors */}
+              <h2 className="text-2xl font-bold mb-4">{isRTL ? 'الوصف' : 'Description'}</h2>
               <p className="text-gray-700 leading-relaxed">{property.description}</p>
             </section>
 
+            {/* Neighborhood Execution - Always Shows Map */}
             <section className="h-[450px] rounded-3xl overflow-hidden shadow-inner border-2 border-bayt-warm/5">
               <PropertyMap 
                 latitude={property.latitude || 25.2048} 
                 longitude={property.longitude || 55.2708} 
                 zoom={15} 
+                title={property.title}
               />
             </section>
           </div>
 
           <div className="space-y-6">
             <div className="bg-white border-2 border-bayt-warm/20 p-6 rounded-3xl shadow-xl sticky top-24">
-              <h3 className="text-xl font-bold text-bayt-dark mb-4 border-b pb-4">Execution Metrics</h3>
+              <h3 className="text-xl font-bold text-bayt-dark mb-4 border-b pb-4">
+                {isRTL ? 'مقاييس التنفيذ' : 'Execution Metrics'}
+              </h3>
               <div className="space-y-4">
                 <div className={`flex items-center justify-between p-4 bg-green-50 rounded-2xl ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <TrendingUp className="text-green-600 w-5 h-5" />
-                    <span className="font-semibold text-bayt-dark">Rental Yield</span>
+                    <span className="font-semibold text-bayt-dark">{isRTL ? 'عائد الإيجار' : 'Rental Yield'}</span>
                   </div>
                   <span className="text-xl font-bold text-green-700">{property.rentalYield || '6.8%'}</span>
                 </div>
               </div>
-              <button className="w-full mt-8 bg-bayt-dark text-white font-bold py-4 rounded-2xl shadow-lg">
-                Book Viewing
+              <button className="w-full mt-8 bg-bayt-dark text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-bayt-warm hover:text-bayt-dark transition-all">
+                {isRTL ? 'احجز موعداً' : 'Book Viewing'}
               </button>
             </div>
           </div>
