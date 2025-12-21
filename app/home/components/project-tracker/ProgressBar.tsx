@@ -1,15 +1,15 @@
 'use client';
 
 interface ProgressBarProps {
-  percentage: number;
+  progress: number; // percentage 0-100
 }
 
-export default function ProgressBar({ percentage }: ProgressBarProps) {
+export default function ProgressBar({ progress }: ProgressBarProps) {
   return (
-    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+    <div className="w-full bg-gray-200 rounded-full h-3">
       <div
-        className="h-full bg-bayt-warm transition-all duration-500"
-        style={{ width: `${Math.min(Math.max(percentage, 0), 100)}%` }}
+        className="bg-bayt-warm h-3 rounded-full transition-all duration-300"
+        style={{ width: `${progress}%` }}
       />
     </div>
   );
