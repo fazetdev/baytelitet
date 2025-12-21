@@ -1,10 +1,10 @@
-export type ProjectStatus = 'In Progress' | 'Planning' | 'Completed';
-
 export interface Project {
-  id: string;          // unique identifier
+  id: string;
   name: string;
-  status: ProjectStatus;
-  progress: number;    // 0-100
-  descriptionEn?: string;
-  descriptionAr?: string;
+  descriptionEn: string;
+  descriptionAr: string;
+  progress: number;
+  status: 'Planning' | 'In Progress' | 'Completed';
+  statusEn: string;
+  statusAr: string;
 }
