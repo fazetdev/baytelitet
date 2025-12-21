@@ -1,72 +1,69 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-interface Property {
-  id: string | number;
-  title: string;
-  price: string | number;
-  lat: number;
-  lng: number;
+// Fix for default Leaflet icons in Next.js
+const DefaultIcon = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function ChangeView({ center, zoom }: { center: [number, number], zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
+  return null;
 }
 
-interface Props {
-  properties: Property[];
-  onSelect: (property: Property) => void;
+// DEFINING THE MISSING PROPS INTERFACE
+interface PropertyMapProps {
+  latitude: number;
+  longitude: number;
+  zoom?: number;
+  title?: string;
 }
 
-// Map logic separated into a component that is ONLY loaded on the client
-const MapContainerComponent = ({ properties, onSelect }: Props) => {
-  const { MapContainer, TileLayer, Marker, Popup } = require('react-leaflet');
-  const L = require('leaflet');
+export default function PropertyMap({ 
+  latitude, 
+  longitude, 
+  zoom = 15, 
+  title = 'Property Location' 
+}: PropertyMapProps) {
+  const [mounted, setMounted] = useState(false);
 
-  // Fix Leaflet icon issue
-  delete L.Icon.Default.prototype._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  });
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  if (!properties.length) return null;
+  if (!mounted) {
+    return <div className="w-full h-full bg-gray-100 animate-pulse" />;
+  }
+
+  const position: [number, number] = [latitude, longitude];
 
   return (
-    <div className="h-[420px] rounded-2xl overflow-hidden shadow-md border border-gray-100">
-      <MapContainer
-        center={[properties[0].lat, properties[0].lng]}
-        zoom={12}
-        className="h-full w-full"
+    <div className="w-full h-full relative z-0">
+      <MapContainer 
+        center={position} 
+        zoom={zoom} 
+        scrollWheelZoom={false} 
+        style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
+          attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
-        {properties.map((p) => (
-          <Marker
-            key={p.id}
-            position={[p.lat, p.lng]}
-            eventHandlers={{ click: () => onSelect(p) }}
-          >
-            <Popup>
-              <div className="p-1">
-                <div className="font-bold text-gray-900">{p.title}</div>
-                <div className="text-bayt-warm">{p.price}</div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        <ChangeView center={position} zoom={zoom} />
+        <Marker position={position} icon={DefaultIcon}>
+          <Popup>{title}</Popup>
+        </Marker>
       </MapContainer>
     </div>
   );
-};
-
-// Exporting with ssr: false is the crucial part
-export default dynamic(() => Promise.resolve(MapContainerComponent), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[420px] w-full rounded-2xl bg-gray-50 animate-pulse flex items-center justify-center text-gray-400">
-      Initializing Map...
-    </div>
-  ),
-});
+}
