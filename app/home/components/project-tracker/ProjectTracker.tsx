@@ -10,31 +10,37 @@ const sampleProjects: Project[] = [
     id: '1', 
     name: 'Bayt Tower',
     nameEn: 'Bayt Tower', 
-    nameAr: 'برج بايت',
-    descriptionEn: 'Luxury apartments in the city center', 
-    descriptionAr: 'شقق فاخرة في وسط المدينة',
-    status: 'Planning', 
-    progress: 10 
+    nameAr: 'بايت تاور',
+    descriptionEn: 'Description in English', 
+    descriptionAr: 'الوصف بالعربية',
+    status: 'Planning',
+    statusEn: 'Planning',
+    statusAr: 'التخطيط',
+    progress: 10
   },
   { 
     id: '2', 
     name: 'Elite Villas',
-    nameEn: 'Elite Villas',
-    nameAr: 'فلل إيليت',
-    descriptionEn: 'Modern villas with private pools', 
-    descriptionAr: 'فلل حديثة مع مسابح خاصة',
-    status: 'In Progress', 
-    progress: 45 
+    nameEn: 'Elite Villas', 
+    nameAr: 'إيليت فيلاس',
+    descriptionEn: 'Description in English', 
+    descriptionAr: 'الوصف بالعربية',
+    status: 'In Progress',
+    statusEn: 'In Progress',
+    statusAr: 'قيد التنفيذ',
+    progress: 45
   },
   { 
     id: '3', 
     name: 'Golden Residence',
-    nameEn: 'Golden Residence',
-    nameAr: 'الإقامة الذهبية',
-    descriptionEn: 'Completed residential project', 
-    descriptionAr: 'مشروع سكني مكتمل',
-    status: 'Completed', 
-    progress: 100 
+    nameEn: 'Golden Residence', 
+    nameAr: 'غولدن ريزيدنس',
+    descriptionEn: 'Description in English', 
+    descriptionAr: 'الوصف بالعربية',
+    status: 'Completed',
+    statusEn: 'Completed',
+    statusAr: 'مكتمل',
+    progress: 100
   },
 ];
 
