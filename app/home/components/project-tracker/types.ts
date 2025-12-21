@@ -1,6 +1,8 @@
 export interface Project {
   id: string;
   name: string;
+  nameEn: string;
+  nameAr: string;
   descriptionEn: string;
   descriptionAr: string;
   progress: number;
