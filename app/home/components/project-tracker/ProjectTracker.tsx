@@ -49,15 +49,9 @@ export default function ProjectTracker() {
 
   return (
     <div>
-      {/* Project Cards */}
       <div className="mb-12">
-        <ProjectList 
-          projects={sampleProjects} 
-          onSelect={(project: Project) => setSelectedProject(project)} 
-        />
+        <ProjectList projects={sampleProjects} onSelect={setSelectedProject} />
       </div>
-
-      {/* Selected Project Panel */}
       {selectedProject && <ProjectDetails project={selectedProject} />}
     </div>
   );

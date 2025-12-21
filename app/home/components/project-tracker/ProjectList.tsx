@@ -1,14 +1,10 @@
 'use client';
 
-interface Project {
-  id: string;
-  name: string;
-  progress: number;
-}
+import { Project } from './types';
 
 interface Props {
   projects: Project[];
-  onSelect: (project: Project) => void;
+  onSelect: React.Dispatch<React.SetStateAction<Project | null>>;
 }
 
 export default function ProjectList({ projects, onSelect }: Props) {
@@ -27,9 +23,7 @@ export default function ProjectList({ projects, onSelect }: Props) {
               style={{ width: `${project.progress}%` }} 
             />
           </div>
-          <p className="text-xs text-gray-400 mt-1">
-            {project.progress}%
-          </p>
+          <p className="text-xs text-gray-400 mt-1">{project.progress}%</p>
         </div>
       ))}
     </div>

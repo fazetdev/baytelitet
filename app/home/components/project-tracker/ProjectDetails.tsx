@@ -19,7 +19,9 @@ export default function ProjectDetails({ project }: ProjectDetailsProps) {
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-bayt-cool/20 shadow-md">
-      <h3 className="font-semibold text-lg text-bayt-dark mb-2">{lang === 'ar' ? project.nameAr : project.nameEn}</h3>
+      <h3 className="font-semibold text-lg text-bayt-dark mb-2">
+        {lang === 'ar' ? project.nameAr : project.nameEn}
+      </h3>
       <p className="text-sm text-gray-500 mb-2">
         {lang === 'ar' ? project.descriptionAr : project.descriptionEn}
       </p>
