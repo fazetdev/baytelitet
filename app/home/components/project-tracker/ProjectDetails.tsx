@@ -1,30 +1,32 @@
 'use client';
 
-import { Project, ProjectStatus } from './types';
+import { Project } from './types';
 import ProgressBar from './ProgressBar';
+import { useLanguage } from '@/context/useLanguage';
 
-interface Props {
+interface ProjectDetailsProps {
   project: Project;
-  lang: 'en' | 'ar';
 }
 
-export default function ProjectDetails({ project, lang }: Props) {
-  const statusLabels: Record<ProjectStatus, { en: string; ar: string }> = {
+export default function ProjectDetails({ project }: ProjectDetailsProps) {
+  const { lang } = useLanguage();
+
+  const statusLabels: Record<Project['status'], { en: string; ar: string }> = {
     'In Progress': { en: 'In Progress', ar: 'قيد التنفيذ' },
     'Planning': { en: 'Planning', ar: 'التخطيط' },
-    'Completed': { en: 'Completed', ar: 'مكتمل' }
+    'Completed': { en: 'Completed', ar: 'مكتمل' },
   };
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-md">
-      <h3 className="font-semibold text-lg text-bayt-dark mb-2">{project.name}</h3>
-      <p className="text-sm text-gray-500 mb-1">
-        {lang === 'ar' ? statusLabels[project.status].ar : statusLabels[project.status].en}
-      </p>
-      <ProgressBar progress={project.progress} />
-      <p className="text-xs text-gray-400 mt-1">
+    <div className="bg-white p-6 rounded-2xl border border-bayt-cool/20 shadow-md">
+      <h3 className="font-semibold text-lg text-bayt-dark mb-2">{lang === 'ar' ? project.nameAr : project.nameEn}</h3>
+      <p className="text-sm text-gray-500 mb-2">
         {lang === 'ar' ? project.descriptionAr : project.descriptionEn}
       </p>
+      <p className="text-sm text-gray-500 mb-1">
+        {statusLabels[project.status][lang]}
+      </p>
+      <ProgressBar progress={project.progress} />
     </div>
   );
 }
