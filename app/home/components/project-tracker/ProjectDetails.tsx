@@ -24,7 +24,7 @@ export default function ProjectDetails({ project }: ProjectDetailsProps) {
         {lang === 'ar' ? project.descriptionAr : project.descriptionEn}
       </p>
       <p className="text-sm text-gray-500 mb-1">
-        {statusLabels[project.status][lang]}
+        {statusLabels[project.status][lang as 'en' | 'ar']}
       </p>
       <ProgressBar progress={project.progress} />
     </div>
