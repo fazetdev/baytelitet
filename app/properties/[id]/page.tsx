@@ -6,8 +6,8 @@ import { useProperties } from '@/context/useProperties';
 import { useLanguage } from '@/context/useLanguage';
 import { useTranslations } from '@/hooks/useTranslations';
 import { formatCurrency } from '@/lib/formatters';
-import { MapPin, Globe, TrendingUp, ShieldCheck, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
-import PropertyMap from '../../components/PropertyMap';
+import { MapPin, Globe, TrendingUp, ShieldCheck, AlertCircle } from 'lucide-react';
+import PropertyMap from '@/components/PropertyMap';
 import VirtualTourViewer from '../components/VirtualTourViewer';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -52,7 +52,6 @@ export default function PropertyExecutionPage() {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-4xl font-bold text-bayt-dark">{property.title}</h1>
@@ -66,14 +65,13 @@ export default function PropertyExecutionPage() {
           </div>
         </div>
 
-        {/* 360° Tour Execution Layer */}
         <div className="relative aspect-video w-full bg-bayt-dark rounded-3xl mb-8 overflow-hidden shadow-2xl border-4 border-bayt-warm/10">
            {property.virtualTour ? (
              <VirtualTourViewer imageUrl={property.images?.[0] || ''} />
            ) : (
              <div className="flex flex-col items-center justify-center h-full text-white/50">
                <Globe className="w-12 h-12 mb-4 opacity-20" />
-               <p>Virtual Tour not enabled for this asset</p>
+               <p>Virtual Tour not enabled</p>
              </div>
            )}
         </div>
@@ -85,7 +83,6 @@ export default function PropertyExecutionPage() {
               <p className="text-gray-700 leading-relaxed">{property.description}</p>
             </section>
 
-            {/* Neighborhood Execution */}
             <section className="h-[450px] rounded-3xl overflow-hidden shadow-inner border-2 border-bayt-warm/5">
               <PropertyMap 
                 latitude={property.latitude || 25.2048} 
@@ -95,37 +92,20 @@ export default function PropertyExecutionPage() {
             </section>
           </div>
 
-          {/* Sidebar Insights */}
           <div className="space-y-6">
             <div className="bg-white border-2 border-bayt-warm/20 p-6 rounded-3xl shadow-xl sticky top-24">
               <h3 className="text-xl font-bold text-bayt-dark mb-4 border-b pb-4">Execution Metrics</h3>
-              
               <div className="space-y-4">
                 <div className={`flex items-center justify-between p-4 bg-green-50 rounded-2xl ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <div className="p-2 bg-green-600 rounded-lg text-white">
-                      <TrendingUp className="w-5 h-5" />
-                    </div>
+                    <TrendingUp className="text-green-600 w-5 h-5" />
                     <span className="font-semibold text-bayt-dark">Rental Yield</span>
                   </div>
                   <span className="text-xl font-bold text-green-700">{property.rentalYield || '6.8%'}</span>
                 </div>
-
-                <div className={`flex items-center justify-between p-4 bg-blue-50 rounded-2xl ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <div className="p-2 bg-blue-600 rounded-lg text-white">
-                      <ShieldCheck className="w-5 h-5" />
-                    </div>
-                    <span className="font-semibold text-bayt-dark">Golden Visa</span>
-                  </div>
-                  <span className="font-bold text-blue-700">
-                    {property.goldenVisaEligible ? 'Eligible' : 'Check Criteria'}
-                  </span>
-                </div>
               </div>
-
-              <button className="w-full mt-8 bg-bayt-dark text-white font-bold py-4 rounded-2xl hover:bg-bayt-warm hover:text-bayt-dark transition-all transform active:scale-95 shadow-lg">
-                Book Private Viewing
+              <button className="w-full mt-8 bg-bayt-dark text-white font-bold py-4 rounded-2xl shadow-lg">
+                Book Viewing
               </button>
             </div>
           </div>
