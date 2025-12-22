@@ -1,100 +1,91 @@
 'use client';
 
-import { useEffect } from 'react';
-import Image from 'next/image';
-import { X } from 'lucide-react';
+import React from 'react';
+import { X, MapPin, Bed, Bath, Maximize, TrendingUp, ExternalLink } from 'lucide-react';
 import { Property } from '@/context/useProperties';
+import { formatCurrency } from '@/lib/formatters';
 
 interface PropertyDetailsModalProps {
   property: Property;
   isOpen: boolean;
   onClose: () => void;
+  language: 'en' | 'ar';
 }
 
-export default function PropertyDetailsModal({ property, isOpen, onClose }: PropertyDetailsModalProps) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-    
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, onClose]);
-
+export default function PropertyDetailsModal({ property, isOpen, onClose, language }: PropertyDetailsModalProps) {
   if (!isOpen) return null;
+  const isRTL = language === 'ar';
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="bg-white rounded-2xl w-full max-w-4xl p-6 relative overflow-y-auto max-h-[90vh] mx-4">
-        <button
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div 
+        dir={isRTL ? 'rtl' : 'ltr'}
+        className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] overflow-hidden shadow-2xl relative flex flex-col"
+      >
+        {/* Close Button */}
+        <button 
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-200 z-10"
-          aria-label="Close modal"
+          className="absolute top-6 right-6 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:bg-bayt-warm transition-colors"
         >
-          <X className="w-6 h-6" />
+          <X className="w-6 h-6 text-bayt-dark" />
         </button>
 
-        <h2 className="text-2xl font-bold mb-4">{property.title}</h2>
-        
-        {/* Description - optional */}
-        <p className="text-gray-700 mb-4">
-          {property.description || `A beautiful ${property.type} located in ${property.location}.`}
-        </p>
-
-        {/* Images - optional */}
-        {property.images && property.images.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {property.images.map((img, idx) => (
-              <div key={idx} className="relative h-48 w-full rounded-lg overflow-hidden">
-                <Image
-                  src={img}
-                  alt={`${property.title} image ${idx + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+        <div className="overflow-y-auto">
+          {/* Image/Tour Header */}
+          <div className="relative h-64 md:h-96 bg-gray-200">
+            <img 
+              src={property.images[0]} 
+              alt={property.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+              <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl">
+                <h2 className="text-2xl font-bold text-bayt-dark">{property.title}</h2>
+                <p className="flex items-center text-gray-500 text-sm mt-1">
+                  <MapPin className="w-4 h-4 mr-1 ml-1" /> {property.location}
+                </p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mb-6">
-            <div className="h-48 bg-gradient-to-r from-bayt-dark to-bayt-warm rounded-lg flex items-center justify-center">
-              <div className="text-white text-4xl">🏠</div>
             </div>
           </div>
-        )}
 
-        <div className="flex flex-wrap gap-2">
-          {/* All fields are optional with fallbacks */}
-          <span className="px-3 py-1 bg-bayt-warm text-bayt-dark rounded-full text-sm font-medium">
-            {property.type || 'Property'}
-          </span>
-          <span className="px-3 py-1 bg-bayt-cool text-bayt-dark rounded-full text-sm font-medium">
-            {property.location || 'Location not specified'}
-          </span>
-          <span className="px-3 py-1 bg-bayt-cultural text-bayt-dark rounded-full text-sm font-medium">
-            AED {property.price?.toLocaleString() || '0'}
-          </span>
-          {property.bedrooms && (
-            <span className="px-3 py-1 bg-gray-200 text-bayt-dark rounded-full text-sm font-medium">
-              {property.bedrooms} Beds
-            </span>
-          )}
-          {property.bathrooms && (
-            <span className="px-3 py-1 bg-gray-200 text-bayt-dark rounded-full text-sm font-medium">
-              {property.bathrooms} Baths
-            </span>
-          )}
+          <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 space-y-6">
+              <div className="flex gap-6 py-4 border-y border-gray-100">
+                <div className="flex items-center gap-2">
+                  <Bed className="w-5 h-5 text-bayt-warm" />
+                  <span className="font-bold">{property.bedrooms}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Bath className="w-5 h-5 text-bayt-warm" />
+                  <span className="font-bold">{property.bathrooms}</span>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold mb-2">{isRTL ? 'وصف العقار' : 'Description'}</h3>
+                <p className="text-gray-600 leading-relaxed">{property.description}</p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-3xl space-y-6">
+              <div>
+                <p className="text-sm text-gray-500 uppercase tracking-wider mb-1">
+                  {isRTL ? 'السعر' : 'Price'}
+                </p>
+                <p className="text-3xl font-bold text-bayt-dark">
+                  {formatCurrency(property.price)}
+                </p>
+              </div>
+              
+              <button 
+                onClick={() => window.location.href = `/properties/${property.id}`}
+                className="w-full bg-bayt-dark text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-bayt-warm transition-all"
+              >
+                {isRTL ? 'ابدأ الجولة الافتراضية' : 'Start Virtual Tour'}
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
