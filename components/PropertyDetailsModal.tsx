@@ -1,61 +1,62 @@
 'use client';
 
-import { X } from 'lucide-react';
+import React from 'react';
+import { X, Bed, Bath, Maximize, MapPin, TrendingUp } from 'lucide-react';
+import { Property } from '@/context/useProperties';
+import { formatCurrency } from '@/lib/formatters';
 
-interface Property {
-  id: string | number;
-  title: string;
-  price: string | number;
-  location: string;
-  description?: string;
-  lat?: number;
-  lng?: number;
-}
-
-interface Props {
-  property: Property | null;
+interface PropertyDetailsModalProps {
+  property: Property;
+  isOpen: boolean;
   onClose: () => void;
+  language: 'en' | 'ar';
 }
 
-export default function PropertyDetailsModal({ property, onClose }: Props) {
-  if (!property) return null;
+export default function PropertyDetailsModal({ property, isOpen, onClose, language }: PropertyDetailsModalProps) {
+  if (!isOpen) return null;
+  const isRTL = language === 'ar';
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl">
-        <div className="flex justify-between items-start mb-4">
-          <h2 className="text-xl font-semibold text-bayt-dark">
-            {property.title}
-          </h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-            <X className="w-5 h-5 text-gray-500" />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl w-full max-max-w-4xl max-h-[90vh] overflow-y-auto relative shadow-2xl">
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-white/80 rounded-full hover:bg-white z-10">
+          <X className="w-6 h-6 text-bayt-dark" />
+        </button>
+        
+        <div className="p-8">
+          <h2 className="text-3xl font-bold mb-2">{property.title}</h2>
+          <p className="flex items-center text-gray-500 mb-6">
+            <MapPin className="w-4 h-4 mr-1" /> {property.location}
+          </p>
 
-        <div className="space-y-3">
-          <div className="text-lg text-bayt-warm font-bold">
-            {typeof property.price === 'number' 
-              ? property.price.toLocaleString() 
-              : property.price}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col items-center">
+              <Bed className="w-6 h-6 text-bayt-warm mb-1" />
+              <span className="font-bold">{property.bedrooms}</span>
+              <span className="text-xs text-gray-500 uppercase">{isRTL ? 'غرف' : 'Beds'}</span>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col items-center">
+              <Bath className="w-6 h-6 text-bayt-warm mb-1" />
+              <span className="font-bold">{property.bathrooms}</span>
+              <span className="text-xs text-gray-500 uppercase">{isRTL ? 'حمام' : 'Baths'}</span>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col items-center">
+              <TrendingUp className="w-6 h-6 text-bayt-warm mb-1" />
+              <span className="font-bold">{property.rentalYield || '7.2%'}</span>
+              <span className="text-xs text-gray-500 uppercase">{isRTL ? 'عائد' : 'Yield'}</span>
+            </div>
           </div>
 
-          <div className="text-sm text-gray-600">
-            {property.location}
+          <div className="text-3xl font-bold text-bayt-dark mb-6">
+            {formatCurrency(property.price)}
           </div>
 
-          {property.description && (
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {property.description}
-            </p>
-          )}
-        </div>
+          <p className="text-gray-600 leading-relaxed mb-8">
+            {property.description}
+          </p>
 
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 rounded-lg bg-bayt-dark text-white text-sm font-medium hover:bg-opacity-90 transition-all"
-          >
-            Close
+          <button className="w-full bg-bayt-dark text-white py-4 rounded-2xl font-bold hover:bg-bayt-warm hover:text-bayt-dark transition-colors">
+            {isRTL ? 'تواصل معنا الآن' : 'Contact Agent Now'}
           </button>
         </div>
       </div>

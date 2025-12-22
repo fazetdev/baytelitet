@@ -13,10 +13,10 @@ export interface Property {
   description: string;
   latitude: number;
   longitude: number;
+  bedrooms: number;  // Required to match PropertyCard
+  bathrooms: number; // Required to match PropertyCard
   rentalYield?: string;
   virtualTour?: boolean;
-  bedrooms?: number;
-  bathrooms?: number;
 }
 
 interface PropertiesContextType {
@@ -44,10 +44,10 @@ const propertiesData: Property[] = [
     description: 'A stunning 5-bedroom villa with private beach access and sunset views.',
     latitude: 25.1124,
     longitude: 55.1390,
-    rentalYield: '5.2%',
-    virtualTour: true,
     bedrooms: 5,
-    bathrooms: 6
+    bathrooms: 6,
+    rentalYield: '5.2%',
+    virtualTour: true
   }
 ];
 

@@ -18,8 +18,8 @@ export interface VirtualTour {
   longitude?: number;
   price?: number;
   priceAr?: string;
-  bedrooms?: number;
-  bathrooms?: number;
+  bedrooms: number;
+  bathrooms: number;
   area?: number;
   areaUnit?: 'sqft' | 'sqm';
   status?: 'available' | 'sold' | 'rented';
