@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, MapPin, DollarSign, Home, Percent, ArrowLeft } from 'lucide-react';
+import { Camera, MapPin, DollarSign, Home, ArrowLeft, Upload } from 'lucide-react';
 
 export default function AddPropertyPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  
   const [formData, setFormData] = useState({
     title: '',
     location: '',
     price: '',
     type: 'villa',
-    city: 'dubai',
+    city: '', // Now a plain text string
     description: '',
     latitude: '',
     longitude: '',
@@ -20,11 +23,23 @@ export default function AddPropertyPage() {
     bathrooms: ''
   });
 
+  const handleCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setPreviewImage(base64String);
+        setFormData({ ...formData, imageUrl: base64String });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, we just log it. Data management logic comes next.
-    console.log('Form Captured:', formData);
-    alert('Form is working! Data management logic is next.');
+    console.log('Final Data:', formData);
+    alert('Property Ready! Image captured and data stored in memory.');
   };
 
   const inputStyle = "w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-bayt-warm outline-none transition-all";
@@ -35,72 +50,90 @@ export default function AddPropertyPage() {
         <button onClick={() => router.back()} className="mb-4 flex items-center text-bayt-warm text-sm">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
         </button>
-        <h1 className="text-3xl font-bold">New Property</h1>
-        <p className="text-gray-400 mt-2">Draft your next virtual listing</p>
+        <h1 className="text-3xl font-bold">New Listing</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="container mx-auto px-4 space-y-6">
-        <section className="space-y-4">
-          <label className="block">
-            <span className="text-sm font-bold text-gray-700 ml-2">Property Title</span>
+        {/* Image Section: Camera or Link */}
+        <section className="p-6 border-2 border-dashed border-bayt-warm/30 rounded-3xl bg-bayt-warm/5 text-center">
+            {previewImage ? (
+              <div className="relative w-full h-48 mb-4 rounded-2xl overflow-hidden">
+                <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
+                <button 
+                  type="button" 
+                  onClick={() => setPreviewImage(null)}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full text-xs"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="cursor-pointer py-4"
+              >
+                <Camera className="w-10 h-10 mx-auto text-bayt-warm mb-2" />
+                <span className="block font-bold text-bayt-dark">Tap to Take Photo</span>
+              </div>
+            )}
+            
             <input 
-              type="text" 
-              placeholder="e.g., Luxury Palm Villa"
-              className={inputStyle}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-              required 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              ref={fileInputRef}
+              onChange={handleCapture}
+              className="hidden"
             />
-          </label>
 
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-xs text-gray-500 mb-2">OR PASTE 360° LINK</p>
+              <input 
+                type="url" 
+                placeholder="https://..."
+                className={inputStyle}
+                onChange={(e) => {
+                  setFormData({...formData, imageUrl: e.target.value});
+                  setPreviewImage(e.target.value);
+                }}
+              />
+            </div>
+        </section>
+
+        <section className="space-y-4">
+          <input 
+            type="text" 
+            placeholder="Property Title" 
+            className={inputStyle} 
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+            required 
+          />
+          
           <div className="grid grid-cols-2 gap-4">
-             <label>
-               <span className="text-sm font-bold text-gray-700 ml-2">Price (AED)</span>
-               <input 
-                 type="number" 
-                 className={inputStyle}
-                 onChange={(e) => setFormData({...formData, price: e.target.value})}
-                 required 
-               />
-             </label>
-             <label>
-               <span className="text-sm font-bold text-gray-700 ml-2">City</span>
-               <select 
-                 className={inputStyle}
-                 onChange={(e) => setFormData({...formData, city: e.target.value})}
-               >
-                 <option value="dubai">Dubai</option>
-                 <option value="abu-dhabi">Abu Dhabi</option>
-                 <option value="sharjah">Sharjah</option>
-               </select>
-             </label>
+             <input 
+               type="number" 
+               placeholder="Price (AED)" 
+               className={inputStyle} 
+               onChange={(e) => setFormData({...formData, price: e.target.value})}
+               required 
+             />
+             <input 
+               type="text" 
+               placeholder="City (e.g. Dubai)" 
+               className={inputStyle} 
+               onChange={(e) => setFormData({...formData, city: e.target.value})}
+               required 
+             />
           </div>
         </section>
 
-        <section className="p-6 border-2 border-dashed border-bayt-warm/30 rounded-3xl bg-bayt-warm/5 text-center">
-            <Camera className="w-8 h-8 mx-auto text-bayt-warm mb-2" />
-            <span className="block font-bold text-bayt-dark mb-2">360° Image Link</span>
-            <input 
-              type="url" 
-              placeholder="https://..."
-              className={inputStyle}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-              required 
-            />
-        </section>
-
         <section className="grid grid-cols-2 gap-4">
-           <label>
-             <span className="text-sm font-bold text-gray-700 ml-2">Lat</span>
-             <input type="text" placeholder="25.11" className={inputStyle} onChange={(e) => setFormData({...formData, latitude: e.target.value})} />
-           </label>
-           <label>
-             <span className="text-sm font-bold text-gray-700 ml-2">Long</span>
-             <input type="text" placeholder="55.13" className={inputStyle} onChange={(e) => setFormData({...formData, longitude: e.target.value})} />
-           </label>
+           <input type="text" placeholder="Latitude" className={inputStyle} onChange={(e) => setFormData({...formData, latitude: e.target.value})} />
+           <input type="text" placeholder="Longitude" className={inputStyle} onChange={(e) => setFormData({...formData, longitude: e.target.value})} />
         </section>
 
-        <button type="submit" className="w-full bg-bayt-dark text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-bayt-dark/20 active:scale-95 transition-transform">
-          Verify Form
+        <button type="submit" className="w-full bg-bayt-dark text-white py-5 rounded-2xl font-bold text-lg shadow-xl active:scale-95 transition-transform">
+          Publish Listing
         </button>
       </form>
     </main>
