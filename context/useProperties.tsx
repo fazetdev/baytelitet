@@ -16,6 +16,8 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   virtualTour: boolean;
+  rentalYield?: string; // Added missing property
+  sqft?: number;        // Added for detail page safety
 }
 
 interface PropertiesContextType {
