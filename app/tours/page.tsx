@@ -1,41 +1,45 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { useLanguage } from '@/context/useLanguage';
-import VirtualTourViewer from './components/VirtualTourViewer';
-import SunPathSimulation from './components/SunPathSimulation';
-import SeasonalView from './components/SeasonalView';
-import NeighborhoodMap from './components/NeighborhoodMap';
+import { useTranslations } from '@/hooks/useTranslations';
 import { VirtualTour } from './types';
+import { Play, Calendar, Clock, MapPin, Bed, Bath } from 'lucide-react';
 
 const sampleTours: VirtualTour[] = [
   {
     id: 1,
     title: 'Luxury Apartment Tour',
     titleAr: 'جولة شقة فاخرة',
-    property: 'Downtown Apartment',
-    propertyAr: 'شقة وسط المدينة',
-    duration: '12 min',
-    type: 'Virtual Tour',
-    typeAr: 'جولة افتراضية',
-    features: ['360 View', 'Recording', 'Sun Simulation', 'Seasonal Changes'],
-    featuresAr: ['عرض 360', 'تسجيل', 'محاكاة الشمس', 'تغيرات موسمية'],
-    thumbnail: '/images/tours/downtown.jpg',
+    property: 'Downtown Heights',
+    propertyAr: 'داون تاون هايتس',
+    duration: '2:45',
+    type: 'apartment',
+    typeAr: 'شقة',
+    features: ['360° View', 'Voice Over', 'Interactive Map'],
+    featuresAr: ['عرض 360 درجة', 'تعليق صوتي', 'خريطة تفاعلية'],
+    thumbnail: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80',
+    bedrooms: 2,
+    bathrooms: 2,
     createdAt: new Date(),
     updatedAt: new Date()
   },
   {
     id: 2,
-    title: 'Beach Villa Experience',
-    titleAr: 'تجربة فيلا شاطئية',
-    property: 'Palm Jumeirah Villa',
-    propertyAr: 'فيلا نخلة الجميرة',
-    duration: '15 min',
-    type: 'VR Ready',
-    typeAr: 'جاهز للواقع الافتراضي',
-    features: ['Beach View', 'Pool Area', 'Garden Tour', 'Neighborhood Map'],
-    featuresAr: ['إطلالة شاطئية', 'منطقة المسبح', 'جولة الحديقة', 'خريطة الحي'],
-    thumbnail: '/images/tours/beach-villa.jpg',
+    title: 'Modern Villa Walkthrough',
+    titleAr: 'جولة الفيلا الحديثة',
+    property: 'Palm Residence',
+    propertyAr: 'بالم ريزيدنس',
+    duration: '4:15',
+    type: 'villa',
+    typeAr: 'فيلا',
+    features: ['VR Ready', 'Night Mode', 'Floor Plan'],
+    featuresAr: ['جاهز للواقع الافتراضي', 'الوضع الليلي', 'مخطط الطابق'],
+    thumbnail: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80',
+    bedrooms: 5,
+    bathrooms: 6,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -43,103 +47,75 @@ const sampleTours: VirtualTour[] = [
 
 export default function ToursPage() {
   const { lang } = useLanguage();
-  // Cast lang to the specific type expected by components
-  const currentLang = (lang === 'ar' ? 'ar' : 'en') as 'en' | 'ar';
-  const isRTL = currentLang === 'ar';
-  
-  const [activeTour, setActiveTour] = useState<VirtualTour>(sampleTours[0]);
-  const [viewMode, setViewMode] = useState('day');
-  const [season, setSeason] = useState('summer');
+  const t = useTranslations(lang);
+  const isRTL = lang === 'ar';
 
   return (
-    <div 
-      dir={isRTL ? 'rtl' : 'ltr'} 
-      className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white"
-    >
-      <div className="container mx-auto px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            {currentLang === 'ar' ? 'الجولات الافتراضية' : 'Virtual Tours'}
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-white">
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-bayt-dark mb-4">
+            {isRTL ? 'الجولات الافتراضية' : 'Virtual Tours'}
           </h1>
-          <p className="text-gray-400 text-lg">
-            {currentLang === 'ar' 
-              ? 'استكشف العقار بتجربة تفاعلية' 
-              : 'Explore properties with an interactive experience'}
+          <p className="text-gray-600 max-w-2xl">
+            {isRTL 
+              ? 'استكشف عقاراتنا المتميزة من منزلك من خلال تقنية الجولات الافتراضية المتقدمة.'
+              : 'Explore our premium properties from the comfort of your home with our advanced 360° virtual tour technology.'}
           </p>
-        </header>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <VirtualTourViewer
-              tourData={activeTour}
-              language={currentLang}
-              isRTL={isRTL}
-            />
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-4">
-                {currentLang === 'ar' ? 'عناصر تحكم تفاعلية' : 'Interactive Controls'}
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <SunPathSimulation
-                  language={currentLang}
-                  isRTL={isRTL}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {sampleTours.map((tour) => (
+            <div key={tour.id} className="group relative bg-white border rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="relative aspect-video overflow-hidden">
+                <img 
+                  src={tour.thumbnail} 
+                  alt={isRTL ? tour.titleAr : tour.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-
-                <SeasonalView
-                  season={season}
-                  setSeason={setSeason}
-                  language={currentLang}
-                  isRTL={isRTL}
-                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                  <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Play className="w-8 h-8 text-bayt-dark fill-current ml-1" />
+                  </div>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                  <span className="bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                    <Clock className="w-4 h-4" /> {tour.duration}
+                  </span>
+                  <span className="bg-bayt-warm text-bayt-dark px-3 py-1 rounded-full text-sm font-bold">
+                    {isRTL ? tour.typeAr : tour.type}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <NeighborhoodMap
-              language={currentLang}
-              isRTL={isRTL}
-            />
-          </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold mb-2 group-hover:text-bayt-warm transition-colors">
+                  {isRTL ? tour.titleAr : tour.title}
+                </h3>
+                <p className="flex items-center text-gray-500 mb-4">
+                  <MapPin className="w-4 h-4 mr-1 ml-1" />
+                  {isRTL ? tour.propertyAr : tour.property}
+                </p>
 
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                <h2 className="text-xl font-bold mb-4">
-                  {currentLang === 'ar' ? 'الجولات المتاحة' : 'Available Tours'}
-                </h2>
-                <div className="space-y-4">
-                  {sampleTours.map(tour => (
-                    <button
-                      key={tour.id}
-                      onClick={() => setActiveTour(tour)}
-                      className={`w-full p-4 rounded-xl transition-all duration-300 ${
-                        activeTour.id === tour.id
-                          ? 'bg-bayt-cultural/20 border-2 border-bayt-cultural'
-                          : 'bg-white/5 border border-white/10 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center text-2xl">
-                          {tour.id === 1 ? '🏢' : '🏖️'}
-                        </div>
-                        <div className={isRTL ? 'text-right' : 'text-left'}>
-                          <h3 className="font-bold">
-                            {currentLang === 'ar' ? tour.titleAr : tour.title}
-                          </h3>
-                          <p className="text-gray-400 text-sm">
-                            {tour.duration} • {currentLang === 'ar' ? tour.typeAr : tour.type}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
+                <div className="flex gap-4 mb-6 text-sm text-gray-600">
+                  <span className="flex items-center gap-1"><Bed className="w-4 h-4" /> {tour.bedrooms}</span>
+                  <span className="flex items-center gap-1"><Bath className="w-4 h-4" /> {tour.bathrooms}</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {(isRTL ? tour.featuresAr : tour.features).map((feature, idx) => (
+                    <span key={idx} className="bg-gray-50 text-gray-600 px-3 py-1 rounded-lg text-xs">
+                      {feature}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }
