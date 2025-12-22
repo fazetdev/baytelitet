@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-three/drei": "^9.122.0",
-    "@react-three/fiber": "^8.18.0",
+    "@react-three/drei": "9.122.0",
+    "@react-three/fiber": "^8.17.6",
     "axios": "^1.7.0",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
@@ -25,7 +25,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.45.0",
     "react-leaflet": "^4.2.1",
-    "three": "^0.157.0",
+    "three": "0.159.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {
