@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { formatCurrency } from '@/lib/formatters';
+import { Activity, ShieldCheck, Landmark, Percent } from 'lucide-react';
 
 interface BankRate {
   name: string;
@@ -47,181 +48,139 @@ export default function MortgageCalculator({
   const currentLoanTerm = onLoanTermChange ? loanTermYears : localLoanTerm;
 
   const handleInterestRateChange = (rate: number) => {
-    if (onInterestRateChange) {
-      onInterestRateChange(rate);
-    } else {
-      setLocalInterestRate(rate);
-    }
+    onInterestRateChange ? onInterestRateChange(rate) : setLocalInterestRate(rate);
   };
 
   const handleLoanTermChange = (years: number) => {
-    if (onLoanTermChange) {
-      onLoanTermChange(years);
-    } else {
-      setLocalLoanTerm(years);
-    }
+    onLoanTermChange ? onLoanTermChange(years) : setLocalLoanTerm(years);
   };
 
-  const content = {
+  const t = {
     en: {
-      title: 'Mortgage Calculator',
+      title: 'Digital Mortgage Engine',
       interestRate: 'Interest Rate',
       loanTerm: 'Loan Term',
-      monthlyPayment: 'Monthly Payment',
-      totalInterest: 'Total Interest',
-      totalPayment: 'Total Payment',
-      bankRates: 'Pre-Approved Bank Rates',
-      checkEligibility: 'Check Eligibility',
-      years: 'years',
-      lowRate: 'Competitive',
-      highRate: 'Standard',
-      loanAmount: 'Loan Amount',
-      calculateNow: 'Calculate Now',
+      monthlyPayment: 'Monthly Commitment',
+      totalInterest: 'Total Interest Cost',
+      totalPayment: 'Total Repayment',
+      bankRates: 'Bank Market Rates',
+      checkEligibility: 'Check Executive Eligibility',
+      years: 'YRS',
+      loanAmount: 'Principal Loan Amount',
     },
     ar: {
-      title: 'حاسبة الرهن العقاري',
+      title: 'محرك الرهن الرقمي',
       interestRate: 'سعر الفائدة',
       loanTerm: 'مدة القرض',
-      monthlyPayment: 'الدفعة الشهرية',
-      totalInterest: 'إجمالي الفائدة',
+      monthlyPayment: 'الالتزام الشهري',
+      totalInterest: 'تكلفة الفائدة الإجمالية',
       totalPayment: 'إجمالي السداد',
-      bankRates: 'أسعار البنوك المعتمدة',
-      checkEligibility: 'تحقق من الأهلية',
+      bankRates: 'أسعار السوق المصرفية',
+      checkEligibility: 'تحقق من الأهلية التنفيذية',
       years: 'سنة',
-      lowRate: 'تنافسي',
-      highRate: 'عادي',
-      loanAmount: 'مبلغ القرض',
-      calculateNow: 'احسب الآن',
+      loanAmount: 'مبلغ القرض الأساسي',
     },
-  };
-
-  const t = content[language];
-
-  const bankRates: BankRate[] = [
-    { name: language === 'ar' ? 'الإمارات NBD' : 'Emirates NBD', rate: 4.25, type: 'competitive' },
-    { name: language === 'ar' ? 'أبوظبي التجاري' : 'ADCB', rate: 4.0, type: 'competitive' },
-    { name: language === 'ar' ? 'مصرف المشرق' : 'Mashreq', rate: 4.5, type: 'standard' },
-    { name: language === 'ar' ? 'دبي الإسلامي' : 'DIB', rate: 3.99, type: 'competitive', description: language === 'ar' ? 'تمويل إسلامي' : 'Islamic Financing' },
-  ];
-
-  const loanAmount = propertyPrice - downPayment;
+  }[language];
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="bg-white rounded-2xl shadow-lg p-6 border border-bayt-cool/50">
-      <h2 className={`text-xl font-bold text-bayt-dark mb-4 ${isRTL ? 'text-right' : ''}`}>
-        {t.title}
-      </h2>
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="bg-[#111] rounded-[2.5rem] p-8 border border-white/5 shadow-2xl relative overflow-hidden">
+      {/* Background Decorative Element */}
+      <div className="absolute top-0 right-0 p-8 opacity-5">
+        <Activity size={120} className="text-[#D4AF37]" />
+      </div>
 
-      <div className={`mb-6 p-4 bg-bayt-light/30 rounded-lg ${isRTL ? 'text-right' : ''}`}>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-bayt-cool">{t.loanAmount}</p>
-            <p className="text-lg font-semibold text-bayt-dark">{formatCurrency(loanAmount)}</p>
+      <div className="relative z-10">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-2 h-8 bg-[#D4AF37] rounded-full"></div>
+          <h2 className="text-xl font-bold text-white uppercase tracking-widest">{t.title}</h2>
+        </div>
+
+        {/* Top Stats Display */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
+            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-2">{t.loanAmount}</p>
+            <p className="text-2xl font-mono font-bold text-[#D4AF37]">
+              {formatCurrency(propertyPrice - downPayment)} <span className="text-[10px] text-gray-400">{currency}</span>
+            </p>
           </div>
-          <div className={isRTL ? 'text-right' : ''}>
-            <p className="text-sm text-bayt-cool">{t.interestRate}</p>
-            <p className="text-lg font-semibold text-bayt-warm">{currentInterestRate.toFixed(2)}%</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <div className={`flex justify-between items-center mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <label className={`font-medium text-bayt-dark ${isRTL ? 'text-right' : ''}`}>
-            {t.interestRate}
-          </label>
-          <span className="text-2xl font-bold text-bayt-warm">
-            {currentInterestRate.toFixed(2)}%
-          </span>
-        </div>
-        <input
-          type="range"
-          min="2"
-          max="8"
-          step="0.1"
-          value={currentInterestRate}
-          onChange={(e) => handleInterestRateChange(Number(e.target.value))}
-          className="w-full h-2 bg-bayt-light rounded-lg appearance-none cursor-pointer accent-bayt-warm"
-        />
-      </div>
-
-      <div className="mb-6">
-        <label className={`font-medium text-bayt-dark mb-2 block ${isRTL ? 'text-right' : ''}`}>
-          {t.loanTerm}
-        </label>
-        <div className={`grid grid-cols-4 gap-2 ${isRTL ? 'text-right' : ''}`}>
-          {[5, 10, 15, 20].map((years) => (
-            <button
-              key={years}
-              onClick={() => handleLoanTermChange(years)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                currentLoanTerm === years
-                  ? 'bg-bayt-warm text-bayt-dark'
-                  : 'bg-bayt-light/50 text-bayt-dark hover:bg-bayt-cool/20'
-              }`}
-            >
-              {years} {t.years}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-4 mb-6">
-        <div className={`flex justify-between items-center p-3 bg-bayt-warm/20 rounded-lg border border-bayt-warm/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <span className={`text-bayt-dark font-medium ${isRTL ? 'text-right' : ''}`}>
-            {t.monthlyPayment}
-          </span>
-          <span className="text-xl font-bold text-bayt-dark">
-            {currency} {formatCurrency(monthlyPayment)}
-          </span>
-        </div>
-
-        <div className={`flex justify-between items-center p-3 bg-bayt-light/30 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <span className={`text-bayt-dark ${isRTL ? 'text-right' : ''}`}>{t.totalInterest}</span>
-          <span className="text-lg font-semibold text-bayt-warm">
-            {currency} {formatCurrency(totalInterest)}
-          </span>
-        </div>
-
-        <div className={`flex justify-between items-center p-3 bg-bayt-light/30 rounded-lg ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <span className={`text-bayt-dark ${isRTL ? 'text-right' : ''}`}>{t.totalPayment}</span>
-          <span className="text-lg font-semibold text-bayt-dark">
-            {currency} {formatCurrency(totalPayment)}
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-6 pt-6 border-t border-bayt-cool/50">
-        <h4 className={`font-semibold text-bayt-dark mb-3 ${isRTL ? 'text-right' : ''}`}>
-          {t.bankRates}
-        </h4>
-        <div className="space-y-2">
-          {bankRates.map((bank, index) => (
-            <div key={index} className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className={`flex flex-col ${isRTL ? 'text-right' : ''}`}>
-                <span className="text-sm text-bayt-dark">{bank.name}</span>
-                {bank.description && (
-                  <span className="text-xs text-bayt-cool">{bank.description}</span>
-                )}
-              </div>
-              <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <span className={`text-sm font-medium ${bank.type === 'competitive' ? 'text-bayt-cultural' : 'text-bayt-dark'}`}>
-                  {bank.rate}%
-                </span>
-                <span className="text-xs text-bayt-cool">
-                  ({bank.type === 'competitive' ? t.lowRate : t.highRate})
-                </span>
-              </div>
+          <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
+            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-2">{t.interestRate}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-2xl font-mono font-bold text-white">{currentInterestRate.toFixed(2)}%</p>
+              <Percent size={16} className="text-[#D4AF37] opacity-50" />
             </div>
-          ))}
+          </div>
         </div>
 
-        <button
-          onClick={onCheckEligibility}
-          className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-bayt-warm to-yellow-700 text-bayt-dark rounded-lg font-semibold hover:from-yellow-700 hover:to-bayt-warm transition-all shadow-md"
-        >
-          {t.checkEligibility}
-        </button>
+        {/* Monthly Payment "Digital Readout" */}
+        <div className="bg-gradient-to-br from-[#1A1A1A] to-black p-8 rounded-[2rem] border-2 border-[#D4AF37]/20 mb-8 text-center shadow-[0_0_50px_rgba(212,175,55,0.1)]">
+          <p className="text-[10px] text-[#D4AF37] font-black uppercase tracking-[0.3em] mb-4">{t.monthlyPayment}</p>
+          <p className="text-5xl md:text-6xl font-mono font-bold text-white tracking-tighter">
+            {formatCurrency(monthlyPayment)}
+          </p>
+          <p className="text-[12px] text-gray-500 mt-2 font-bold uppercase">{currency} / PER MONTH</p>
+        </div>
+
+        {/* Term Selection UI */}
+        <div className="mb-8">
+          <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-4 block">{t.loanTerm}</label>
+          <div className="grid grid-cols-4 gap-3">
+            {[5, 10, 15, 20, 25].map((years) => (
+              <button
+                key={years}
+                onClick={() => handleLoanTermChange(years)}
+                className={`py-4 rounded-2xl text-xs font-black transition-all border ${
+                  currentLoanTerm === years
+                    ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-lg shadow-[#D4AF37]/20'
+                    : 'bg-white/5 text-gray-400 border-white/10 hover:border-[#D4AF37]/50'
+                }`}
+              >
+                {years}{t.years}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Breakdown Stats */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+           <div className="bg-white/5 p-4 rounded-2xl">
+              <p className="text-[9px] text-gray-500 font-bold uppercase mb-1">{t.totalInterest}</p>
+              <p className="text-sm font-mono font-bold text-white">{formatCurrency(totalInterest)}</p>
+           </div>
+           <div className="bg-white/5 p-4 rounded-2xl">
+              <p className="text-[9px] text-gray-500 font-bold uppercase mb-1">{t.totalPayment}</p>
+              <p className="text-sm font-mono font-bold text-white">{formatCurrency(totalPayment)}</p>
+           </div>
+        </div>
+
+        {/* Bank Market Rates Section */}
+        <div className="mt-10 pt-8 border-t border-white/5">
+          <div className="flex items-center gap-2 mb-6">
+            <Landmark size={14} className="text-[#D4AF37]" />
+            <h4 className="text-[10px] font-black text-white uppercase tracking-widest">{t.bankRates}</h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              { name: 'Emirates NBD', rate: 4.25 },
+              { name: 'ADCB', rate: 4.0 },
+              { name: 'Mashreq', rate: 4.5 },
+              { name: 'DIB', rate: 3.99 }
+            ].map((bank, i) => (
+              <div key={i} className="flex justify-between items-center p-4 bg-black/40 rounded-xl border border-white/5 group hover:border-[#D4AF37]/30 transition-all">
+                <span className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors">{bank.name}</span>
+                <span className="text-xs font-mono font-bold text-[#D4AF37]">{bank.rate}%</span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={onCheckEligibility}
+            className="w-full mt-8 py-5 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <ShieldCheck size={16} />
+            {t.checkEligibility}
+          </button>
+        </div>
       </div>
     </div>
   );

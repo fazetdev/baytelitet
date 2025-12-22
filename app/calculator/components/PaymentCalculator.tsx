@@ -1,97 +1,78 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useCalculator } from '@/context/useCalculator';
-import PaymentSlider from './PaymentSlider';
-import PaymentBreakdown, { PaymentBreakdownData } from './PaymentBreakdown';
-import HijriGregorianTimeline, { TimelineMilestone } from './HijriGregorianTimeline';
+import React, { useState, useEffect } from 'react';
 import MortgageCalculator from './MortgageCalculator';
 
 export default function PaymentCalculator() {
-  const {
-    propertyPrice,
-    downPaymentPercent,
-    loanTermYears,
-    setPropertyPrice,
-    setDownPaymentPercent,
-    setLoanTermYears,
-    reset
-  } = useCalculator();
+  const [propertyPrice, setPropertyPrice] = useState(2000000);
+  const [downPayment, setDownPayment] = useState(400000);
+  const [interestRate, setInterestRate] = useState(4.5);
+  const [loanTerm, setLoanTerm] = useState(20);
 
-  const [loading, setLoading] = useState(false);
-  const currency = 'AED';
-
-  // State structured for the new Breakdown component
-  const [breakdownData, setBreakdownData] = useState<PaymentBreakdownData | null>(null);
-  const [milestones, setMilestones] = useState<TimelineMilestone[]>([]);
+  // Financial State
+  const [monthlyPayment, setMonthlyPayment] = useState(0);
+  const [totalInterest, setTotalInterest] = useState(0);
+  const [totalPayment, setTotalPayment] = useState(0);
 
   useEffect(() => {
-    // Mocking the detailed data your new PaymentBreakdown expects
-    const vatRate = 5;
-    const regRate = 4;
-    const serviceRate = 1;
-    
-    const vatAmount = propertyPrice * (vatRate / 100);
-    const registrationFee = propertyPrice * (regRate / 100);
-    const serviceFee = propertyPrice * (serviceRate / 100);
-    const totalFees = vatAmount + registrationFee + serviceFee;
+    const principal = propertyPrice - downPayment;
+    const monthlyRate = interestRate / 100 / 12;
+    const numberOfPayments = loanTerm * 12;
 
-    setBreakdownData({
-      propertyPrice,
-      vatAmount,
-      vatRate,
-      registrationFee,
-      registrationFeeRate: regRate,
-      serviceFee,
-      serviceFeeRate: serviceRate,
-      totalFees,
-      totalCost: propertyPrice + totalFees
-    });
-
-    setMilestones([
-      { name: 'Booking', amount: propertyPrice * 0.1, dueDate: new Date() },
-      { name: 'Construction Start', amount: propertyPrice * 0.2, dueDate: new Date(Date.now() + 1000*60*60*24*90) },
-      { name: 'Handover', amount: propertyPrice * 0.7, dueDate: new Date(Date.now() + 1000*60*60*24*365) }
-    ]);
-  }, [propertyPrice]);
+    if (principal > 0 && monthlyRate > 0) {
+      const x = Math.pow(1 + monthlyRate, numberOfPayments);
+      const monthly = (principal * x * monthlyRate) / (x - 1);
+      
+      const totalPay = monthly * numberOfPayments;
+      setMonthlyPayment(monthly);
+      setTotalPayment(totalPay);
+      setTotalInterest(totalPay - principal);
+    }
+  }, [propertyPrice, downPayment, interestRate, loanTerm]);
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Elite Property Calculator</h1>
-        <button onClick={reset} className="px-4 py-2 bg-gray-100 rounded-md">Reset</button>
-      </div>
-
-      <PaymentSlider
-        propertyPrice={propertyPrice}
-        downPaymentPercent={downPaymentPercent}
-        loanTerm={loanTermYears}
-        onPriceChange={setPropertyPrice}
-        onDownPaymentChange={setDownPaymentPercent}
-        onLoanTermChange={setLoanTermYears}
-        currency={currency}
-      />
-
-      {breakdownData && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* FIXED: Using 'data' prop instead of 'plan' */}
-          <PaymentBreakdown 
-            data={breakdownData} 
-            currency={currency} 
-            language="en" 
-          />
-          
-          <div className="space-y-8">
-            <HijriGregorianTimeline milestones={milestones} currency={currency} />
-            <MortgageCalculator 
-              propertyPrice={propertyPrice}
-              downPayment={propertyPrice * (downPaymentPercent / 100)}
-              currency={currency}
-              loanTermYears={loanTermYears}
+    <div className="space-y-8">
+      {/* Precision Input Deck */}
+      <div className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+        <h3 className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em] mb-6 flex items-center gap-2">
+          <span className="w-2 h-2 bg-[#D4AF37] rounded-full animate-pulse"></span>
+          Input Parameters
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Property Valuation</label>
+            <input 
+              type="number" 
+              value={propertyPrice} 
+              onChange={(e) => setPropertyPrice(Number(e.target.value))}
+              className="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-[#D4AF37] font-mono focus:border-[#D4AF37] outline-none transition-all"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Down Payment (Equity)</label>
+            <input 
+              type="number" 
+              value={downPayment} 
+              onChange={(e) => setDownPayment(Number(e.target.value))}
+              className="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-white font-mono focus:border-[#D4AF37] outline-none transition-all"
             />
           </div>
         </div>
-      )}
+      </div>
+
+      <MortgageCalculator 
+        propertyPrice={propertyPrice}
+        downPayment={downPayment}
+        interestRate={interestRate}
+        loanTermYears={loanTerm}
+        monthlyPayment={monthlyPayment}
+        totalInterest={totalInterest}
+        totalPayment={totalPayment}
+        onInterestRateChange={setInterestRate}
+        onLoanTermChange={setLoanTerm}
+        language="en"
+      />
     </div>
   );
 }
