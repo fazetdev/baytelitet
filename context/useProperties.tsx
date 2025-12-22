@@ -16,30 +16,19 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   virtualTour: boolean;
-  rentalYield?: string; // Added missing property
-  sqft?: number;        // Added for detail page safety
+  premium?: boolean;
 }
 
 interface PropertiesContextType {
   properties: Property[];
-  filteredProperties: Property[];
   addProperty: (property: Property) => void;
   deleteProperty: (id: number) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedType: string;
-  setSelectedType: (type: string) => void;
-  selectedCity: string;
-  setSelectedCity: (city: string) => void;
 }
 
 const PropertiesContext = createContext<PropertiesContextType | undefined>(undefined);
 
 export function PropertiesProvider({ children }: { children: React.ReactNode }) {
   const [properties, setProperties] = useState<Property[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedCity, setSelectedCity] = useState('all');
 
   useEffect(() => {
     const saved = localStorage.getItem('bayt_properties');
@@ -53,20 +42,8 @@ export function PropertiesProvider({ children }: { children: React.ReactNode }) 
   const addProperty = (property: Property) => setProperties(prev => [property, ...prev]);
   const deleteProperty = (id: number) => setProperties(prev => prev.filter(p => p.id !== id));
 
-  const filteredProperties = properties.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.city.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = selectedType === 'all' || p.type === selectedType;
-    const matchesCity = selectedCity === 'all' || p.city.toLowerCase() === selectedCity.toLowerCase();
-    return matchesSearch && matchesType && matchesCity;
-  });
-
   return (
-    <PropertiesContext.Provider value={{ 
-      properties, filteredProperties, addProperty, deleteProperty,
-      searchQuery, setSearchQuery, selectedType, setSelectedType, 
-      selectedCity, setSelectedCity 
-    }}>
+    <PropertiesContext.Provider value={{ properties, addProperty, deleteProperty }}>
       {children}
     </PropertiesContext.Provider>
   );
