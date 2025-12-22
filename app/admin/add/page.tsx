@@ -2,12 +2,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, ArrowLeft, Trash2, LayoutDashboard } from 'lucide-react';
+import { Camera, ArrowLeft, MapPin, Navigation, Home, DollarSign } from 'lucide-react';
 import { useProperties } from '@/context/useProperties';
 
 export default function AddPropertyPage() {
   const router = useRouter();
-  const { addProperty, properties } = useProperties();
+  const { addProperty } = useProperties();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -16,86 +16,93 @@ export default function AddPropertyPage() {
     title: '',
     price: '',
     city: '',
-    latitude: '25.2048',
-    longitude: '55.2708',
+    location: '',
+    type: 'villa',
+    latitude: '',
+    longitude: '',
     imageUrl: '',
+    bedrooms: '3',
+    bathrooms: '3'
   });
 
   useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newProp = {
       id: Date.now(),
       title: formData.title,
-      location: formData.city,
+      location: formData.location || formData.city,
       price: Number(formData.price),
-      type: 'villa' as any,
+      type: formData.type as any,
       city: formData.city,
       images: [formData.imageUrl || 'https://via.placeholder.com/800x600?text=No+Image'],
-      description: 'Portfolio Listing.',
-      latitude: Number(formData.latitude),
-      longitude: Number(formData.longitude),
-      bedrooms: 3,
-      bathrooms: 3,
+      description: `Professional listing in ${formData.city}.`,
+      latitude: Number(formData.latitude) || 25.2048,
+      longitude: Number(formData.longitude) || 55.2708,
+      bedrooms: Number(formData.bedrooms),
+      bathrooms: Number(formData.bathrooms),
       virtualTour: true
     };
     
     addProperty(newProp);
-    alert('Property Added to Portfolio!');
+    alert('Property Published with GPS Coordinates!');
     router.push('/properties');
   };
 
-  if (!mounted) return null;
+  const inputStyle = "w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-bayt-warm transition-all";
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-bayt-dark text-white p-8 rounded-b-[3rem] mb-6">
+    <main className="min-h-screen bg-white pb-20">
+      <div className="bg-bayt-dark text-white p-8 rounded-b-[3rem] mb-8">
         <button onClick={() => router.back()} className="mb-4 flex items-center text-bayt-warm"><ArrowLeft className="w-4 h-4 mr-1"/> Back</button>
-        <h1 className="text-3xl font-bold">Management Panel</h1>
-        <p className="text-sm text-gray-400 mt-1 italic">Portfolio Mode: Client-side storage enabled.</p>
+        <h1 className="text-3xl font-bold">Property Management</h1>
+        <p className="text-gray-400">Add detailed listing with 360° assets</p>
       </div>
 
-      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* FORM SECTION */}
-        <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-[2rem] shadow-sm">
-          <h2 className="text-xl font-bold mb-4">Add New Property</h2>
-          <div className="p-6 border-2 border-dashed border-bayt-warm rounded-3xl bg-bayt-warm/5 text-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            {previewImage ? <img src={previewImage} className="w-full h-40 object-cover rounded-xl"/> : <><Camera className="w-10 h-10 mx-auto text-bayt-warm mb-2"/><p className="text-sm font-bold">Capture Photo</p></>}
-            <input type="file" accept="image/*" capture="environment" ref={fileInputRef} hidden onChange={(e) => {
-              const reader = new FileReader();
-              reader.onload = () => { setPreviewImage(reader.result as string); setFormData({...formData, imageUrl: reader.result as string}); };
-              if(e.target.files?.[0]) reader.readAsDataURL(e.target.files[0]);
-            }} />
+      <form onSubmit={handleSubmit} className="container mx-auto px-4 space-y-6">
+        {/* Photo Capture */}
+        <section className="p-6 border-2 border-dashed border-bayt-warm/30 rounded-3xl bg-bayt-warm/5 text-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+          {previewImage ? <img src={previewImage} className="w-full h-48 object-cover rounded-2xl shadow-md"/> : <><Camera className="w-12 h-12 mx-auto text-bayt-warm mb-2"/><p className="font-bold text-bayt-dark">Tap to Capture Property Photo</p></>}
+          <input type="file" accept="image/*" capture="environment" ref={fileInputRef} hidden onChange={(e) => {
+            const reader = new FileReader();
+            reader.onload = () => { setPreviewImage(reader.result as string); setFormData({...formData, imageUrl: reader.result as string}); };
+            if(e.target.files?.[0]) reader.readAsDataURL(e.target.files[0]);
+          }} />
+        </section>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" placeholder="Property Title" className={inputStyle} required onChange={e => setFormData({...formData, title: e.target.value})} />
+          <div className="grid grid-cols-2 gap-2">
+            <input type="number" placeholder="Price (AED)" className={inputStyle} required onChange={e => setFormData({...formData, price: e.target.value})} />
+            <select className={inputStyle} onChange={e => setFormData({...formData, type: e.target.value})}>
+              <option value="villa">Villa</option>
+              <option value="apartment">Apartment</option>
+              <option value="penthouse">Penthouse</option>
+              <option value="townhouse">Townhouse</option>
+            </select>
           </div>
-          
-          <input type="text" placeholder="Title (e.g. Palm Villa)" className="w-full p-4 bg-gray-50 rounded-2xl outline-none" required onChange={e => setFormData({...formData, title: e.target.value})} />
-          <input type="number" placeholder="Price (AED)" className="w-full p-4 bg-gray-50 rounded-2xl outline-none" required onChange={e => setFormData({...formData, price: e.target.value})} />
-          <input type="text" placeholder="City" className="w-full p-4 bg-gray-50 rounded-2xl outline-none" required onChange={e => setFormData({...formData, city: e.target.value})} />
-          <button type="submit" className="w-full bg-bayt-dark text-white py-5 rounded-2xl font-bold hover:bg-bayt-warm transition-colors shadow-lg shadow-bayt-dark/20">Publish Listing</button>
-        </form>
-
-        {/* LIST SECTION (To show what is already there) */}
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm">
-           <h2 className="text-xl font-bold mb-4">Current Inventory</h2>
-           <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-              {properties.map(p => (
-                <div key={p.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                  <div className="flex items-center gap-3">
-                    <img src={p.images[0]} className="w-12 h-12 rounded-lg object-cover" />
-                    <div>
-                      <p className="font-bold text-sm truncate w-32">{p.title}</p>
-                      <p className="text-xs text-gray-500">{p.city}</p>
-                    </div>
-                  </div>
-                  <button onClick={() => alert('Delete logic triggered - this will be synced to DB next')} className="p-2 text-red-500 hover:bg-red-50 rounded-full">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
-           </div>
         </div>
-      </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" placeholder="City (e.g. Dubai)" className={inputStyle} required onChange={e => setFormData({...formData, city: e.target.value})} />
+          <input type="text" placeholder="Exact Location (e.g. Palm Jumeirah)" className={inputStyle} onChange={e => setFormData({...formData, location: e.target.value})} />
+        </div>
+
+        {/* GPS COORDINATES */}
+        <div className="bg-gray-100 p-6 rounded-[2rem] space-y-4">
+          <h3 className="flex items-center gap-2 font-bold text-bayt-dark"><Navigation className="w-4 h-4 text-bayt-warm"/> Map Coordinates</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <input type="text" placeholder="Latitude (e.g. 25.112)" className={inputStyle} onChange={e => setFormData({...formData, latitude: e.target.value})} />
+            <input type="text" placeholder="Longitude (e.g. 55.139)" className={inputStyle} onChange={e => setFormData({...formData, longitude: e.target.value})} />
+          </div>
+        </div>
+
+        <button type="submit" className="w-full bg-bayt-dark text-white py-6 rounded-3xl font-bold text-lg shadow-xl shadow-bayt-dark/30 active:scale-95 transition-all">
+          Publish Professional Listing
+        </button>
+      </form>
     </main>
   );
 }

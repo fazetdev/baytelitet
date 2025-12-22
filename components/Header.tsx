@@ -3,61 +3,42 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/useLanguage';
-import { useTranslations } from '@/hooks/useTranslations';
-import { Building2, LayoutDashboard, Globe } from 'lucide-react';
+import { Building2, LayoutDashboard, Home, List } from 'lucide-react';
 
 const Header = () => {
   const { lang, setLang } = useLanguage();
-  const t = useTranslations(lang);
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+  useEffect(() => { setMounted(true); }, []);
   if (!mounted) return <div className="h-20 bg-white border-b border-gray-100" />;
 
   const isRTL = lang === 'ar';
 
   return (
-    <header className="bg-white border-b border-gray-100 sticky top-0 z-[110] w-full" dir={isRTL ? 'rtl' : 'ltr'}>
+    <header className="bg-white border-b border-gray-100 sticky top-0 z-[110]" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+        <Link href="/" className="flex items-center gap-2">
           <div className="w-10 h-10 bg-bayt-dark rounded-xl flex items-center justify-center">
             <Building2 className="text-bayt-warm w-6 h-6" />
           </div>
-          <span className="text-xl font-bold text-bayt-dark tracking-tight hidden sm:inline-block">
-            BAYT<span className="text-bayt-warm font-light">ELITE</span>
-          </span>
+          <span className="text-xl font-bold text-bayt-dark">BAYT ELITE</span>
         </Link>
 
-        {/* Navigation Menu - Visible on Tablet/Desktop */}
-        <nav className="flex items-center gap-4 md:gap-8">
-          <Link href="/properties" className="text-gray-600 hover:text-bayt-warm font-medium text-sm md:text-base">
-            {t?.nav?.buy || 'Buy'}
+        <nav className="flex items-center gap-6">
+          <Link href="/" className="text-gray-600 hover:text-bayt-warm font-bold flex items-center gap-1">
+             <Home className="w-4 h-4 hidden sm:block"/> {isRTL ? 'الرئيسية' : 'Home'}
           </Link>
-          <Link href="/tours" className="text-gray-600 hover:text-bayt-warm font-medium text-sm md:text-base">
-            {t?.nav?.tours || 'Tours'}
+          <Link href="/properties" className="text-gray-600 hover:text-bayt-warm font-bold flex items-center gap-1">
+             <List className="w-4 h-4 hidden sm:block"/> {isRTL ? 'العقارات' : 'Properties'}
           </Link>
-          <Link href="/admin/add" className="flex items-center gap-1 text-bayt-dark font-bold border-s-2 border-gray-200 ps-4 hover:text-bayt-warm transition-colors text-sm md:text-base">
-            <LayoutDashboard className="w-4 h-4" />
-            <span className="hidden xs:inline">{t?.nav?.admin || 'Admin'}</span>
+          <Link href="/admin/add" className="text-bayt-dark hover:text-bayt-warm font-black flex items-center gap-1 border-l-2 pl-4 border-gray-200">
+             <LayoutDashboard className="w-4 h-4 hidden sm:block"/> {isRTL ? 'الإدارة' : 'Management'}
           </Link>
         </nav>
 
-        {/* Language Switcher */}
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 text-gray-700 font-bold text-xs md:text-sm hover:bg-bayt-warm hover:text-white transition-all border border-gray-100"
-          >
-            <Globe className="w-4 h-4" />
-            <span>{lang === 'en' ? 'العربية' : 'English'}</span>
-          </button>
-        </div>
+        <button onClick={() => setLang(lang === 'en' ? 'ar' : 'en')} className="p-2 font-bold text-sm bg-gray-100 rounded-lg">
+          {lang === 'en' ? 'AR' : 'EN'}
+        </button>
       </div>
     </header>
   );
