@@ -11,7 +11,6 @@ import { MapPin, TrendingUp, CameraOff, Info } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-// Use dynamic import for the map to prevent SSR issues
 const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center">Loading Map...</div>
@@ -37,9 +36,10 @@ export default function PropertyExecutionPage() {
   const property = properties.find(p => p.id === Number(id));
   const isRTL = lang === 'ar';
 
-  if (!property) return <div className="p-20 text-center">Property Not Found</div>;
+  if (!property) return <div className="p-20 text-center font-bold">Property Not Found</div>;
 
-  const hasImage = property.images && property.images.length > 0 && property.images[0] !== '';
+  // Refined check for TypeScript
+  const firstImage = property.images && property.images.length > 0 ? property.images[0] : null;
 
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-white">
@@ -52,10 +52,9 @@ export default function PropertyExecutionPage() {
           </p>
         </div>
         
-        {/* 360 TOUR SECTION */}
         <div className="relative aspect-video w-full bg-gray-900 rounded-3xl mb-12 overflow-hidden shadow-2xl">
-           {hasImage ? (
-             <VirtualTourViewer imageUrl={property.images[0]} />
+           {firstImage ? (
+             <VirtualTourViewer imageUrl={firstImage} />
            ) : (
              <div className="flex flex-col items-center justify-center h-full text-white/50 bg-gray-800">
                <CameraOff className="w-12 h-12 mb-2 opacity-20" />
@@ -66,7 +65,6 @@ export default function PropertyExecutionPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-12">
-            {/* DESCRIPTION */}
             <section>
               <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                 <Info className="w-6 h-6 text-bayt-warm" />
@@ -75,7 +73,6 @@ export default function PropertyExecutionPage() {
               <p className="text-gray-700 text-lg leading-relaxed">{property.description}</p>
             </section>
 
-            {/* REAL INTERACTIVE MAP */}
             <section>
               <h2 className="text-2xl font-bold mb-4">{isRTL ? 'الموقع' : 'Location'}</h2>
               <div className="h-[450px] w-full rounded-3xl overflow-hidden border-4 border-white shadow-xl">
@@ -88,14 +85,12 @@ export default function PropertyExecutionPage() {
             </section>
           </div>
           
-          {/* SIDEBAR */}
           <div className="lg:col-span-1">
             <div className="bg-bayt-dark text-white p-8 rounded-3xl sticky top-24 shadow-2xl">
               <div className="mb-6">
                 <p className="text-gray-400 text-sm uppercase tracking-wider">{isRTL ? 'السعر' : 'Investment Price'}</p>
                 <p className="text-4xl font-bold text-bayt-warm">{formatCurrency(property.price)}</p>
               </div>
-              
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl">
                   <span className="flex items-center gap-2 text-gray-300">
@@ -105,7 +100,6 @@ export default function PropertyExecutionPage() {
                   <span className="font-bold">{property.rentalYield || '7.2%'}</span>
                 </div>
               </div>
-
               <button className="w-full bg-bayt-warm hover:bg-white text-bayt-dark font-bold py-4 rounded-2xl transition-all duration-300">
                 {isRTL ? 'طلب معلومات' : 'Enquire Now'}
               </button>
