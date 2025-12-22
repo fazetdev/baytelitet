@@ -17,6 +17,8 @@ export interface Property {
   bathrooms: number;
   virtualTour: boolean;
   premium?: boolean;
+  rentalYield?: string; // Critical: Fixed for [id]/page.tsx
+  sqft?: number;        // Added for detail page completeness
 }
 
 interface PropertiesContextType {
