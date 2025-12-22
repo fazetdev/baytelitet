@@ -26,6 +26,10 @@ interface PropertiesContextType {
   setSearchQuery: (query: string) => void;
   selectedType: string;
   setSelectedType: (type: string) => void;
+  selectedCity: string;
+  setSelectedCity: (city: string) => void;
+  priceRange: [number, number];
+  setPriceRange: (range: [number, number]) => void;
 }
 
 const propertiesData: Property[] = [
@@ -52,15 +56,20 @@ const PropertiesContext = createContext<PropertiesContextType | undefined>(undef
 export const PropertiesProvider = ({ children }: { children: ReactNode }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [selectedCity, setSelectedCity] = useState('all');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000000]);
 
   const filteredProperties = useMemo(() => {
     return propertiesData.filter(property => {
       const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            property.location.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesType = selectedType === 'all' || property.type === selectedType;
-      return matchesSearch && matchesType;
+      const matchesCity = selectedCity === 'all' || property.city === selectedCity;
+      const matchesPrice = property.price >= priceRange[0] && property.price <= priceRange[1];
+      
+      return matchesSearch && matchesType && matchesCity && matchesPrice;
     });
-  }, [searchQuery, selectedType]);
+  }, [searchQuery, selectedType, selectedCity, priceRange]);
 
   return (
     <PropertiesContext.Provider value={{ 
@@ -69,7 +78,11 @@ export const PropertiesProvider = ({ children }: { children: ReactNode }) => {
       searchQuery, 
       setSearchQuery, 
       selectedType, 
-      setSelectedType 
+      setSelectedType,
+      selectedCity,
+      setSelectedCity,
+      priceRange,
+      setPriceRange
     }}>
       {children}
     </PropertiesContext.Provider>
