@@ -7,8 +7,8 @@ export interface Agent {
   name: string;
   role: string;
   image: string;
+  email: string;
   phone: string;
-  propertiesCount: number;
 }
 
 interface AgentContextType {
@@ -31,8 +31,8 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('bayt_agents', JSON.stringify(agents));
   }, [agents]);
 
-  const addAgent = (agent: Agent) => setAgents([...agents, agent]);
-  const deleteAgent = (id: number) => setAgents(agents.filter(a => a.id !== id));
+  const addAgent = (agent: Agent) => setAgents(prev => [agent, ...prev]);
+  const deleteAgent = (id: number) => setAgents(prev => prev.filter(a => a.id !== id));
 
   return (
     <AgentContext.Provider value={{ agents, addAgent, deleteAgent }}>
