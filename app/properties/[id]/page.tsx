@@ -8,8 +8,6 @@ import { useLanguage } from '@/context/useLanguage';
 import { useTranslations } from '@/hooks/useTranslations';
 import { formatCurrency } from '@/lib/formatters';
 import { MapPin, TrendingUp, CameraOff, Info } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { 
   ssr: false,
@@ -42,7 +40,7 @@ export default function PropertyExecutionPage() {
 
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-white">
-      <Header />
+      {/* Header and Footer removed from here because they are in Root Layout */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-bayt-dark">{property.title}</h1>
@@ -106,7 +104,6 @@ export default function PropertyExecutionPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
