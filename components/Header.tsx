@@ -1,98 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/useLanguage';
-import { Home, Building, Settings, Menu, X, Globe } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
+import { Building2, LayoutDashboard } from 'lucide-react';
 
-export default function Header() {
-  const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { lang: language, setLang: setLanguage } = useLanguage();
-  const isRTL = language === 'ar';
-
-  const navItems = [
-    { name: isRTL ? 'الرئيسية' : 'Home', path: '/', icon: <Home className="w-5 h-5" /> },
-    { name: isRTL ? 'العقارات' : 'Properties', path: '/properties', icon: <Building className="w-5 h-5" /> },
-    { name: isRTL ? 'الإدارة' : 'Management', path: '/settings', icon: <Settings className="w-5 h-5" /> },
-  ];
+const Header = () => {
+  const { lang, setLang } = useLanguage();
+  const t = useTranslations(lang);
+  const isRTL = lang === 'ar';
 
   return (
-    <header dir={isRTL ? 'rtl' : 'ltr'} className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-[#D4AF37]/20 shadow-sm">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+    <header className="bg-white border-b border-gray-100 sticky top-0 z-[110]" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-bayt-dark rounded-xl flex items-center justify-center">
+            <Building2 className="text-bayt-warm w-6 h-6" />
+          </div>
+          <span className="text-xl font-bold text-bayt-dark tracking-tight">
+            BAYT<span className="text-bayt-warm font-light">ELITE</span>
+          </span>
+        </Link>
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#D4AF37] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-              <span className="text-black font-black text-lg">BE</span>
-            </div>
-            <div className={isRTL ? 'text-right' : 'text-left'}>
-              <div className="font-bold text-xl text-white tracking-tight">
-                Bayt <span className="text-[#D4AF37]">Elite</span>
-              </div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-widest">
-                {isRTL ? 'تمكين المبيعات الخليجية' : 'Gulf Sales Enablement'}
-              </div>
-            </div>
+        <nav className="hidden md:flex items-center gap-8">
+          <Link href="/properties" className="text-gray-600 hover:text-bayt-warm font-medium">{t.nav.buy}</Link>
+          <Link href="/tours" className="text-gray-600 hover:text-bayt-warm font-medium">360° {t.nav.tours}</Link>
+          {/* Portfolio Admin Link */}
+          <Link href="/admin/add" className="flex items-center gap-1 text-bayt-dark font-bold border-l-2 border-gray-100 pl-4 hover:text-bayt-warm transition-colors">
+            <LayoutDashboard className="w-4 h-4" />
+            {isRTL ? 'لوحة التحكم' : 'Admin Panel'}
           </Link>
+        </nav>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-2">
-            {navItems.map((item) => {
-              const isActive = pathname === item.path || (item.path !== '/' && pathname?.startsWith(item.path));
-              return (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                    isActive
-                      ? 'bg-[#D4AF37] text-black font-bold'
-                      : 'text-gray-300 hover:text-[#D4AF37] hover:bg-white/5'
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-
-            {/* Language Switcher */}
-            <button 
-              onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-              className="ml-4 flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all font-bold text-xs"
-            >
-              <Globe className="w-4 h-4" />
-              {language === 'en' ? 'العربية' : 'EN'}
-            </button>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-[#D4AF37]">
-            {isMobileMenuOpen ? <X /> : <Menu />}
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+            className="px-4 py-2 rounded-lg bg-gray-50 text-gray-700 font-bold text-sm hover:bg-bayt-warm hover:text-white transition-all"
+          >
+            {lang === 'en' ? 'العربية' : 'English'}
           </button>
         </div>
       </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <nav className="lg:hidden px-6 py-4 bg-black/90 border-t border-[#D4AF37]/20 flex flex-col gap-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.path}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                pathname === item.path ? 'bg-[#D4AF37] text-black font-bold' : 'text-gray-300 hover:text-[#D4AF37] hover:bg-white/5'
-              }`}
-            >
-              {item.icon}
-              <span>{item.name}</span>
-            </Link>
-          ))}
-        </nav>
-      )}
     </header>
   );
-}
+};
+
+export default Header;

@@ -51,6 +51,7 @@ export default function AddPropertyPage() {
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
         </button>
         <h1 className="text-3xl font-bold">New Listing</h1>
+        <div className="mt-4 p-3 bg-blue-500/20 border border-blue-400/50 rounded-xl text-xs text-blue-100 italic">Portfolio Mode: In a production environment, this dashboard is protected by biometric and password authentication.</div>
       </div>
 
       <form onSubmit={handleSubmit} className="container mx-auto px-4 space-y-6">
