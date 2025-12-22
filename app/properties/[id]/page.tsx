@@ -38,7 +38,6 @@ export default function PropertyExecutionPage() {
 
   if (!property) return <div className="p-20 text-center font-bold">Property Not Found</div>;
 
-  // Refined check for TypeScript
   const firstImage = property.images && property.images.length > 0 ? property.images[0] : null;
 
   return (
@@ -77,8 +76,8 @@ export default function PropertyExecutionPage() {
               <h2 className="text-2xl font-bold mb-4">{isRTL ? 'الموقع' : 'Location'}</h2>
               <div className="h-[450px] w-full rounded-3xl overflow-hidden border-4 border-white shadow-xl">
                 <PropertyMap 
-                  latitude={property.latitude} 
-                  longitude={property.longitude} 
+                  latitude={property.latitude ?? 25.2048} 
+                  longitude={property.longitude ?? 55.2708} 
                   title={property.title} 
                 />
               </div>
