@@ -15,6 +15,8 @@ export interface Property {
   longitude: number;
   rentalYield?: string;
   virtualTour?: boolean;
+  bedrooms?: number;  // Added for the Modal
+  bathrooms?: number; // Added for the Modal
 }
 
 const properties: Property[] = [
@@ -25,13 +27,14 @@ const properties: Property[] = [
     price: 15000000,
     type: 'villa',
     city: 'dubai',
-    // REAL 360 PANORAMA IMAGE FOR TESTING
     images: ['https://pchen66.github.io/Panolens/examples/asset/textures/equirectangular/tunnel.jpg'],
     description: 'A stunning 5-bedroom villa with private beach access and sunset views.',
     latitude: 25.1124,
     longitude: 55.1390,
     rentalYield: '5.2%',
-    virtualTour: true
+    virtualTour: true,
+    bedrooms: 5,
+    bathrooms: 6
   }
 ];
 
