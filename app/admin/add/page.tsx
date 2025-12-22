@@ -1,142 +1,101 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, MapPin, DollarSign, Home, ArrowLeft, Upload } from 'lucide-react';
+import { Camera, ArrowLeft, Trash2, LayoutDashboard } from 'lucide-react';
+import { useProperties } from '@/context/useProperties';
 
 export default function AddPropertyPage() {
   const router = useRouter();
+  const { addProperty, properties } = useProperties();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   
   const [formData, setFormData] = useState({
     title: '',
-    location: '',
     price: '',
-    type: 'villa',
-    city: '', // Now a plain text string
-    description: '',
-    latitude: '',
-    longitude: '',
+    city: '',
+    latitude: '25.2048',
+    longitude: '55.2708',
     imageUrl: '',
-    bedrooms: '',
-    bathrooms: ''
   });
 
-  const handleCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setPreviewImage(base64String);
-        setFormData({ ...formData, imageUrl: base64String });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  useEffect(() => { setMounted(true); }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Final Data:', formData);
-    alert('Property Ready! Image captured and data stored in memory.');
+    const newProp = {
+      id: Date.now(),
+      title: formData.title,
+      location: formData.city,
+      price: Number(formData.price),
+      type: 'villa' as any,
+      city: formData.city,
+      images: [formData.imageUrl || 'https://via.placeholder.com/800x600?text=No+Image'],
+      description: 'Portfolio Listing.',
+      latitude: Number(formData.latitude),
+      longitude: Number(formData.longitude),
+      bedrooms: 3,
+      bathrooms: 3,
+      virtualTour: true
+    };
+    
+    addProperty(newProp);
+    alert('Property Added to Portfolio!');
+    router.push('/properties');
   };
 
-  const inputStyle = "w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-bayt-warm outline-none transition-all";
+  if (!mounted) return null;
 
   return (
-    <main className="min-h-screen bg-white pb-20">
-      <div className="bg-bayt-dark text-white p-8 rounded-b-[3rem] mb-8 shadow-lg">
-        <button onClick={() => router.back()} className="mb-4 flex items-center text-bayt-warm text-sm">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Back
-        </button>
-        <h1 className="text-3xl font-bold">New Listing</h1>
-        <div className="mt-4 p-3 bg-blue-500/20 border border-blue-400/50 rounded-xl text-xs text-blue-100 italic">Portfolio Mode: In a production environment, this dashboard is protected by biometric and password authentication.</div>
+    <main className="min-h-screen bg-gray-50 pb-20">
+      <div className="bg-bayt-dark text-white p-8 rounded-b-[3rem] mb-6">
+        <button onClick={() => router.back()} className="mb-4 flex items-center text-bayt-warm"><ArrowLeft className="w-4 h-4 mr-1"/> Back</button>
+        <h1 className="text-3xl font-bold">Management Panel</h1>
+        <p className="text-sm text-gray-400 mt-1 italic">Portfolio Mode: Client-side storage enabled.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="container mx-auto px-4 space-y-6">
-        {/* Image Section: Camera or Link */}
-        <section className="p-6 border-2 border-dashed border-bayt-warm/30 rounded-3xl bg-bayt-warm/5 text-center">
-            {previewImage ? (
-              <div className="relative w-full h-48 mb-4 rounded-2xl overflow-hidden">
-                <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
-                <button 
-                  type="button" 
-                  onClick={() => setPreviewImage(null)}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full text-xs"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="cursor-pointer py-4"
-              >
-                <Camera className="w-10 h-10 mx-auto text-bayt-warm mb-2" />
-                <span className="block font-bold text-bayt-dark">Tap to Take Photo</span>
-              </div>
-            )}
-            
-            <input 
-              type="file" 
-              accept="image/*" 
-              capture="environment" 
-              ref={fileInputRef}
-              onChange={handleCapture}
-              className="hidden"
-            />
-
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 mb-2">OR PASTE 360° LINK</p>
-              <input 
-                type="url" 
-                placeholder="https://..."
-                className={inputStyle}
-                onChange={(e) => {
-                  setFormData({...formData, imageUrl: e.target.value});
-                  setPreviewImage(e.target.value);
-                }}
-              />
-            </div>
-        </section>
-
-        <section className="space-y-4">
-          <input 
-            type="text" 
-            placeholder="Property Title" 
-            className={inputStyle} 
-            onChange={(e) => setFormData({...formData, title: e.target.value})}
-            required 
-          />
-          
-          <div className="grid grid-cols-2 gap-4">
-             <input 
-               type="number" 
-               placeholder="Price (AED)" 
-               className={inputStyle} 
-               onChange={(e) => setFormData({...formData, price: e.target.value})}
-               required 
-             />
-             <input 
-               type="text" 
-               placeholder="City (e.g. Dubai)" 
-               className={inputStyle} 
-               onChange={(e) => setFormData({...formData, city: e.target.value})}
-               required 
-             />
+      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* FORM SECTION */}
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-[2rem] shadow-sm">
+          <h2 className="text-xl font-bold mb-4">Add New Property</h2>
+          <div className="p-6 border-2 border-dashed border-bayt-warm rounded-3xl bg-bayt-warm/5 text-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            {previewImage ? <img src={previewImage} className="w-full h-40 object-cover rounded-xl"/> : <><Camera className="w-10 h-10 mx-auto text-bayt-warm mb-2"/><p className="text-sm font-bold">Capture Photo</p></>}
+            <input type="file" accept="image/*" capture="environment" ref={fileInputRef} hidden onChange={(e) => {
+              const reader = new FileReader();
+              reader.onload = () => { setPreviewImage(reader.result as string); setFormData({...formData, imageUrl: reader.result as string}); };
+              if(e.target.files?.[0]) reader.readAsDataURL(e.target.files[0]);
+            }} />
           </div>
-        </section>
+          
+          <input type="text" placeholder="Title (e.g. Palm Villa)" className="w-full p-4 bg-gray-50 rounded-2xl outline-none" required onChange={e => setFormData({...formData, title: e.target.value})} />
+          <input type="number" placeholder="Price (AED)" className="w-full p-4 bg-gray-50 rounded-2xl outline-none" required onChange={e => setFormData({...formData, price: e.target.value})} />
+          <input type="text" placeholder="City" className="w-full p-4 bg-gray-50 rounded-2xl outline-none" required onChange={e => setFormData({...formData, city: e.target.value})} />
+          <button type="submit" className="w-full bg-bayt-dark text-white py-5 rounded-2xl font-bold hover:bg-bayt-warm transition-colors shadow-lg shadow-bayt-dark/20">Publish Listing</button>
+        </form>
 
-        <section className="grid grid-cols-2 gap-4">
-           <input type="text" placeholder="Latitude" className={inputStyle} onChange={(e) => setFormData({...formData, latitude: e.target.value})} />
-           <input type="text" placeholder="Longitude" className={inputStyle} onChange={(e) => setFormData({...formData, longitude: e.target.value})} />
-        </section>
-
-        <button type="submit" className="w-full bg-bayt-dark text-white py-5 rounded-2xl font-bold text-lg shadow-xl active:scale-95 transition-transform">
-          Publish Listing
-        </button>
-      </form>
+        {/* LIST SECTION (To show what is already there) */}
+        <div className="bg-white p-6 rounded-[2rem] shadow-sm">
+           <h2 className="text-xl font-bold mb-4">Current Inventory</h2>
+           <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+              {properties.map(p => (
+                <div key={p.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                  <div className="flex items-center gap-3">
+                    <img src={p.images[0]} className="w-12 h-12 rounded-lg object-cover" />
+                    <div>
+                      <p className="font-bold text-sm truncate w-32">{p.title}</p>
+                      <p className="text-xs text-gray-500">{p.city}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => alert('Delete logic triggered - this will be synced to DB next')} className="p-2 text-red-500 hover:bg-red-50 rounded-full">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
+           </div>
+        </div>
+      </div>
     </main>
   );
 }
