@@ -1,26 +1,36 @@
-'use client';
-
-import { ReactNode } from 'react';
+import './globals.css';
+import { Inter } from 'next/font/google';
+import { PropertiesProvider } from '@/context/useProperties';
+import { LanguageProvider } from '@/context/useLanguage';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { RoleProvider } from '@/context/useUserRole';
-import { LanguageProvider } from '@/context/useLanguage';
-import ClientProviders from '@/components/ClientProviders';
-import '@/styles/globals.css';
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata = {
+  title: 'Bayt Elite | Premium Real Estate',
+  description: 'Virtual 360° Property Tours in the Gulf',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body className="bg-bayt-light text-bayt-dark">
-        <ClientProviders>
-          <RoleProvider>
-            <LanguageProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
+        <LanguageProvider>
+          <PropertiesProvider>
+            <div className="flex flex-col min-h-screen">
               <Header />
-              <main>{children}</main>
+              <div className="flex-grow">
+                {children}
+              </div>
               <Footer />
-            </LanguageProvider>
-          </RoleProvider>
-        </ClientProviders>
+            </div>
+          </PropertiesProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
