@@ -1,13 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
 
 export interface Property {
   id: number;
   title: string;
   location: string;
   price: number;
-  type: 'villa' | 'apartment' | 'penthouse' | 'townhouse';
+  type: 'villa' | 'apartment' | 'penthouse' | 'townhouse' | 'all';
   city: 'dubai' | 'abu-dhabi' | 'sharjah';
   images: string[];
   description: string;
@@ -15,11 +15,20 @@ export interface Property {
   longitude: number;
   rentalYield?: string;
   virtualTour?: boolean;
-  bedrooms?: number;  // Added for the Modal
-  bathrooms?: number; // Added for the Modal
+  bedrooms?: number;
+  bathrooms?: number;
 }
 
-const properties: Property[] = [
+interface PropertiesContextType {
+  properties: Property[];
+  filteredProperties: Property[];
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  selectedType: string;
+  setSelectedType: (type: string) => void;
+}
+
+const propertiesData: Property[] = [
   {
     id: 1,
     title: 'Luxury Villa in Palm Jumeirah',
@@ -38,14 +47,39 @@ const properties: Property[] = [
   }
 ];
 
-const PropertiesContext = createContext({ properties });
+const PropertiesContext = createContext<PropertiesContextType | undefined>(undefined);
 
 export const PropertiesProvider = ({ children }: { children: ReactNode }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+
+  const filteredProperties = useMemo(() => {
+    return propertiesData.filter(property => {
+      const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           property.location.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = selectedType === 'all' || property.type === selectedType;
+      return matchesSearch && matchesType;
+    });
+  }, [searchQuery, selectedType]);
+
   return (
-    <PropertiesContext.Provider value={{ properties }}>
+    <PropertiesContext.Provider value={{ 
+      properties: propertiesData, 
+      filteredProperties, 
+      searchQuery, 
+      setSearchQuery, 
+      selectedType, 
+      setSelectedType 
+    }}>
       {children}
     </PropertiesContext.Provider>
   );
 };
 
-export const useProperties = () => useContext(PropertiesContext);
+export const useProperties = () => {
+  const context = useContext(PropertiesContext);
+  if (context === undefined) {
+    throw new Error('useProperties must be used within a PropertiesProvider');
+  }
+  return context;
+};
