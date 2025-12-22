@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bayt-dark: #0F172A;
+  --bayt-warm: #C2996B;
+}
+
+body {
+  color: var(--bayt-dark);
+  background: white;
+}
+
+.bg-bayt-dark { background-color: var(--bayt-dark); }
+.bg-bayt-warm { background-color: var(--bayt-warm); }
+.text-bayt-warm { color: var(--bayt-warm); }
+.text-bayt-dark { color: var(--bayt-dark); }
+.border-bayt-warm { border-color: var(--bayt-warm); }
