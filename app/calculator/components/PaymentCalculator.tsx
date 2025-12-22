@@ -23,25 +23,43 @@ export default function PaymentCalculator() {
     return num ? Number(num).toLocaleString('en-US') : '';
   };
 
-  const handleCalculate = () => {
+  const calculateAll = () => {
     const p = parse(propertyPrice);
     const d = parse(downPayment);
     const principal = p - d;
+    
+    if (principal <= 0) return;
+
     const monthlyRate = interestRate / 100 / 12;
     const n = loanTerm * 12;
 
     const monthly = principal * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-    
-    // Eligibility Logic: Price >= 2M AND (Ready Property) AND (Mortgage <= 50% or Equity >= 50%)
     const equityRatio = (d / p) * 100;
+    
+    // Eligibility: Price >= 2M AND Ready AND Equity >= 50%
     const isEligible = p >= 2000000 && propertyStatus === 'ready' && equityRatio >= 50;
 
     setResults({
-      monthly, totalInterest: (monthly * n) - principal, totalPayment: monthly * n,
-      equityRatio, isEligible
+      monthly, 
+      totalInterest: (monthly * n) - principal, 
+      totalPayment: monthly * n,
+      equityRatio, 
+      isEligible
     });
+  };
+
+  // Trigger calculation when the primary "Diagnostic" is run
+  const handleCalculate = () => {
+    calculateAll();
     setIsCalculated(true);
   };
+
+  // Re-calculate automatically when rate/term changes if already calculated
+  useEffect(() => {
+    if (isCalculated) {
+      calculateAll();
+    }
+  }, [interestRate, loanTerm]);
 
   return (
     <div className="space-y-10 pb-20">
@@ -76,8 +94,8 @@ export default function PaymentCalculator() {
             totalPayment={results.totalPayment}
             interestRate={interestRate}
             loanTermYears={loanTerm}
-            onInterestRateChange={(r) => {setInterestRate(r); setIsCalculated(false);}}
-            onLoanTermChange={(y) => {setLoanTerm(y); setIsCalculated(false);}}
+            onInterestRateChange={setInterestRate}
+            onLoanTermChange={setLoanTerm}
             isEligible={results.isEligible}
             equityRatio={results.equityRatio}
             propertyPrice={parse(propertyPrice)}

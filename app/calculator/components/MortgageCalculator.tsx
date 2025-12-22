@@ -11,20 +11,32 @@ interface MortgageCalculatorProps {
   loanTermYears: number;
   onInterestRateChange: (rate: number) => void;
   onLoanTermChange: (years: number) => void;
+  isEligible: boolean;
+  equityRatio: number;
+  propertyPrice: number;
   currency?: string;
 }
 
 export default function MortgageCalculator({
-  monthlyPayment, totalInterest, totalPayment, interestRate, loanTermYears, 
-  onInterestRateChange, onLoanTermChange, currency = 'AED'
+  monthlyPayment, 
+  totalInterest, 
+  totalPayment, 
+  interestRate, 
+  loanTermYears, 
+  onInterestRateChange, 
+  onLoanTermChange,
+  isEligible,
+  equityRatio,
+  propertyPrice,
+  currency = 'AED'
 }: MortgageCalculatorProps) {
-  
+
   const fmt = (val: number) => Math.round(val).toLocaleString('en-US');
 
   return (
     <div className="bg-[#111] rounded-[2rem] p-6 md:p-8 border border-white/5 shadow-2xl relative overflow-hidden">
       <div className="relative z-10">
-        
+
         <div className="bg-gradient-to-br from-[#1A1A1A] to-black p-6 md:p-8 rounded-[2rem] border-2 border-[#D4AF37]/20 mb-8 text-center shadow-inner">
           <p className="text-[10px] text-[#D4AF37] font-black uppercase tracking-[0.4em] mb-4">Monthly Commitment</p>
           <div className="flex items-baseline justify-center gap-2 overflow-hidden">
@@ -78,8 +90,8 @@ export default function MortgageCalculator({
            </div>
         </div>
 
-        <button className="w-full py-5 bg-[#D4AF37] text-black rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3">
-          <ShieldCheck size={18} /> Eligibility Status
+        <button className={`w-full py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl transition-all flex items-center justify-center gap-3 ${isEligible ? 'bg-[#D4AF37] text-black hover:brightness-110' : 'bg-red-900/20 text-red-500 border border-red-500/20'}`}>
+          <ShieldCheck size={18} /> {isEligible ? 'Eligible' : 'Not Eligible'}
         </button>
       </div>
     </div>
