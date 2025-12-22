@@ -9,6 +9,7 @@ export interface Agent {
   image: string;
   email: string;
   phone: string;
+  certified: boolean; // Making this mandatory to match your form
 }
 
 interface AgentContextType {
