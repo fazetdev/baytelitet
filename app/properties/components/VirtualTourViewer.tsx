@@ -1,71 +1,115 @@
 'use client';
 
-import { Globe, AlertCircle, Maximize2 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { Maximize2, Compass, ShieldCheck, Move, Loader2 } from 'lucide-react';
+import { VirtualTour } from '../types';
 
-export default function VirtualTourViewer({ imageUrl }: { imageUrl: string }) {
-  const [error, setError] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+interface Props {
+  tourData?: VirtualTour;
+  language: 'en' | 'ar';
+  isRTL: boolean;
+}
 
-  // Safe image validation
-  const isValidImage = imageUrl && 
-    (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) &&
-    imageUrl.includes('.');
+export default function VirtualTourViewer({ tourData, language, isRTL }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<any>(null);
+  
+  const [isPannellumReady, setIsPannellumReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!isValidImage) {
-    return (
-      <div className="w-full h-full bg-gradient-to-br from-bayt-dark/90 to-bayt-warm/70 flex flex-col items-center justify-center p-8 text-center">
-        <Globe className="w-20 h-20 text-white/60 mb-4" />
-        <h3 className="text-2xl font-bold text-white mb-2">Virtual Tour Preview</h3>
-        <p className="text-white/80 max-w-md">Interactive 360° visualization will be available soon</p>
-        <div className="mt-6 text-sm text-white/50">
-          <AlertCircle className="inline w-4 h-4 mr-2" />
-          Image source not configured
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    setMounted(true);
+    
+    // Check if library is already there or poll for it
+    if ((window as any).pannellum) {
+      setIsPannellumReady(true);
+    } else {
+      const check = setInterval(() => {
+        if ((window as any).pannellum) {
+          setIsPannellumReady(true);
+          clearInterval(check);
+        }
+      }, 100);
+      return () => clearInterval(check);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isPannellumReady || !tourData?.imageUrl || !mounted) return;
+
+    try {
+      viewerRef.current = (window as any).pannellum.viewer('panorama-container', {
+        type: 'equirectangular',
+        panorama: tourData.imageUrl,
+        autoLoad: true,
+        showControls: false,
+        compass: false,
+      });
+    } catch (err) {
+      console.error("Pannellum Error:", err);
+    }
+
+    return () => {
+      if (viewerRef.current) {
+        viewerRef.current.destroy();
+        viewerRef.current = null;
+      }
+    };
+  }, [isPannellumReady, tourData, mounted]);
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  if (!mounted) return <div className="h-[500px] bg-bayt-dark rounded-3xl" />;
 
   return (
-    <div className="w-full h-full relative group">
-      {/* Main Image Display */}
-      <div className="w-full h-full flex items-center justify-center bg-black">
-        <img 
-          src={imageUrl}
-          alt="Property visual preview"
-          className={`w-full h-full object-contain transition-all duration-300 ${
-            isExpanded ? 'scale-105' : ''
-          }`}
-          onError={() => setError(true)}
-          loading="lazy"
-        />
-        
-        {/* Overlay Controls */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="absolute bottom-4 right-4 flex gap-2">
-            <button 
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-colors"
-            >
-              <Maximize2 className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="absolute bottom-4 left-4 text-white text-sm bg-black/40 px-3 py-1 rounded-full">
-            360° Interactive Mode
-          </div>
+    <div ref={containerRef} className="group bg-bayt-dark rounded-3xl overflow-hidden border-2 border-bayt-gold/30 relative shadow-[0_0_50px_rgba(212,175,55,0.1)]">
+      
+      {/* HUD Header */}
+      <div className="absolute top-6 left-6 right-6 z-20 flex justify-between items-start pointer-events-none">
+        <div className="bg-bayt-dark/80 backdrop-blur-md border-l-4 border-bayt-gold p-4 transition-transform group-hover:translate-x-2">
+          <h4 className="text-bayt-gold font-black italic uppercase text-[10px] tracking-[0.2em] mb-1">
+            {language === 'ar' ? 'عرض الأصول الرقمية' : 'DIGITAL ASSET VIEW'}
+          </h4>
+          <p className="text-white font-bold text-lg uppercase tracking-tight">
+            {tourData?.title || (language === 'ar' ? 'جولة غامرة 360' : '360° IMMERSION')}
+          </p>
+        </div>
+        <div className="bg-bayt-gold text-bayt-dark px-3 py-1 rounded-full font-black text-[10px] flex items-center gap-1">
+          <ShieldCheck className="w-3 h-3" /> {language === 'ar' ? 'موثق' : 'VERIFIED'}
         </div>
       </div>
 
-      {/* Error State */}
-      {error && (
-        <div className="absolute inset-0 bg-red-900/80 backdrop-blur-sm flex items-center justify-center">
-          <div className="text-center p-8">
-            <AlertCircle className="w-12 h-12 text-white mx-auto mb-4" />
-            <p className="text-white font-bold">Failed to load image</p>
-            <p className="text-white/70 text-sm mt-2">Check the image URL</p>
-          </div>
+      {!isPannellumReady ? (
+        <div className="h-[500px] md:h-[650px] flex flex-col items-center justify-center bg-black gap-4">
+          <Loader2 className="w-8 h-8 text-bayt-gold animate-spin" />
+          <p className="text-bayt-gold text-xs font-black uppercase tracking-widest italic">Syncing Panoramic Core...</p>
         </div>
+      ) : (
+        <div id="panorama-container" className="h-[500px] md:h-[650px] w-full bg-black cursor-grab active:cursor-grabbing" />
       )}
+
+      {/* Controls */}
+      <div className={`absolute bottom-8 ${isRTL ? 'left-8' : 'right-8'} z-20 flex gap-4`}>
+        <div className="flex items-center gap-2 bg-bayt-dark/80 backdrop-blur-md border border-bayt-gold/30 p-2 rounded-2xl">
+           <Move className="w-4 h-4 text-bayt-gold" />
+           <span className="text-[10px] text-white font-bold uppercase mr-2">
+             {language === 'ar' ? 'اسحب للاستكشاف' : 'DRAG TO EXPLORE'}
+           </span>
+        </div>
+        <button 
+          onClick={toggleFullscreen}
+          className="w-14 h-14 bg-bayt-gold hover:bg-white text-bayt-dark rounded-full flex items-center justify-center transition-all active:scale-95 shadow-xl"
+        >
+          <Maximize2 className="w-6 h-6" />
+        </button>
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { AgentProvider } from '@/context/useAgents';
 import { LanguageProvider } from '@/context/useLanguage';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -14,8 +15,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+    <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"
+        />
+      </head>
+      <body className={inter.className}>
         <LanguageProvider>
           <AgentProvider>
             <PropertiesProvider>
@@ -29,6 +36,10 @@ export default function RootLayout({
             </PropertiesProvider>
           </AgentProvider>
         </LanguageProvider>
+        <Script 
+          src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
