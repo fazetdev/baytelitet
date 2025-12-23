@@ -14,11 +14,11 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-bayt-light">
       {/* Pass lang prop to components that need it */}
-      <HeroSection />
+      <HeroSection lang={lang} />
       <ChooseRole lang={lang} />
-      <MarketHighlights />
+      <MarketHighlights lang={lang} />
       <FeaturesSection lang={lang} />
-      <TrustSection />
+      <TrustSection lang={lang} />
       <div className="container mx-auto px-6 py-12">
         <MarketTools />
       </div>
