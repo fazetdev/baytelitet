@@ -16,7 +16,7 @@ export default function HomePage() {
       {/* Pass lang prop to components that need it */}
       <HeroSection lang={lang} />
       <ChooseRole lang={lang} />
-      <MarketHighlights lang={lang} />
+      <MarketHighlights />
       <FeaturesSection lang={lang} />
       <TrustSection lang={lang} />
       <div className="container mx-auto px-6 py-12">
