@@ -1,9 +1,8 @@
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/useLanguage';
-import { Building2, Menu, X, LayoutDashboard, Home, List } from 'lucide-react';
+import { Building2, Menu, X, LayoutDashboard, Home, List, Settings } from 'lucide-react';
 
 const Header = () => {
   const { lang, setLang } = useLanguage();
@@ -14,11 +13,12 @@ const Header = () => {
   if (!mounted) return <div className="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100" />;
 
   const isRTL = lang === 'ar';
-  
+
   const navLinks = [
     { name: isRTL ? 'الرئيسية' : 'Home', href: '/', icon: Home },
     { name: isRTL ? 'العقارات' : 'Properties', href: '/properties', icon: List },
     { name: isRTL ? 'الإدارة' : 'Management', href: '/admin/add', icon: LayoutDashboard, pro: true },
+    { name: isRTL ? 'الإعدادات' : 'Settings', href: '/settings', icon: Settings },
   ];
 
   return (
@@ -36,15 +36,15 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <Link 
-              key={link.href} 
-              href={link.href} 
+            <Link
+              key={link.href}
+              href={link.href}
               className={`${link.pro ? 'text-bayt-dark font-black border-l-2 pl-4 border-gray-200' : 'text-gray-600'} hover:text-bayt-warm transition-colors font-medium`}
             >
               {link.name}
             </Link>
           ))}
-          <button 
+          <button
             onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
             className="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs hover:bg-bayt-warm hover:text-white transition-all"
           >
@@ -63,9 +63,9 @@ const Header = () => {
         <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-xl animate-in slide-in-from-top duration-300">
           <nav className="flex flex-col p-6 gap-4">
             {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
+              <Link
+                key={link.href}
+                href={link.href}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 py-3 text-lg font-bold text-bayt-dark border-b border-gray-50 last:border-0"
               >
@@ -73,7 +73,7 @@ const Header = () => {
                 {link.name}
               </Link>
             ))}
-            <button 
+            <button
               onClick={() => { setLang(lang === 'en' ? 'ar' : 'en'); setIsOpen(false); }}
               className="mt-2 w-full py-4 bg-gray-100 rounded-2xl font-bold text-bayt-dark"
             >
