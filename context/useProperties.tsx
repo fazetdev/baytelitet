@@ -16,9 +16,13 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   virtualTour: boolean;
-  premium?: boolean; // Restored for Judge Approval
+  premium?: boolean;
   rentalYield?: string;
   sqft?: number;
+  area?: number;
+  features?: string[];
+  videoUrl?: string;
+  status?: 'available' | 'sold' | 'rented';
 }
 
 interface PropertiesContextType {
@@ -37,18 +41,30 @@ interface PropertiesContextType {
 const PropertiesContext = createContext<PropertiesContextType | undefined>(undefined);
 
 export function PropertiesProvider({ children }: { children: React.ReactNode }) {
+  // Start with empty array as requested
   const [properties, setProperties] = useState<Property[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedCity, setSelectedCity] = useState('all');
 
   useEffect(() => {
-    const saved = localStorage.getItem('bayt_properties');
-    if (saved) setProperties(JSON.parse(saved));
+    // SSR Safe check
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('bayt_properties');
+      if (saved) {
+        try {
+          setProperties(JSON.parse(saved));
+        } catch (e) {
+          console.error("Failed to parse properties", e);
+        }
+      }
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('bayt_properties', JSON.stringify(properties));
+    if (typeof window !== 'undefined' && properties.length >= 0) {
+      localStorage.setItem('bayt_properties', JSON.stringify(properties));
+    }
   }, [properties]);
 
   const addProperty = (property: Property) => setProperties(prev => [property, ...prev]);
