@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 import Link from 'next/link';
-import { Home, TrendingUp, ArrowRight } from 'lucide-react';
+import { Home, TrendingUp, ArrowRight, BarChart3, Users } from 'lucide-react';
 
 interface ChooseRoleProps {
   lang?: 'en' | 'ar';
@@ -33,6 +33,28 @@ const ChooseRole: FC<ChooseRoleProps> = ({ lang = 'en' }): JSX.Element => {
       cta: isRTL ? 'فتح الأدوات' : 'Open Tools',
       link: '/market-tools',
       feature: isRTL ? 'حالة الفيزا الذهبية' : 'Golden Visa Status',
+    },
+    {
+      key: 'management',
+      title: isRTL ? 'لوحة التحكم الإدارية' : 'Management Dashboard',
+      subtext: isRTL 
+        ? 'تتبع أداء المبيعات، مؤشرات الوكلاء، والتحليلات المالية وإضافة العقارات.' 
+        : 'Track sales performance, agent metrics, and financial analytics. Includes Add House.',
+      icon: BarChart3,
+      cta: isRTL ? 'دخول المسؤول' : 'Admin Access',
+      link: '/admin/dashboard',
+      feature: isRTL ? 'إضافة عقار' : 'Add House',
+    },
+    {
+      key: 'agent',
+      title: isRTL ? 'بوابة الوكيل' : 'Agent Portal',
+      subtext: isRTL 
+        ? 'أدوات مخصصة للوكلاء لإدارة القوائم واتصالات العملاء.' 
+        : 'Dedicated tools for agents to manage listings and client communications.',
+      icon: Users,
+      cta: isRTL ? 'دخول الوكيل' : 'Agent Login',
+      link: '/agent',
+      feature: isRTL ? 'إدارة القوائم' : 'Listing Management',
     },
   ];
 

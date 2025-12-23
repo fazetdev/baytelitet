@@ -1,21 +1,24 @@
 'use client';
 
-// CORRECT PATHS BASED ON YOUR FILE STRUCTURE:
-import HeroSection from './home/HeroSection';                // ✓ app/home/HeroSection.tsx
-import ChooseRole from './home/components/ChooseRole';      // ✓ app/home/components/ChooseRole.tsx
-import MarketHighlights from './home/MarketHighlights';     // ✓ app/home/MarketHighlights.tsx
-import FeaturesSection from './home/components/FeaturesSection'; // ✓ app/home/components/FeaturesSection.tsx
-import TrustSection from './home/TrustSection';             // ✓ app/home/TrustSection.tsx
-import MarketTools from './market-tools/page';    // ✓ app/home/components/MarketTools.tsx
+import { useLanguage } from '@/context/useLanguage'; // Import the hook
+import HeroSection from './home/HeroSection';
+import ChooseRole from './home/components/ChooseRole';
+import MarketHighlights from './home/MarketHighlights';
+import FeaturesSection from './home/components/FeaturesSection';
+import TrustSection from './home/TrustSection';
+import MarketTools from './market-tools/page';
 
 export default function HomePage() {
+  const { lang } = useLanguage(); // Get the current language
+
   return (
     <main className="min-h-screen bg-bayt-light">
-      <HeroSection />
-      <ChooseRole />
-      <MarketHighlights />
-      <FeaturesSection />
-      <TrustSection />
+      {/* Pass lang prop to components that need it */}
+      <HeroSection lang={lang} />
+      <ChooseRole lang={lang} />
+      <MarketHighlights lang={lang} />
+      <FeaturesSection lang={lang} />
+      <TrustSection lang={lang} />
       <div className="container mx-auto px-6 py-12">
         <MarketTools />
       </div>
