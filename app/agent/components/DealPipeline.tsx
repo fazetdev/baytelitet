@@ -25,53 +25,11 @@ const activeDeals = [
 ];
 
 const stages = [
- 
-const stageActions = {
-  'Security Deposit': 'Collect 10% via escrow',
-  'NOC': 'Submit to developer portal',
-  'Trustee Office': 'Schedule DLD appointment',
-  'Handover': 'Arrange key collection'
-};
   { name: 'Security Deposit', icon: Clock },
- 
-const stageActions = {
-  'Security Deposit': 'Collect 10% via escrow',
-  'NOC': 'Submit to developer portal',
-  'Trustee Office': 'Schedule DLD appointment',
-  'Handover': 'Arrange key collection'
-};
   { name: 'NOC', icon: FileCheck },
- 
-const stageActions = {
-  'Security Deposit': 'Collect 10% via escrow',
-  'NOC': 'Submit to developer portal',
-  'Trustee Office': 'Schedule DLD appointment',
-  'Handover': 'Arrange key collection'
-};
   { name: 'Trustee Office', icon: Landmark },
- 
-const stageActions = {
-  'Security Deposit': 'Collect 10% via escrow',
-  'NOC': 'Submit to developer portal',
-  'Trustee Office': 'Schedule DLD appointment',
-  'Handover': 'Arrange key collection'
-};
   { name: 'Handover', icon: Key }
- 
-const stageActions = {
-  'Security Deposit': 'Collect 10% via escrow',
-  'NOC': 'Submit to developer portal',
-  'Trustee Office': 'Schedule DLD appointment',
-  'Handover': 'Arrange key collection'
-};
 ];
- 
-const stageActions = {
-  'Security Deposit': 'Collect 10% via escrow',
-  'NOC': 'Submit to developer portal',
-  'Trustee Office': 'Schedule DLD appointment',
-  'Handover': 'Arrange key collection'
-};
 
 export default function DealPipeline() {
   return (
@@ -86,7 +44,6 @@ export default function DealPipeline() {
           <div key={deal.id} className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 hover:border-[#D4AF37]/30 transition-all">
             <div className="flex flex-col lg:flex-row justify-between gap-8">
               
-              {/* Deal Identity */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-black bg-[#D4AF37] text-black px-2 py-0.5 rounded uppercase">Active Deal</span>
@@ -97,15 +54,14 @@ export default function DealPipeline() {
                 <p className="text-[#D4AF37] font-black text-lg">{deal.value}</p>
               </div>
 
-              {/* Visual Pipeline */}
               <div className="flex-1 max-w-2xl">
                 <div className="flex justify-between items-center relative">
-                  {/* Progress Line */}
                   <div className="absolute top-5 left-0 w-full h-[2px] bg-white/10 z-0"></div>
                   
                   {stages.map((stage, idx) => {
+                    const currentStageIdx = stages.findIndex(s => s.name === deal.stage);
                     const isCurrent = deal.stage === stage.name;
-                    const isPast = stages.findIndex(s => s.name === deal.stage) > idx;
+                    const isPast = currentStageIdx > idx;
 
                     return (
                       <div key={idx} className="relative z-10 flex flex-col items-center gap-3">
@@ -127,7 +83,6 @@ export default function DealPipeline() {
                 </div>
               </div>
 
-              {/* Action/Alert */}
               <div className="flex flex-col justify-center items-end border-l border-white/10 pl-8">
                 <div className={`flex items-center gap-2 mb-4 ${deal.health === 'Urgent' ? 'text-red-500' : 'text-green-500'}`}>
                   <AlertCircle className="w-4 h-4" />
