@@ -1,31 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 
-export default function HeroSection() {
-  const [lang, setLang] = useState<'en' | 'ar'>('en');
+interface HeroSectionProps {
+  lang: 'en' | 'ar'; // Accept lang as prop
+}
+
+export default function HeroSection({ lang }: HeroSectionProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const isRTL = lang === 'ar';
 
-  // Initialize language from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedLang = localStorage.getItem('language') as 'en' | 'ar' | null;
-      if (storedLang) setLang(storedLang);
-    }
-  }, []);
-
-  // Persist language changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('language', lang);
-    }
-  }, [lang]);
-
-  const toggleLanguage = () => setLang((prev) => (prev === 'en' ? 'ar' : 'en'));
+  // REMOVED: Local language state and useEffect for language
+  // REMOVED: toggleLanguage function and button
 
   return (
     <section
@@ -49,23 +38,7 @@ export default function HeroSection() {
       {/* Gradient Overlay */}
       <div className="absolute inset-0 z-10 bg-gradient-to-br from-bayt-dark to-gray-900" />
 
-      {/* Language Toggle */}
-      <button
-        onClick={toggleLanguage}
-        className={`absolute top-6 ${isRTL ? 'left-6' : 'right-6'} md:top-10 ${isRTL ? 'md:left-10' : 'md:right-10'} 
-          flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-bayt-cool/30 hover:border-bayt-warm transition-colors shadow-sm`}
-        aria-label={isRTL ? 'التبديل إلى اللغة الإنجليزية' : 'Switch to Arabic language'}
-      >
-        <span className={`font-medium ${lang === 'en' ? 'text-bayt-warm' : 'text-gray-600'}`}>EN</span>
-        <div className="w-8 h-5 bg-bayt-cool/30 rounded-full relative">
-          <div
-            className={`absolute top-0.5 w-4 h-4 rounded-full bg-bayt-warm transition-transform duration-300 ${
-              lang === 'ar' ? 'translate-x-4' : 'translate-x-0.5'
-            }`}
-          />
-        </div>
-        <span className={`font-medium ${lang === 'ar' ? 'text-bayt-warm' : 'text-gray-600'}`}>AR</span>
-      </button>
+      {/* REMOVED: Language Toggle Button - Language is controlled globally */}
 
       {/* Content */}
       <div className={`relative z-20 container mx-auto px-6 py-32 md:py-48 ${isRTL ? 'text-right' : 'text-center'}`}>

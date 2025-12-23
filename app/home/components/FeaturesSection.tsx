@@ -86,6 +86,16 @@ const features: Feature[] = [
     color: 'from-green-500 to-emerald-700',
     href: '/agent',
   },
+  {
+    id: "foreigner-guide",
+    icon: <Globe className="w-8 h-8" />,
+    titleEn: "Foreign Buyer\'s Guide",
+    titleAr: "دليل المشتري الأجنبي",
+    descriptionEn: "Step-by-step guide for international investors acquiring Dubai property remotely.",
+    descriptionAr: "دليل خطوة بخطوة للمستثمرين الدوليين لشراء عقارات دبي عن بُعد.",
+    color: "from-purple-500 to-indigo-700",
+    href: "/guides/foreign-buyer",
+  },
 ];
 
 export default function FeaturesSection({ lang }: FeaturesSectionProps) {
