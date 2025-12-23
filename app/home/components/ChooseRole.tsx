@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useEffect, FC } from 'react';
+import { useState, FC } from 'react';
 import Link from 'next/link';
 import { Home, TrendingUp, ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+
+interface ChooseRoleProps {
+  lang?: 'en' | 'ar';
+}
 
 interface RoleCard {
   key: 'buyer' | 'investor';
@@ -19,10 +22,8 @@ interface RoleCard {
   featureAr: string;
 }
 
-const ChooseRole: FC = (): JSX.Element => {
-  const [expandedRole, setExpandedRole] = useState<'investor' | null>(null);
-  const [lang, setLang] = useState<'en' | 'ar'>('en');
-  const router = useRouter();
+const ChooseRole: FC<ChooseRoleProps> = ({ lang = 'en' }): JSX.Element => {
+  const [isInvestorExpanded, setIsInvestorExpanded] = useState(false);
   const isRTL = lang === 'ar';
 
   const roles: RoleCard[] = [
@@ -54,127 +55,92 @@ const ChooseRole: FC = (): JSX.Element => {
     },
   ];
 
-  // Safe timeout navigation
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (expandedRole === 'investor') {
-      timeout = setTimeout(() => {
-        router.push('/market-tools');
-      }, 400);
-    }
-    return () => clearTimeout(timeout);
-  }, [expandedRole, router]);
-
-  const handleRoleClick = (role: RoleCard): void => {
-    if (role.key === 'investor') {
-      setExpandedRole(expandedRole !== 'investor' ? 'investor' : null);
-    } else {
-      router.push(role.link);
-    }
-  };
-
-  const toggleLanguage = (): void => setLang(lang === 'en' ? 'ar' : 'en');
-
   const InvestorToolsPreview: FC = (): JSX.Element => (
-    <div className="mt-4 p-4 bg-gradient-to-br from-yellow-50 to-white rounded-xl border border-bayt-warm/30 animate-fadeIn">
-      <h4 className="font-semibold text-bayt-dark mb-3">
-        {isRTL ? 'أدوات المستثمر السريعة' : 'Quick Investor Tools'}
+    <div className="mt-4 p-5 bg-[#111] rounded-2xl border border-[#D4AF37]/30 animate-fadeIn">
+      <h4 className="font-bold text-[#D4AF37] mb-3 text-[10px] uppercase tracking-[0.3em]">
+        {isRTL ? 'محطة المستثمر' : 'Investor Terminal'}
       </h4>
-      <p className="text-sm text-gray-600 mb-4">
-        {isRTL
-          ? 'استخدم هذه الأدوات لحساب استثماراتك العقارية'
-          : 'Use these tools to calculate your real estate investments'}
-      </p>
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-2">
         <Link
           href="/market-tools#golden-visa"
-          className="p-3 bg-white rounded-lg border hover:border-bayt-warm flex items-center justify-between"
+          className="p-4 bg-black/40 rounded-xl border border-white/5 hover:border-[#D4AF37] flex items-center justify-between transition-all group/link"
         >
-          <span className="font-medium">🏆 Golden Visa Checker</span>
-          <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+          <span className="text-sm text-gray-300 group-hover/link:text-white transition-colors">
+            {isRTL ? '🏆 فاحص الفيزا الذهبية' : '🏆 Golden Visa Checker'}
+          </span>
+          <ArrowRight className={`w-4 h-4 text-[#D4AF37] ${isRTL ? 'rotate-180' : ''}`} />
         </Link>
         <Link
           href="/market-tools#rental-calculator"
-          className="p-3 bg-white rounded-lg border hover:border-bayt-warm flex items-center justify-between"
+          className="p-4 bg-black/40 rounded-xl border border-white/5 hover:border-[#D4AF37] flex items-center justify-between transition-all group/link"
         >
-          <span className="font-medium">📈 Rental Yield Calculator</span>
-          <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+          <span className="text-sm text-gray-300 group-hover/link:text-white transition-colors">
+            {isRTL ? '📈 حاسبة عائد الإيجار' : '📈 Rental Yield Calculator'}
+          </span>
+          <ArrowRight className={`w-4 h-4 text-[#D4AF37] ${isRTL ? 'rotate-180' : ''}`} />
         </Link>
       </div>
     </div>
   );
 
   return (
-    <section className="py-16 bg-gradient-to-br from-bayt-light via-white to-yellow-50" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-          <div>
-            <h2 className="text-4xl font-bold text-bayt-dark mb-3">
-              {isRTL ? 'اختر دورك في سوق العقارات' : 'Choose Your Role in Real Estate'}
-            </h2>
-            <p className="text-gray-600 max-w-2xl">
-              {isRTL
-                ? 'اختر المسار المناسب لاحتياجاتك العقارية. سواء كنت مشترياً أو مستثمراً.'
-                : 'Select the right path for your real estate needs. Buyer or Investor.'}
-            </p>
-          </div>
-
-          <button
-            onClick={toggleLanguage}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-bayt-cool/30 hover:border-bayt-warm transition-colors shadow-sm"
-          >
-            <span className={`font-medium ${lang === 'en' ? 'text-bayt-warm' : 'text-gray-600'}`}>EN</span>
-            <div className="w-8 h-5 bg-bayt-cool/30 rounded-full relative">
-              <div
-                className={`absolute top-0.5 w-4 h-4 rounded-full bg-bayt-warm transition-transform duration-300 ${
-                  lang === 'ar' ? 'translate-x-4' : 'translate-x-0.5'
-                }`}
-              />
-            </div>
-            <span className={`font-medium ${lang === 'ar' ? 'text-bayt-warm' : 'text-gray-600'}`}>AR</span>
-          </button>
+    <section className="py-20 bg-white" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-black text-black mb-4 tracking-tighter italic uppercase">
+            {isRTL ? 'اختر مسارك' : 'CHOOSE YOUR PATH'}
+          </h2>
+          <div className="w-20 h-1 bg-[#D4AF37] mx-auto mb-4"></div>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {roles.map((role) => {
             const Icon = role.icon;
             const isInvestor = role.key === 'investor';
-            const isExpanded = expandedRole === 'investor';
+            
             return (
-              <div key={role.key} className="relative">
-                <button
-                  onClick={() => handleRoleClick(role)}
-                  className="group bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full border cursor-pointer overflow-hidden w-full"
-                  aria-expanded={isInvestor && isExpanded}
-                  aria-label={`Select ${isRTL ? role.titleAr : role.titleEn} role`}
+              <div key={role.key} className="flex flex-col">
+                <div 
+                  className={`group relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 flex flex-col h-full bg-white ${isInvestor && isInvestorExpanded ? 'border-[#D4AF37]' : 'border-gray-100 hover:border-black'}`}
                 >
-                  <div className="mb-4 p-4 rounded-full bg-gradient-to-br from-bayt-warm/10 to-bayt-cultural/10 w-14 h-14 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-7 h-7 text-bayt-dark" />
+                  <div className="mb-6 p-4 rounded-2xl bg-black w-fit flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+                    <Icon className="w-8 h-8 text-[#D4AF37]" />
                   </div>
 
-                  <h3 className="font-bold text-lg text-bayt-dark mb-2 text-center min-h-[3rem]">
+                  <h3 className="font-black text-2xl text-black mb-3">
                     {isRTL ? role.titleAr : role.titleEn}
                   </h3>
-                  <p className="text-gray-600 mb-4 text-center text-sm flex-grow">
+                  <p className="text-gray-500 mb-6 text-base leading-relaxed">
                     {isRTL ? role.subtextAr : role.subtextEn}
                   </p>
 
-                  <div className="mb-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bayt-light border border-bayt-cool/20">
-                      <span className="text-xs text-bayt-warm">✦</span>
-                      <span className="text-xs font-medium">{isRTL ? role.featureAr : role.featureEn}</span>
-                    </div>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 border border-gray-100 mb-8 w-fit">
+                    <span className="text-[#D4AF37] text-xs">✦</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                      {isRTL ? role.featureAr : role.featureEn}
+                    </span>
                   </div>
 
-                  <div className="mt-auto w-full py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-bayt-warm to-yellow-600 text-white hover:shadow-md">
-                    {isRTL ? role.ctaAr : role.ctaEn}
-                    <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
-                  </div>
-                </button>
+                  {isInvestor ? (
+                    <button
+                      onClick={() => setIsInvestorExpanded(!isInvestorExpanded)}
+                      className="mt-auto w-full py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-[#D4AF37] hover:text-black shadow-xl active:scale-95"
+                    >
+                      {isRTL ? role.ctaAr : role.ctaEn}
+                      <ArrowRight className={`w-4 h-4 transition-transform ${isInvestorExpanded ? 'rotate-90' : (isRTL ? 'rotate-180' : '')}`} />
+                    </button>
+                  ) : (
+                    <Link
+                      href={role.link}
+                      className="mt-auto w-full py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-black/80 shadow-xl active:scale-95"
+                    >
+                      {isRTL ? role.ctaAr : role.ctaEn}
+                      <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                    </Link>
+                  )}
+                </div>
 
-                {isInvestor && isExpanded && <InvestorToolsPreview />}
+                {isInvestor && isInvestorExpanded && <InvestorToolsPreview />}
               </div>
             );
           })}
@@ -183,11 +149,11 @@ const ChooseRole: FC = (): JSX.Element => {
 
       <style jsx global>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
+          from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
     </section>
