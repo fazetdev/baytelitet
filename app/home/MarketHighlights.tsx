@@ -17,22 +17,13 @@ const stats: Stat[] = [
 ];
 
 export default function MarketHighlights(): JSX.Element {
-  const { lang, toggleLanguage } = useLanguage();
+  const { lang } = useLanguage(); // REMOVED: toggleLanguage
   const isRTL = lang === 'ar';
 
   return (
     <section className="py-16 bg-bayt-dark text-white" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-6">
-        {/* Language Toggle */}
-        <div className="flex justify-end mb-6">
-          <button
-            onClick={toggleLanguage}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-bayt-dark font-medium border border-bayt-cool/30 hover:border-bayt-warm transition-colors"
-            aria-label={isRTL ? 'التبديل إلى الإنجليزية' : 'Switch to Arabic'}
-          >
-            {isRTL ? 'AR' : 'EN'}
-          </button>
-        </div>
+        {/* REMOVED: Duplicate language toggle button */}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
