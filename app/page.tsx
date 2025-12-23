@@ -6,7 +6,7 @@ import ChooseRole from './home/components/ChooseRole';      // ✓ app/home/comp
 import MarketHighlights from './home/MarketHighlights';     // ✓ app/home/MarketHighlights.tsx
 import FeaturesSection from './home/components/FeaturesSection'; // ✓ app/home/components/FeaturesSection.tsx
 import TrustSection from './home/TrustSection';             // ✓ app/home/TrustSection.tsx
-import MarketTools from './home/components/MarketTools';    // ✓ app/home/components/MarketTools.tsx
+import MarketTools from './market-tools/page';    // ✓ app/home/components/MarketTools.tsx
 
 export default function HomePage() {
   return (
