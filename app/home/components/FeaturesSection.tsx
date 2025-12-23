@@ -1,7 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { Calculator, Home, Globe, Settings, BarChart3, Users } from 'lucide-react';
+import {
+  Calculator,
+  Home,
+  Globe,
+  Settings,
+  BarChart3,
+  Users
+} from 'lucide-react';
 
 interface Feature {
   id: string;
@@ -78,7 +85,7 @@ const features: Feature[] = [
     descriptionAr: 'أدوات مخصصة للوكلاء لإدارة القوائم واتصالات العملاء',
     color: 'from-green-500 to-emerald-700',
     href: '/agent',
-  }
+  },
 ];
 
 export default function FeaturesSection({ lang }: FeaturesSectionProps) {
@@ -112,10 +119,8 @@ export default function FeaturesSection({ lang }: FeaturesSectionProps) {
                   {isRTL ? feature.descriptionAr : feature.descriptionEn}
                 </p>
                 <div className="text-bayt-warm font-semibold flex items-center gap-2">
-                  {isRTL ? 'استكشف الميزة' : 'Explore feature'}{' '}
-                  <span className={`transition-transform ${isRTL ? 'group-hover:-translate-x-2' : 'group-hover:translate-x-2'}`}>
-                    {isRTL ? '←' : '→'}
-                  </span>
+                  {isRTL ? 'استكشف الميزة' : 'Explore feature'}
+                  <span className="group-hover:translate-x-2 transition-transform">→</span>
                 </div>
               </div>
             </Link>
