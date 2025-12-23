@@ -1,122 +1,94 @@
 'use client';
-
 import React, { useState } from 'react';
-import { Home, ShieldCheck, AlertTriangle, ExternalLink, Plus, ArrowLeft } from 'lucide-react';
-import { AgentListing } from '@/lib/types/agent';
-import AddListingForm from './AddListingForm';
-
-// Initial data state (In Phase 3, this will come from useListings hook)
-const initialListings: AgentListing[] = [
-  {
-    id: 'prop-101',
-    title: 'Luxury Penthouse | Business Bay',
-    permitNumber: '7123456789',
-    permitExpiry: '2026-05-20',
-    status: 'Live',
-    price: 4500000,
-    location: 'Dubai, UAE',
-    type: 'Ready'
-  }
-];
+import { 
+  Building2, Users, ShieldAlert, BadgeDollarSign, 
+  Search, Filter, Plus, ChevronRight, FileText 
+} from 'lucide-react';
 
 export default function ListingManager() {
-  const [isAdding, setIsAdding] = useState(false);
-  const [listings, setListings] = useState<AgentListing[]>(initialListings);
-
-  if (isAdding) {
-    return (
-      <div className="space-y-6">
-        <button 
-          onClick={() => setIsAdding(false)}
-          className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors font-bold text-xs uppercase tracking-widest"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Inventory
-        </button>
-        <AddListingForm onComplete={() => setIsAdding(false)} />
-      </div>
-    );
-  }
+  const [activeSubView, setActiveSubView] = useState<'inventory' | 'agents' | 'compliance'>('inventory');
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white">Portfolio Management</h2>
-          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-1">Managed Inventory & Compliance</p>
-        </div>
-        <button 
-          onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-[#D4AF37] text-black rounded-xl font-black uppercase text-xs tracking-widest hover:bg-yellow-500 transition-all shadow-lg shadow-[#D4AF37]/10"
-        >
-          <Plus className="w-4 h-4" /> Add New Listing
-        </button>
+    <div className="space-y-8 pb-20">
+      {/* MANAGEMENT TABS - Sub-Navigation */}
+      <div className="flex gap-4 border-b border-white/5 pb-1 overflow-x-auto no-scrollbar">
+        {[
+          { id: 'inventory', label: 'Inventory Control', icon: Building2 },
+          { id: 'agents', label: 'Agent Performance', icon: Users },
+          { id: 'compliance', label: 'RERA Compliance', icon: ShieldAlert },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveSubView(tab.id as any)}
+            className={`flex items-center gap-2 pb-4 px-2 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+              activeSubView === tab.id ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            <tab.icon size={14} />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Stats Mini-Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
-          <p className="text-[9px] font-black text-gray-500 uppercase">Total Value</p>
-          <p className="text-sm font-bold text-white">4.5M AED</p>
-        </div>
-        <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
-          <p className="text-[9px] font-black text-gray-500 uppercase">Active Permits</p>
-          <p className="text-sm font-bold text-green-500">100%</p>
-        </div>
-      </div>
-
-      {/* Inventory List */}
-      <div className="grid grid-cols-1 gap-4">
-        {listings.map((listing) => {
-          const isExpiring = new Date(listing.permitExpiry) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      {/* RENDER CONTENT BASED ON SUB-VIEW */}
+      {activeSubView === 'inventory' && (
+        <div className="space-y-6 animate-in fade-in duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Global Inventory</p>
+              <p className="text-2xl font-black italic text-white mt-1">142 Units</p>
+            </div>
+            <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Active NOCs</p>
+              <p className="text-2xl font-black italic text-[#D4AF37] mt-1">118 Valid</p>
+            </div>
+            <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Management Yield</p>
+              <p className="text-2xl font-black italic text-green-500 mt-1">6.8% Avg</p>
+            </div>
+          </div>
           
-          return (
-            <div key={listing.id} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] hover:bg-white/[0.07] transition-all group">
-              <div className="flex flex-col lg:flex-row gap-6 justify-between">
-                
-                <div className="flex gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37]/30 transition-colors">
-                    <Home className="w-8 h-8 text-gray-600 group-hover:text-[#D4AF37]" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-white mb-1">{listing.title}</h3>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-tight">{listing.location}</span>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded ${listing.type === 'Off-Plan' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>
-                        {listing.type}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+          <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 text-center py-20">
+             <p className="text-gray-500 italic text-sm">Property Management Module: Active monitoring of 42 buildings...</p>
+          </div>
+        </div>
+      )}
 
-                <div className="flex flex-col justify-center px-6 lg:border-l lg:border-r border-white/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Permit: {listing.permitNumber}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-bold ${isExpiring ? 'text-red-500' : 'text-gray-500'}`}>
-                      {isExpiring ? '⚠️ Action Required' : '✓ Compliant'}
-                    </span>
-                  </div>
+      {activeSubView === 'agents' && (
+        <div className="grid grid-cols-1 gap-4 animate-in slide-in-from-right-4 duration-500">
+          {[
+            { name: 'Sarah Jenkins', role: 'Off-Plan Specialist', sales: '12.5M', target: '80%' },
+            { name: 'Ahmed Mansoor', role: 'Luxury Rental Lead', sales: '4.2M', target: '110%' },
+          ].map((agent, i) => (
+            <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gray-800 rounded-full border border-[#D4AF37]/30"></div>
+                <div>
+                  <h4 className="text-white font-bold">{agent.name}</h4>
+                  <p className="text-[10px] text-gray-500 font-black uppercase tracking-tighter">{agent.role}</p>
                 </div>
-
-                <div className="flex items-center justify-between lg:justify-end gap-8">
-                  <div className="text-right">
-                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Price</p>
-                    <p className="text-xl font-black text-white italic">
-                      {listing.price.toLocaleString()} <span className="text-[#D4AF37] text-sm not-italic font-bold">AED</span>
-                    </p>
-                  </div>
-                  <button className="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-[#D4AF37] hover:text-black transition-all">
-                    <ExternalLink className="w-5 h-5" />
-                  </button>
+              </div>
+              <div className="text-right">
+                <p className="text-[#D4AF37] font-black">{agent.sales} AED</p>
+                <div className="w-24 h-1 bg-white/10 rounded-full mt-2 overflow-hidden">
+                   <div className="h-full bg-green-500" style={{ width: agent.target }}></div>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {activeSubView === 'compliance' && (
+        <div className="bg-red-500/5 border border-red-500/20 p-8 rounded-[2.5rem] flex flex-col items-center text-center gap-4">
+          <ShieldAlert className="w-12 h-12 text-red-500" />
+          <div>
+             <h3 className="text-white font-black uppercase italic tracking-tighter">Audit Required</h3>
+             <p className="text-gray-500 text-xs mt-1">3 Listing Permits (RERA Trakheesi) are expiring in 48 hours.</p>
+          </div>
+          <button className="bg-red-500 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest">Review Permits</button>
+        </div>
+      )}
     </div>
   );
 }
