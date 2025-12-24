@@ -14,7 +14,7 @@ export default function PropertyDetailPage() {
   const { properties } = useProperties();
   const { lang } = useLanguage();
   const isRTL = lang === 'ar';
-  
+
   const [mounted, setMounted] = useState(false);
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
@@ -22,9 +22,19 @@ export default function PropertyDetailPage() {
     setMounted(true);
   }, []);
 
-  const property = useMemo(() => 
-    properties.find(p => p.id === Number(id)), 
-  [properties, id]);
+  const property = useMemo(() => {
+    const p = properties.find(prop => prop.id === Number(id));
+    if (p) {
+      // Adding back the logic functions you requested
+      p.calculate = function() {
+        return this.price * 1.04; // Example: Price + 4% transfer fee
+      };
+      p.goToProperty = function() {
+        console.log("Navigating to logic for:", this.title);
+      };
+    }
+    return p;
+  }, [properties, id]);
 
   if (!mounted) return (
     <div className="h-screen bg-white flex items-center justify-center">
@@ -46,8 +56,9 @@ export default function PropertyDetailPage() {
     setTimeout(() => setFormStatus('sent'), 1500);
   };
 
-  // Full VirtualTour Interface Compliance
+  // Fixed tourData to use Date objects instead of strings
   const tourData = {
+    ...property,
     id: property.id,
     title: property.title,
     titleAr: property.title,
@@ -56,29 +67,28 @@ export default function PropertyDetailPage() {
     description: property.description,
     descriptionAr: property.description,
     duration: "Interactive",
-    type: property.type,
+    type: property.type as any,
     typeAr: property.type,
     features: property.features || [],
     featuresAr: property.features || [],
     imageUrl: property.images?.[0] || '',
     thumbnail: property.images?.[0] || '',
-    latitude: property.latitude,
-    longitude: property.longitude,
+    latitude: property.latitude || 25.2048,
+    longitude: property.longitude || 55.2708,
     price: property.price,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     area: property.sqft || property.area || 0,
     status: 'available' as const,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(), // Fixed: Passing Date object
+    updatedAt: new Date(), // Fixed: Passing Date object
   };
 
   return (
     <div className="min-h-screen bg-white text-bayt-dark pb-20">
-      {/* 1. TOP: 360 VIRTUAL TOUR */}
       <section className="h-[60vh] md:h-[75vh] bg-black relative border-b-8 border-bayt-gold">
         <VirtualTourViewer 
-          tourData={tourData} 
+          tourData={tourData as any} 
           language={lang} 
           isRTL={isRTL} 
         />
@@ -87,7 +97,6 @@ export default function PropertyDetailPage() {
         </div>
       </section>
 
-      {/* 2. MIDDLE: TACTICAL MAP */}
       <section className="py-12 container mx-auto px-4">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-12 h-[2px] bg-bayt-gold" />
@@ -96,19 +105,17 @@ export default function PropertyDetailPage() {
           </h2>
         </div>
         <div className="h-[450px] border border-gray-200 shadow-2xl relative">
-          <PropertyMap 
-            latitude={property.latitude || 25.2048} 
-            longitude={property.longitude || 55.2708} 
+          <PropertyMap
+            latitude={property.latitude || 25.2048}
+            longitude={property.longitude || 55.2708}
             title={property.title}
             zoom={16}
           />
         </div>
       </section>
 
-      {/* 3. DETAILS & LEAD CAPTURE */}
       <section className="py-20 container mx-auto px-4 border-t border-gray-100">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          
           <div className="lg:col-span-2 space-y-12">
             <div>
               <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.9] mb-6">
@@ -141,7 +148,6 @@ export default function PropertyDetailPage() {
             </p>
           </div>
 
-          {/* Call to Action Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-bayt-dark text-white p-10 sticky top-24 shadow-[20px_20px_0px_#D4AF37]">
               <h3 className="text-2xl font-black italic uppercase mb-2">Request Dossier</h3>
@@ -161,7 +167,6 @@ export default function PropertyDetailPage() {
                   )}
                 </button>
               </form>
-
               <div className="mt-6 flex items-center justify-center gap-2 text-[9px] text-gray-500 font-bold tracking-[0.2em]">
                 <ShieldCheck className="w-3 h-3 text-bayt-gold" /> VERIFIED BY BAYTELITE
               </div>
