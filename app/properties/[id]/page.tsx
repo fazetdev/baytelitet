@@ -6,7 +6,6 @@ import { useProperties } from '@/context/useProperties';
 import { useLanguage } from '@/context/useLanguage';
 import VirtualTourViewer from '../components/VirtualTourViewer';
 import PropertyMap from '@/components/PropertyMap';
-import { formatCurrency } from '@/lib/formatters';
 import { Bed, Bath, MapPin, ShieldCheck, Send, Loader2 } from 'lucide-react';
 
 export default function PropertyDetailPage() {
@@ -22,19 +21,39 @@ export default function PropertyDetailPage() {
     setMounted(true);
   }, []);
 
-  const property = useMemo(() => {
-    const p = properties.find(prop => prop.id === Number(id));
-    if (p) {
-      // Adding back the logic functions you requested
-      p.calculate = function() {
-        return this.price * 1.04; // Example: Price + 4% transfer fee
-      };
-      p.goToProperty = function() {
-        console.log("Navigating to logic for:", this.title);
-      };
-    }
-    return p;
-  }, [properties, id]);
+  const property = useMemo(() => 
+    properties.find(p => p.id === Number(id)),
+  [properties, id]);
+
+  // Safely transform property to VirtualTour interface
+  const tourData = useMemo(() => {
+    if (!property) return null;
+    return {
+      id: property.id,
+      title: property.title,
+      titleAr: property.titleAr || property.title,
+      property: property.title,
+      propertyAr: property.titleAr || property.title,
+      description: property.description,
+      descriptionAr: property.descriptionAr || property.description,
+      duration: "Interactive",
+      type: property.type as any, // Cast specific enum if needed
+      typeAr: property.type === 'villa' ? 'فيلا' : 'شقة',
+      features: property.features || [],
+      featuresAr: property.features || [],
+      imageUrl: property.images?.[0] || '',
+      thumbnail: property.images?.[0] || '',
+      latitude: property.latitude || 25.2048,
+      longitude: property.longitude || 55.2708,
+      price: property.price,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      area: property.sqft || property.area || 0,
+      status: 'available' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }, [property]);
 
   if (!mounted) return (
     <div className="h-screen bg-white flex items-center justify-center">
@@ -42,7 +61,7 @@ export default function PropertyDetailPage() {
     </div>
   );
 
-  if (!property) return (
+  if (!property || !tourData) return (
     <div className="h-screen bg-white flex items-center justify-center">
       <p className="text-bayt-dark font-black italic tracking-widest animate-pulse uppercase">
         {isRTL ? 'الأصل غير موجود' : 'Asset Not Found'}
@@ -56,39 +75,11 @@ export default function PropertyDetailPage() {
     setTimeout(() => setFormStatus('sent'), 1500);
   };
 
-  // Fixed tourData to use Date objects instead of strings
-  const tourData = {
-    ...property,
-    id: property.id,
-    title: property.title,
-    titleAr: property.title,
-    property: property.title,
-    propertyAr: property.title,
-    description: property.description,
-    descriptionAr: property.description,
-    duration: "Interactive",
-    type: property.type as any,
-    typeAr: property.type,
-    features: property.features || [],
-    featuresAr: property.features || [],
-    imageUrl: property.images?.[0] || '',
-    thumbnail: property.images?.[0] || '',
-    latitude: property.latitude || 25.2048,
-    longitude: property.longitude || 55.2708,
-    price: property.price,
-    bedrooms: property.bedrooms,
-    bathrooms: property.bathrooms,
-    area: property.sqft || property.area || 0,
-    status: 'available' as const,
-    createdAt: new Date(), // Fixed: Passing Date object
-    updatedAt: new Date(), // Fixed: Passing Date object
-  };
-
   return (
     <div className="min-h-screen bg-white text-bayt-dark pb-20">
       <section className="h-[60vh] md:h-[75vh] bg-black relative border-b-8 border-bayt-gold">
         <VirtualTourViewer 
-          tourData={tourData as any} 
+          tourData={tourData} 
           language={lang} 
           isRTL={isRTL} 
         />
@@ -167,9 +158,6 @@ export default function PropertyDetailPage() {
                   )}
                 </button>
               </form>
-              <div className="mt-6 flex items-center justify-center gap-2 text-[9px] text-gray-500 font-bold tracking-[0.2em]">
-                <ShieldCheck className="w-3 h-3 text-bayt-gold" /> VERIFIED BY BAYTELITE
-              </div>
             </div>
           </div>
         </div>
