@@ -1,16 +1,24 @@
 'use client';
 
-import ReraApproval from './components/ReraApproval';
-import EscrowActivation from './components/EscrowActivation';
-import MarketSegmentation from './components/MarketSegmentation';
+import { useState } from 'react';
+import PublishingPipeline from './components/PublishingPipeline';
 
-export default function PublishingWorkflow() {
+export default function AssetPublishing() {
+  const [lang, setLang] = useState<'en' | 'ar'>('en');
+
+  const toggleLang = () => setLang(lang === 'en' ? 'ar' : 'en');
+
   return (
-    <div className="p-8 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">Gulf Publishing Workflow</h1>
-      <ReraApproval />
-      <EscrowActivation />
-      <MarketSegmentation />
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">
+          {lang === 'en' ? 'Asset Publishing' : 'نشر العقارات'}
+        </h1>
+        <button onClick={toggleLang} className="px-4 py-2 bg-gray-200 rounded">
+          {lang === 'en' ? 'عربي' : 'EN'}
+        </button>
+      </div>
+      <PublishingPipeline />
     </div>
   );
 }
