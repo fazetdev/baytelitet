@@ -1,12 +1,19 @@
 'use client';
 
 export default function ReraApproval() {
-  const status = '✅ Complete';
+  const steps = [
+    { step: 'RERA Approval', status: '✅ Complete' },
+    { step: 'Documentation Check', status: '⚠️ Pending' }
+  ];
 
   return (
-    <div className="p-4 mb-4 bg-green-50 border border-green-200 rounded">
-      <h2 className="text-lg font-semibold">RERA Approval</h2>
-      <p>Status: {status}</p>
+    <div className="p-4 bg-blue-50 border border-blue-200 rounded">
+      <h2 className="font-semibold mb-2">RERA Approval</h2>
+      <ul className="list-disc ml-5">
+        {steps.map((item, idx) => (
+          <li key={idx}>{item.step}: {item.status}</li>
+        ))}
+      </ul>
     </div>
   );
 }
