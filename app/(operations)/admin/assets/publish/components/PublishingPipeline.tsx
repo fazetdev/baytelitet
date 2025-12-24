@@ -1,27 +1,23 @@
 'use client';
 
-import { FC } from 'react';
-
-interface Step {
+interface PipelineStep {
   step: string;
   status: string;
 }
 
-interface Props {
-  steps: Step[];
+interface PublishingPipelineProps {
+  steps: PipelineStep[];
 }
 
-const PublishingPipeline: FC<Props> = ({ steps }) => {
+export default function PublishingPipeline({ steps }: PublishingPipelineProps) {
   return (
     <div className="space-y-4">
-      {steps.map((s, idx) => (
-        <div key={idx} className="flex justify-between p-4 bg-gray-50 rounded border border-gray-200">
-          <span>{s.step}</span>
-          <span>{s.status}</span>
+      {steps.map((item, idx) => (
+        <div key={idx} className="flex justify-between p-4 border border-gray-200 rounded bg-gray-50">
+          <span className="font-medium">{item.step}</span>
+          <span>{item.status}</span>
         </div>
       ))}
     </div>
   );
-};
-
-export default PublishingPipeline;
+}
