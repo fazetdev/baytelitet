@@ -7,6 +7,8 @@ interface PipelineStep {
   noteEn?: string;
   noteAr?: string;
   link?: string;
+  reraRequired?: boolean;
+  escrowRequired?: boolean;
 }
 
 interface PublishingPipelineProps {
@@ -32,10 +34,18 @@ export default function PublishingPipeline({ steps, lang }: PublishingPipelinePr
             <span className="font-medium">{lang === 'en' ? step.stepEn : step.stepAr}</span>
             <span className={getStatusColor(step.status)}>{step.status}</span>
           </div>
-          {step.noteEn && (
-            <p className="text-sm mt-1 text-gray-700">
-              {lang === 'en' ? step.noteEn : step.noteAr}
+          {step.reraRequired && (
+            <p className="text-sm mt-1 text-red-600">
+              {lang === 'en' ? 'RERA Approval Required' : 'مطلوب موافقة ريـرا'}
             </p>
+          )}
+          {step.escrowRequired && (
+            <p className="text-sm mt-1 text-orange-600">
+              {lang === 'en' ? 'Escrow Activation Required' : 'مطلوب تفعيل الضمان'}
+            </p>
+          )}
+          {step.noteEn && (
+            <p className="text-sm mt-1 text-gray-700">{lang === 'en' ? step.noteEn : step.noteAr}</p>
           )}
           {step.link && (
             <a href={step.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm">
