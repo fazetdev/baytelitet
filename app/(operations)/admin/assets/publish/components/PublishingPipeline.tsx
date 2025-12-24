@@ -1,8 +1,5 @@
 'use client';
 
-import MarketSegmentation from './MarketSegmentation';
-import EscrowActivation from './EscrowActivation';
-
 export default function PublishingPipeline() {
   const pipeline = [
     { step: 'RERA Approval', status: '✅ Complete' },
@@ -11,18 +8,13 @@ export default function PublishingPipeline() {
   ];
 
   return (
-    <div className="p-6 bg-white/5 border border-white/10 rounded-lg">
-      <h1 className="text-xl font-bold mb-4">Gulf Publishing Pipeline</h1>
-      <ul className="space-y-2">
+    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
+      <h2 className="text-lg font-semibold mb-2">Publishing Pipeline</h2>
+      <ul className="list-disc list-inside">
         {pipeline.map((item) => (
-          <li key={item.step} className="flex justify-between bg-gray-50/20 p-2 rounded">
-            <span>{item.step}</span>
-            <span>{item.status}</span>
-          </li>
+          <li key={item.step}>{item.step} - {item.status}</li>
         ))}
       </ul>
-      <MarketSegmentation />
-      <EscrowActivation />
     </div>
   );
 }
