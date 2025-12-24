@@ -36,8 +36,11 @@ export default function PropertyDetailPage() {
       id: property.id,
       title: property.title,
       titleAr: property.title,
+      property: property.title, // Added to satisfy VirtualTour interface
+      propertyAr: property.title, // Added to satisfy VirtualTour interface
       description: property.description,
       descriptionAr: property.description,
+      duration: "Interactive", // Added to satisfy VirtualTour interface
       type: property.type as any,
       typeAr: property.type === 'villa' ? 'فيلا' : 'شقة',
       features: property.features || [],
@@ -78,11 +81,10 @@ export default function PropertyDetailPage() {
     setTimeout(() => setFormStatus('sent'), 1500);
   };
 
-  const calculateROI = (price: number) => ((price * 0.06) / 12).toFixed(2); // Example monthly rental yield
+  const calculateROI = (price: number) => ((price * 0.06) / 12).toFixed(2);
 
   return (
     <div className="min-h-screen bg-white text-bayt-dark pb-20">
-      {/* Hero Section */}
       <section className="h-[60vh] md:h-[75vh] bg-black relative border-b-8 border-bayt-gold">
         <VirtualTourViewer tourData={tourData} language={lang} isRTL={isRTL} />
         <div className="absolute top-8 left-8 z-10 bg-bayt-gold text-bayt-dark px-6 py-2 font-black italic uppercase tracking-widest text-[10px]">
@@ -90,7 +92,6 @@ export default function PropertyDetailPage() {
         </div>
       </section>
 
-      {/* Map Section */}
       <section className="py-12 container mx-auto px-4">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-12 h-[2px] bg-bayt-gold" />
@@ -108,7 +109,6 @@ export default function PropertyDetailPage() {
         </div>
       </section>
 
-      {/* Main Content */}
       <section className="py-20 container mx-auto px-4 border-t border-gray-100">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           <div className="lg:col-span-2 space-y-12">
