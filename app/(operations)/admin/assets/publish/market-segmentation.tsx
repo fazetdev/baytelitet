@@ -4,26 +4,32 @@ interface MarketSegmentationProps {
   lang: 'en' | 'ar';
 }
 
-const MarketSegmentation = ({ lang }: MarketSegmentationProps) => {
+export default function MarketSegmentation({ lang }: MarketSegmentationProps) {
   const markets = [
-    { nameEn: 'UAE', nameAr: 'الإمارات', status: 'Active' },
-    { nameEn: 'KSA', nameAr: 'السعودية', status: 'Scheduled' },
-    { nameEn: 'Qatar', nameAr: 'قطر', status: 'Pending' }
+    { region: 'UAE', status: '✅ Approved' },
+    { region: 'KSA', status: '⏳ Pending' },
+    { region: 'Qatar', status: '⚠️ Pending' }
   ];
 
   return (
-    <div className="space-y-3">
-      <h2 className="text-xl font-semibold">{lang === 'en' ? 'Market Segmentation' : 'تقسيم السوق'}</h2>
-      <ul className="space-y-2">
-        {markets.map((m) => (
-          <li key={m.nameEn} className="flex justify-between p-2 bg-white rounded border border-gray-100">
-            <span>{lang === 'en' ? m.nameEn : m.nameAr}</span>
-            <span>{m.status}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded">
+      <h2 className="text-xl font-semibold mb-2">{lang === 'en' ? 'Market Segmentation' : 'تقسيم السوق'}</h2>
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr>
+            <th className="border-b p-2">{lang === 'en' ? 'Region' : 'المنطقة'}</th>
+            <th className="border-b p-2">{lang === 'en' ? 'Status' : 'الحالة'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {markets.map((m) => (
+            <tr key={m.region}>
+              <td className="border-b p-2">{lang === 'en' ? m.region : m.region === 'UAE' ? 'الإمارات' : m.region === 'KSA' ? 'السعودية' : 'قطر'}</td>
+              <td className="border-b p-2">{m.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-};
-
-export default MarketSegmentation;
+}
