@@ -15,16 +15,20 @@ export default function AssetPublishing() {
   ];
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{lang === 'en' ? 'Asset Publishing' : 'نشر الأصول'}</h1>
+    <div className="p-8 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">
+          {lang === 'en' ? 'Asset Publishing Workflow' : 'سير نشر الأصول'}
+        </h1>
         <button onClick={toggleLang} className="px-4 py-2 bg-gray-200 rounded">
           {lang === 'en' ? 'عربي' : 'EN'}
         </button>
       </div>
 
-      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
-        <h2 className="font-semibold mb-2">{lang === 'en' ? 'Publishing Pipeline' : 'خط سير النشر'}</h2>
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded">
+        <h2 className="font-semibold mb-2">
+          {lang === 'en' ? 'Publishing Pipeline' : 'خط سير النشر'}
+        </h2>
         <ul className="space-y-1">
           {publishingPipeline.map((step) => (
             <li key={step.step} className="flex justify-between">
@@ -42,7 +46,7 @@ export default function AssetPublishing() {
 
 function translateStep(step: string) {
   switch(step) {
-    case 'RERA Approval': return 'اعتماد ريـرا';
+    case 'RERA Approval': return 'الموافقة على ريـرا';
     case 'Escrow Activation': return 'تفعيل الضمان';
     case 'Market Distribution': return 'توزيع السوق';
     default: return step;
