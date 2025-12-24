@@ -7,17 +7,17 @@ interface Step {
   status: string;
 }
 
-interface PublishingPipelineProps {
+interface Props {
   steps: Step[];
 }
 
-const PublishingPipeline: FC<PublishingPipelineProps> = ({ steps }) => {
+const PublishingPipeline: FC<Props> = ({ steps }) => {
   return (
     <div className="space-y-4">
-      {steps.map((item, idx) => (
-        <div key={idx} className="p-4 border rounded flex justify-between items-center bg-gray-50">
-          <span className="font-medium">{item.step}</span>
-          <span>{item.status}</span>
+      {steps.map((s, idx) => (
+        <div key={idx} className="flex justify-between p-4 bg-gray-50 rounded border border-gray-200">
+          <span>{s.step}</span>
+          <span>{s.status}</span>
         </div>
       ))}
     </div>
