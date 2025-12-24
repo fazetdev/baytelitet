@@ -1,20 +1,25 @@
 'use client';
 
-export default function PublishingPipeline() {
-  const pipeline = [
-    { step: 'RERA Approval', status: '✅ Complete' },
-    { step: 'Escrow Activation', status: '⚠️ Pending' },
-    { step: 'Market Distribution', status: '⏳ Scheduled' }
-  ];
+import { FC } from 'react';
 
-  return (
-    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded">
-      <h2 className="text-lg font-semibold mb-2">Publishing Pipeline</h2>
-      <ul className="list-disc list-inside">
-        {pipeline.map((item) => (
-          <li key={item.step}>{item.step} - {item.status}</li>
-        ))}
-      </ul>
-    </div>
-  );
+interface PublishingStep {
+  step: string;
+  status: string;
 }
+
+interface PublishingPipelineProps {
+  steps: PublishingStep[];
+}
+
+const PublishingPipeline: FC<PublishingPipelineProps> = ({ steps }) => (
+  <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded">
+    {steps.map((s) => (
+      <div key={s.step} className="flex justify-between">
+        <span className="font-medium">{s.step}</span>
+        <span className="font-semibold">{s.status}</span>
+      </div>
+    ))}
+  </div>
+);
+
+export default PublishingPipeline;
