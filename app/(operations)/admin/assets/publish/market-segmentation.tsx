@@ -6,24 +6,31 @@ interface MarketSegmentationProps {
 
 export default function MarketSegmentation({ lang }: MarketSegmentationProps) {
   const markets = [
-    { nameEn: 'UAE', nameAr: 'الإمارات', status: '✅ Ready' },
-    { nameEn: 'KSA', nameAr: 'السعودية', status: '⏳ Scheduled' },
-    { nameEn: 'Qatar', nameAr: 'قطر', status: '⚠️ Pending' },
+    { name: 'UAE', status: '✅ Approved' },
+    { name: 'KSA', status: '⚠️ Pending' },
+    { name: 'Qatar', status: '⏳ Scheduled' }
   ];
 
   return (
-    <div className="p-4 bg-green-50 border border-green-200 rounded">
-      <h3 className="font-semibold mb-2">
-        {lang === 'en' ? 'Market Segmentation' : 'تقسيم السوق'}
-      </h3>
-      <ul className="space-y-1">
-        {markets.map((m) => (
-          <li key={m.nameEn} className="flex justify-between">
-            <span>{lang === 'en' ? m.nameEn : m.nameAr}</span>
-            <span>{m.status}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="p-4 bg-green-50 border border-green-200 rounded space-y-2">
+      <h2 className="text-xl font-semibold mb-2">
+        {lang === 'en' ? 'Market Segmentation' : 'تجزئة السوق'}
+      </h2>
+      {markets.map((m) => (
+        <div key={m.name} className="flex justify-between p-2 bg-white/50 rounded">
+          <span>{lang === 'en' ? m.name : translateMarket(m.name)}</span>
+          <span>{m.status}</span>
+        </div>
+      ))}
     </div>
   );
+
+  function translateMarket(market: string) {
+    const translations: Record<string, string> = {
+      'UAE': 'الإمارات',
+      'KSA': 'السعودية',
+      'Qatar': 'قطر'
+    };
+    return translations[market] || market;
+  }
 }
