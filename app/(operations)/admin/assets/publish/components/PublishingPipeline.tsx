@@ -2,24 +2,26 @@
 
 import { FC } from 'react';
 
-interface PublishingStep {
+interface Step {
   step: string;
   status: string;
 }
 
 interface PublishingPipelineProps {
-  steps: PublishingStep[];
+  steps: Step[];
 }
 
-const PublishingPipeline: FC<PublishingPipelineProps> = ({ steps }) => (
-  <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded">
-    {steps.map((s) => (
-      <div key={s.step} className="flex justify-between">
-        <span className="font-medium">{s.step}</span>
-        <span className="font-semibold">{s.status}</span>
-      </div>
-    ))}
-  </div>
-);
+const PublishingPipeline: FC<PublishingPipelineProps> = ({ steps }) => {
+  return (
+    <div className="space-y-4">
+      {steps.map((item, idx) => (
+        <div key={idx} className="p-4 border rounded flex justify-between items-center bg-gray-50">
+          <span className="font-medium">{item.step}</span>
+          <span>{item.status}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default PublishingPipeline;
