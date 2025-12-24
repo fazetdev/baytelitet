@@ -7,9 +7,9 @@ interface PipelineStepProps {
 
 export default function PipelineStep({ step, status }: PipelineStepProps) {
   return (
-    <div className="flex justify-between p-4 border border-gray-200 rounded mb-2">
+    <div className="flex justify-between items-center p-4 mb-2 bg-white/5 border border-gray-200 rounded">
       <span className="font-medium">{step}</span>
-      <span>{status}</span>
+      <span className="font-bold">{status}</span>
     </div>
   );
 }
