@@ -16,19 +16,19 @@ export default function AssetPublishing() {
 
   return (
     <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">
-          {lang === 'en' ? 'Asset Publishing Workflow' : 'سير عمل نشر العقار'}
+          {lang === 'en' ? 'Asset Publishing Workflow' : 'سير النشر للعقار'}
         </h1>
         <button onClick={toggleLang} className="px-4 py-2 bg-gray-200 rounded">
           {lang === 'en' ? 'عربي' : 'EN'}
         </button>
       </div>
 
-      <div className="space-y-4">
-        {publishingPipeline.map((p, idx) => (
-          <div key={idx} className="flex justify-between p-4 bg-blue-50 border border-blue-200 rounded">
-            <span>{lang === 'en' ? p.step : p.step === 'RERA Approval' ? 'الموافقة على ريـرا' : p.step === 'Escrow Activation' ? 'تفعيل الضمان' : 'توزيع السوق'}</span>
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded space-y-2">
+        {publishingPipeline.map((p) => (
+          <div key={p.step} className="flex justify-between">
+            <span>{lang === 'en' ? p.step : translateStep(p.step)}</span>
             <span>{p.status}</span>
           </div>
         ))}
@@ -37,4 +37,13 @@ export default function AssetPublishing() {
       <MarketSegmentation />
     </div>
   );
+}
+
+function translateStep(step: string) {
+  const translations: Record<string, string> = {
+    'RERA Approval': 'اعتماد ريـرا',
+    'Escrow Activation': 'تفعيل الضمان',
+    'Market Distribution': 'توزيع السوق'
+  };
+  return translations[step] || step;
 }
