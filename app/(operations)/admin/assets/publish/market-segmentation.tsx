@@ -2,17 +2,17 @@
 
 export default function MarketSegmentation() {
   const markets = [
-    { nameEn: 'UAE', nameAr: 'الإمارات', status: 'Active' },
-    { nameEn: 'KSA', nameAr: 'السعودية', status: 'Pending' },
-    { nameEn: 'Qatar', nameAr: 'قطر', status: 'Scheduled' }
+    { name: 'UAE', status: '✅ Active' },
+    { name: 'KSA', status: '⏳ Pending' },
+    { name: 'Qatar', status: '⚠️ Scheduled' }
   ];
 
   return (
-    <div className="p-8 bg-gray-50 rounded-lg space-y-4">
-      <h2 className="text-xl font-bold mb-4">Market Segmentation</h2>
-      {markets.map((m, idx) => (
-        <div key={idx} className="flex justify-between p-4 bg-white border rounded">
-          <span>{m.nameEn} / {m.nameAr}</span>
+    <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded space-y-2">
+      <h2 className="text-xl font-semibold">Market Segmentation</h2>
+      {markets.map((m) => (
+        <div key={m.name} className="flex justify-between">
+          <span>{m.name}</span>
           <span>{m.status}</span>
         </div>
       ))}
