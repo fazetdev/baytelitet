@@ -1,3 +1,5 @@
+'use client';
+
 export default function AssetOnboarding() {
   return (
     <div className='p-8'>
@@ -9,5 +11,5 @@ export default function AssetOnboarding() {
         <strong>Compliance Status:</strong> Awaiting regulatory verification
       </div>
     </div>
-  )
+  );
 }
