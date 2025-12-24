@@ -5,6 +5,7 @@ import MarketSegmentation from './market-segmentation';
 
 export default function AssetPublishing() {
   const [lang, setLang] = useState<'en' | 'ar'>('en');
+
   const toggleLang = () => setLang(lang === 'en' ? 'ar' : 'en');
 
   const publishingPipeline = [
@@ -22,28 +23,16 @@ export default function AssetPublishing() {
         </button>
       </div>
 
-      <div className="space-y-3">
-        <h2 className="text-xl font-semibold">{lang === 'en' ? 'Publishing Pipeline' : 'خط سير النشر'}</h2>
-        <ul className="space-y-2">
-          {publishingPipeline.map((p) => (
-            <li key={p.step} className="flex justify-between p-2 bg-white rounded border border-gray-100">
-              <span>{lang === 'en' ? p.step : translateStep(p.step)}</span>
-              <span>{p.status}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="space-y-4">
+        {publishingPipeline.map((p) => (
+          <div key={p.step} className="flex justify-between p-3 bg-blue-50 border border-blue-200 rounded">
+            <span>{lang === 'en' ? p.step : p.step === 'RERA Approval' ? 'اعتماد ريـرا' : p.step === 'Escrow Activation' ? 'تفعيل الضمان' : 'توزيع السوق'}</span>
+            <span>{p.status}</span>
+          </div>
+        ))}
       </div>
 
       <MarketSegmentation lang={lang} />
     </div>
   );
-
-  function translateStep(step: string) {
-    const translations: Record<string, string> = {
-      'RERA Approval': 'موافقة ريـرا',
-      'Escrow Activation': 'تنشيط الضمان',
-      'Market Distribution': 'توزيع السوق'
-    };
-    return translations[step] || step;
-  }
 }
