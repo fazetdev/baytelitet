@@ -1,166 +1,174 @@
 'use client';
 
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { useProperties } from '@/context/useProperties';
 import { useLanguage } from '@/context/useLanguage';
+import VirtualTourViewer from '../components/VirtualTourViewer';
+import PropertyMap from '@/components/PropertyMap';
 import { formatCurrency } from '@/lib/formatters';
-import { MapPin, TrendingUp, CameraOff, Info, ShieldCheck, Loader2 } from 'lucide-react';
-import { VirtualTour } from '../types';
+import { Bed, Bath, MapPin, ShieldCheck, Send, Loader2 } from 'lucide-react';
 
-const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { 
-  ssr: false,
-  loading: () => <div className="w-full h-[450px] bg-bayt-dark/10 animate-pulse flex items-center justify-center">Initializing Map...</div>
-});
-
-const VirtualTourViewer = dynamic(() => import('../components/VirtualTourViewer'), { 
-  ssr: false,
-  loading: () => <div className="w-full h-[500px] bg-bayt-dark animate-pulse rounded-3xl" />
-});
-
-export default function PropertyExecutionPage() {
-  const params = useParams();
-  const id = params?.id;
-  const { properties = [] } = useProperties() || {};
-  const { lang = 'en' } = useLanguage() || {};
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-bayt-dark flex flex-col items-center justify-center gap-4">
-        <Loader2 className="w-10 h-10 text-bayt-gold animate-spin" />
-        <p className="text-bayt-gold font-black italic uppercase tracking-[0.3em]">Loading Executive View</p>
-      </div>
-    );
-  }
-
-  const property = properties.find(p => p.id === Number(id));
+export default function PropertyDetailPage() {
+  const { id } = useParams();
+  const { properties } = useProperties();
+  const { lang } = useLanguage();
   const isRTL = lang === 'ar';
+  
+  const [mounted, setMounted] = useState(false);
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
-  if (!property) return (
-    <div className="min-h-screen bg-bayt-dark flex items-center justify-center">
-      <p className="text-bayt-gold font-black italic uppercase tracking-widest">Property Asset Not Found</p>
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const property = useMemo(() => 
+    properties.find(p => p.id === Number(id)), 
+  [properties, id]);
+
+  if (!mounted) return (
+    <div className="h-screen bg-white flex items-center justify-center">
+      <Loader2 className="w-10 h-10 text-bayt-gold animate-spin" />
     </div>
   );
 
-  // Robust Type-Safe Mapping for the Viewer
-  const tourData: VirtualTour = {
+  if (!property) return (
+    <div className="h-screen bg-white flex items-center justify-center">
+      <p className="text-bayt-dark font-black italic tracking-widest animate-pulse uppercase">
+        {isRTL ? 'الأصل غير موجود' : 'Asset Not Found'}
+      </p>
+    </div>
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormStatus('sending');
+    setTimeout(() => setFormStatus('sent'), 1500);
+  };
+
+  // Full VirtualTour Interface Compliance
+  const tourData = {
     id: property.id,
     title: property.title,
-    titleAr: property.title, // Map to property titleAr if available in your schema
+    titleAr: property.title,
     property: property.title,
     propertyAr: property.title,
-    duration: "Live Stream",
+    description: property.description,
+    descriptionAr: property.description,
+    duration: "Interactive",
     type: property.type,
     typeAr: property.type,
     features: property.features || [],
     featuresAr: property.features || [],
-    imageUrl: property.images?.[0], 
-    videoUrl: property.videoUrl,
+    imageUrl: property.images?.[0] || '',
     thumbnail: property.images?.[0] || '',
     latitude: property.latitude,
     longitude: property.longitude,
     price: property.price,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
-    area: property.area,
-    status: (property.status as 'available' | 'sold' | 'rented') || 'available',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    area: property.sqft || property.area || 0,
+    status: 'available' as const,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-white">
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-12 border-l-8 border-bayt-gold pl-6">
-          <h1 className="text-5xl font-black text-bayt-dark italic uppercase tracking-tight leading-none mb-2">
-            {property.title}
-          </h1>
-          <div className="flex items-center gap-4">
-            <p className="flex items-center text-bayt-cool font-bold uppercase text-sm tracking-widest">
-              <MapPin className="w-4 h-4 mr-1 text-bayt-gold" /> {property.location}
+    <div className="min-h-screen bg-white text-bayt-dark pb-20">
+      {/* 1. TOP: 360 VIRTUAL TOUR */}
+      <section className="h-[60vh] md:h-[75vh] bg-black relative border-b-8 border-bayt-gold">
+        <VirtualTourViewer 
+          tourData={tourData} 
+          language={lang} 
+          isRTL={isRTL} 
+        />
+        <div className="absolute top-8 left-8 z-10 bg-bayt-gold text-bayt-dark px-6 py-2 font-black italic uppercase tracking-widest text-[10px]">
+          {isRTL ? 'معاينة حية 360 درجة' : 'LIVE 360° INTERACTIVE'}
+        </div>
+      </section>
+
+      {/* 2. MIDDLE: TACTICAL MAP */}
+      <section className="py-12 container mx-auto px-4">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-[2px] bg-bayt-gold" />
+          <h2 className="text-xl font-black italic uppercase tracking-widest">
+            {isRTL ? 'إحداثيات الموقع' : 'GEOSPATIAL LOCATION'}
+          </h2>
+        </div>
+        <div className="h-[450px] border border-gray-200 shadow-2xl relative">
+          <PropertyMap 
+            latitude={property.latitude || 25.2048} 
+            longitude={property.longitude || 55.2708} 
+            title={property.title}
+            zoom={16}
+          />
+        </div>
+      </section>
+
+      {/* 3. DETAILS & LEAD CAPTURE */}
+      <section className="py-20 container mx-auto px-4 border-t border-gray-100">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+          
+          <div className="lg:col-span-2 space-y-12">
+            <div>
+              <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.9] mb-6">
+                {property.title}
+              </h1>
+              <div className="flex items-center gap-3 text-bayt-gold font-bold uppercase tracking-widest text-sm">
+                <MapPin className="w-4 h-4" /> {property.location}
+              </div>
+            </div>
+
+            <div className="flex gap-12 border-y border-gray-100 py-12">
+              <div className="flex items-center gap-4">
+                <Bed className="w-8 h-8 text-bayt-gold" />
+                <div>
+                  <p className="text-2xl font-black italic">{property.bedrooms}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">{isRTL ? 'غرف' : 'BEDS'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Bath className="w-8 h-8 text-bayt-gold" />
+                <div>
+                  <p className="text-2xl font-black italic">{property.bathrooms}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">{isRTL ? 'حمامات' : 'BATHS'}</p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xl text-gray-600 leading-relaxed max-w-2xl font-medium">
+              {property.description}
             </p>
-            <span className="bg-bayt-dark text-bayt-gold px-3 py-1 text-[10px] font-black rounded-full flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3" /> VERIFIED ASSET
-            </span>
-          </div>
-        </div>
-
-        <div className="mb-12">
-           {tourData.imageUrl ? (
-             <VirtualTourViewer 
-               tourData={tourData} 
-               language={lang as 'en' | 'ar'} 
-               isRTL={isRTL} 
-             />
-           ) : (
-             <div className="h-[500px] flex flex-col items-center justify-center bg-bayt-dark border-2 border-dashed border-bayt-gold/20 rounded-3xl">
-               <CameraOff className="w-16 h-16 text-bayt-gold/30 mb-4" />
-               <p className="text-bayt-gold/50 font-black italic uppercase">Visual Assets Pending</p>
-             </div>
-           )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-16">
-            <section className="relative">
-              <div className="absolute -left-4 top-0 w-1 h-full bg-bayt-gold/20" />
-              <h2 className="text-2xl font-black italic uppercase mb-6 flex items-center gap-3 text-bayt-dark">
-                <Info className="w-6 h-6 text-bayt-gold" />
-                {isRTL ? 'تحليل الأصول' : 'Asset Analysis'}
-              </h2>
-              <p className="text-gray-800 text-xl leading-relaxed font-medium">
-                {property.description}
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-black italic uppercase mb-6 text-bayt-dark">
-                {isRTL ? 'الموقع الاستراتيجي' : 'Strategic Location'}
-              </h2>
-              {property.latitude && property.longitude ? (
-                <div className="h-[450px] w-full rounded-3xl overflow-hidden border-2 border-bayt-dark shadow-xl">
-                  <PropertyMap 
-                    latitude={property.latitude} 
-                    longitude={property.longitude} 
-                    title={property.title} 
-                  />
-                </div>
-              ) : (
-                <div className="h-[450px] flex items-center justify-center bg-bayt-dark/10 rounded-3xl border-2 border-dashed border-bayt-dark/20">
-                  <p className="text-bayt-dark/40 font-black italic uppercase">Geospatial Data Not Available</p>
-                </div>
-              )}
-            </section>
           </div>
 
+          {/* Call to Action Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-bayt-dark text-white p-8 rounded-[2rem] sticky top-24 shadow-2xl border-t-4 border-bayt-gold">
-              <div className="mb-10">
-                <p className="text-bayt-gold text-[10px] font-black italic uppercase tracking-[0.3em] mb-2">Investment Value</p>
-                <p className="text-5xl font-black tracking-tighter text-white">{formatCurrency(property.price)}</p>
-              </div>
+            <div className="bg-bayt-dark text-white p-10 sticky top-24 shadow-[20px_20px_0px_#D4AF37]">
+              <h3 className="text-2xl font-black italic uppercase mb-2">Request Dossier</h3>
+              <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-8">Asset Acquisition Inquiry</p>
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input required type="text" placeholder={isRTL ? 'الاسم' : 'NAME'} className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
+                <input required type="email" placeholder={isRTL ? 'البريد' : 'EMAIL'} className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
+                <input required type="tel" placeholder={isRTL ? 'واتساب' : 'WHATSAPP NO.'} className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
+                
+                <button disabled={formStatus !== 'idle'} className="w-full bg-bayt-gold text-bayt-dark font-black italic uppercase py-5 flex items-center justify-center gap-3 hover:bg-white transition-all disabled:opacity-50">
+                  {formStatus === 'sent' ? 'SENT SUCCESSFULLY' : (
+                    <>
+                      {isRTL ? 'إرسال' : 'ACQUIRE DATA'}
+                      <Send className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </form>
 
-              <div className="space-y-4 mb-10">
-                <div className="flex justify-between items-center p-5 bg-white/5 border border-white/10 rounded-2xl">
-                  <span className="flex items-center gap-3 text-gray-400 font-bold uppercase text-[10px] tracking-widest">
-                    <TrendingUp className="w-4 h-4 text-green-400" />
-                    Target Yield
-                  </span>
-                  <span className="font-black text-xl italic text-bayt-gold">{property.rentalYield || '7.2%'}</span>
-                </div>
+              <div className="mt-6 flex items-center justify-center gap-2 text-[9px] text-gray-500 font-bold tracking-[0.2em]">
+                <ShieldCheck className="w-3 h-3 text-bayt-gold" /> VERIFIED BY BAYTELITE
               </div>
-
-              <button className="w-full bg-bayt-gold hover:bg-white text-bayt-dark font-black italic uppercase py-5 rounded-2xl transition-all active:scale-95">
-                INITIATE ENQUIRY
-              </button>
             </div>
           </div>
         </div>
-      </main>
+      </section>
     </div>
   );
 }
