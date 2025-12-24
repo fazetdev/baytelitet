@@ -25,19 +25,18 @@ export default function PropertyDetailPage() {
     properties.find(p => p.id === Number(id)),
   [properties, id]);
 
-  // Safely transform property to VirtualTour interface
   const tourData = useMemo(() => {
     if (!property) return null;
     return {
       id: property.id,
       title: property.title,
-      titleAr: property.titleAr || property.title,
+      titleAr: property.title, // Using title as fallback
       property: property.title,
-      propertyAr: property.titleAr || property.title,
+      propertyAr: property.title, // Using title as fallback
       description: property.description,
-      descriptionAr: property.descriptionAr || property.description,
+      descriptionAr: property.description, // Using description as fallback
       duration: "Interactive",
-      type: property.type as any, // Cast specific enum if needed
+      type: property.type as any,
       typeAr: property.type === 'villa' ? 'فيلا' : 'شقة',
       features: property.features || [],
       featuresAr: property.features || [],
