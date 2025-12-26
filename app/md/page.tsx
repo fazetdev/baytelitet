@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 import Link from 'next/link';
 
 export default function MdPage() {

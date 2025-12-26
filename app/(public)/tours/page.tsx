@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import { VirtualTour } from './types';
 import { Play, Calendar, Clock, MapPin, Bed, Bath } from 'lucide-react';

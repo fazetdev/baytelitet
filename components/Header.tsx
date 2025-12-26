@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 import { Building2, Menu, X, LayoutDashboard, Home, List, Settings } from 'lucide-react';
 
 const Header = () => {
@@ -17,7 +17,7 @@ const Header = () => {
   const navLinks = [
     { name: isRTL ? 'الرئيسية' : 'Home', href: '/', icon: Home },
     { name: isRTL ? 'العقارات' : 'Properties', href: '/properties', icon: List },
-    { name: isRTL ? 'الإدارة' : 'Management', href: '/admin/add', icon: LayoutDashboard, pro: true },
+    { name: isRTL ? 'الإدارة' : 'Management', href: '/admin', icon: LayoutDashboard, pro: true },
     { name: isRTL ? 'الإعدادات' : 'Settings', href: '/settings', icon: Settings },
   ];
 

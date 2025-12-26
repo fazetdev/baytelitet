@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import ProjectTracker from '@/app/home/components/project-tracker/ProjectTracker';
+import ProjectTracker from '@/app/(public)/home/components/project-tracker/ProjectTracker';
 
 export default function DeveloperPage() {
   const [lang, setLang] = useState<'en' | 'ar'>('en');

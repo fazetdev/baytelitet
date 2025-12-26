@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 import { Globe, Check } from 'lucide-react';
 
 interface LanguageToggleProps {

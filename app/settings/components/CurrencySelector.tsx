@@ -2,7 +2,7 @@
 
 import { DollarSign, TrendingUp, Check } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface CurrencySelectorProps {
   className?: string;

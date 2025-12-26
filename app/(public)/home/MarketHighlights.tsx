@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Stat {
   id: string;

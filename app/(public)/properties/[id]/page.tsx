@@ -1,65 +1,53 @@
 'use client';
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useProperties } from '@/context/useProperties';
-import { useLanguage } from '@/context/useLanguage';
 import VirtualTourViewer from '../components/VirtualTourViewer';
 import PropertyMap from '@/components/PropertyMap';
+import { useAgents } from '@/context/useAgents';
 import {
   Bed,
   Bath,
   MapPin,
-  ShieldCheck,
   Send,
   Loader2,
   DollarSign,
+  User,
+  Phone,
+  Mail,
+  Shield,
 } from 'lucide-react';
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
-  const { properties } = useProperties();
-  const { lang } = useLanguage();
-  const isRTL = lang === 'ar';
-
+  const [property, setProperty] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [activeTab, setActiveTab] = useState<'description' | 'features' | 'compliance'>('description');
+  
+  const { getAgentById, loadAgents } = useAgents();
+  const [agent, setAgent] = useState<any>(null);
 
-  useEffect(() => setMounted(true), []);
-
-  const property = useMemo(() => properties.find(p => p.id === Number(id)), [properties, id]);
-
-  const tourData = useMemo(() => {
-    if (!property) return null;
-    return {
-      id: property.id,
-      title: property.title,
-      titleAr: property.title,
-      property: property.title, // Added to satisfy VirtualTour interface
-      propertyAr: property.title, // Added to satisfy VirtualTour interface
-      description: property.description,
-      descriptionAr: property.description,
-      duration: "Interactive", // Added to satisfy VirtualTour interface
-      type: property.type as any,
-      typeAr: property.type === 'villa' ? 'فيلا' : 'شقة',
-      features: property.features || [],
-      featuresAr: property.features || [],
-      imageUrl: property.images?.[0] || '',
-      thumbnail: property.images?.[0] || '',
-      latitude: property.latitude || 25.2048,
-      longitude: property.longitude || 55.2708,
-      price: property.price,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      area: property.sqft || property.area || 0,
-      reraPermit: (property as any).reraPermit || 'N/A',
-      nocStatus: (property as any).nocStatus || 'Pending',
-      status: 'available' as const,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  }, [property]);
+  useEffect(() => {
+    // Load property from localStorage
+    const saved = localStorage.getItem('property');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.id === id || String(parsed.id) === String(id)) {
+        setProperty(parsed);
+      }
+    }
+    
+    // Load agents and find assigned agent
+    loadAgents();
+    const storedAgents = JSON.parse(localStorage.getItem('agents') || '[]');
+    const propertyData = saved ? JSON.parse(saved) : null;
+    if (propertyData?.agentId) {
+      const foundAgent = storedAgents.find((a: any) => a.id === propertyData.agentId);
+      setAgent(foundAgent);
+    }
+    
+    setMounted(true);
+  }, [id, loadAgents]);
 
   if (!mounted) return (
     <div className="h-screen flex items-center justify-center bg-white">
@@ -67,10 +55,10 @@ export default function PropertyDetailPage() {
     </div>
   );
 
-  if (!property || !tourData) return (
+  if (!property) return (
     <div className="h-screen flex items-center justify-center bg-white">
       <p className="text-bayt-dark font-black italic tracking-widest animate-pulse uppercase">
-        {isRTL ? 'الأصل غير موجود' : 'Asset Not Found'}
+        Asset Not Found
       </p>
     </div>
   );
@@ -81,14 +69,14 @@ export default function PropertyDetailPage() {
     setTimeout(() => setFormStatus('sent'), 1500);
   };
 
-  const calculateROI = (price: number) => ((price * 0.06) / 12).toFixed(2);
+  const calculateROI = (price: string | number) => ((Number(price) * 0.06) / 12).toFixed(2);
 
   return (
     <div className="min-h-screen bg-white text-bayt-dark pb-20">
       <section className="h-[60vh] md:h-[75vh] bg-black relative border-b-8 border-bayt-gold">
-        <VirtualTourViewer tourData={tourData} language={lang} isRTL={isRTL} />
+        <VirtualTourViewer tourData={property} language="en" isRTL={false} />
         <div className="absolute top-8 left-8 z-10 bg-bayt-gold text-bayt-dark px-6 py-2 font-black italic uppercase tracking-widest text-[10px]">
-          {isRTL ? 'معاينة حية 360 درجة' : 'LIVE 360° INTERACTIVE'}
+          LIVE 360° INTERACTIVE
         </div>
       </section>
 
@@ -96,13 +84,13 @@ export default function PropertyDetailPage() {
         <div className="flex items-center gap-4 mb-6">
           <div className="w-12 h-[2px] bg-bayt-gold" />
           <h2 className="text-xl font-black italic uppercase tracking-widest">
-            {isRTL ? 'إحداثيات الموقع' : 'GEOSPATIAL LOCATION'}
+            GEOSPATIAL LOCATION
           </h2>
         </div>
         <div className="h-[450px] border border-gray-200 shadow-2xl relative">
           <PropertyMap
-            latitude={property.latitude || 25.2048}
-            longitude={property.longitude || 55.2708}
+            latitude={Number(property.lat) || 25.2048}
+            longitude={Number(property.lng) || 55.2708}
             title={property.title}
             zoom={16}
           />
@@ -117,7 +105,7 @@ export default function PropertyDetailPage() {
                 {property.title}
               </h1>
               <div className="flex items-center gap-3 text-bayt-gold font-bold uppercase tracking-widest text-sm">
-                <MapPin className="w-4 h-4" /> {property.location}
+                <MapPin className="w-4 h-4" /> {property.address}, {property.city}
               </div>
             </div>
 
@@ -125,22 +113,22 @@ export default function PropertyDetailPage() {
               <div className="flex items-center gap-4">
                 <Bed className="w-8 h-8 text-bayt-gold" />
                 <div>
-                  <p className="text-2xl font-black italic">{property.bedrooms}</p>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">{isRTL ? 'غرف' : 'BEDS'}</p>
+                  <p className="text-2xl font-black italic">{property.beds}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">BEDS</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <Bath className="w-8 h-8 text-bayt-gold" />
                 <div>
-                  <p className="text-2xl font-black italic">{property.bathrooms}</p>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">{isRTL ? 'حمامات' : 'BATHS'}</p>
+                  <p className="text-2xl font-black italic">{property.baths}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">BATHS</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <DollarSign className="w-8 h-8 text-bayt-gold" />
                 <div>
-                  <p className="text-2xl font-black italic">{property.price.toLocaleString()}</p>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">{isRTL ? 'السعر (AED)' : 'PRICE (AED)'}</p>
+                  <p className="text-2xl font-black italic">{Number(property.price).toLocaleString()}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">PRICE (AED)</p>
                 </div>
               </div>
             </div>
@@ -155,11 +143,7 @@ export default function PropertyDetailPage() {
                       activeTab === tab ? 'border-b-4 border-bayt-gold text-bayt-dark' : 'text-gray-400'
                     }`}
                   >
-                    {isRTL
-                      ? tab === 'description' ? 'الوصف'
-                      : tab === 'features' ? 'المميزات'
-                      : 'الامتثال'
-                      : tab.toUpperCase()}
+                    {tab.toUpperCase()}
                   </button>
                 ))}
               </div>
@@ -167,39 +151,103 @@ export default function PropertyDetailPage() {
                 {activeTab === 'description' && <p>{property.description}</p>}
                 {activeTab === 'features' && (
                   <ul className="list-disc pl-6">
-                    {property.features?.map((f, idx) => <li key={idx}>{f}</li>)}
+                    {property.features?.split(', ').map((f: string, idx: number) => <li key={idx}>{f}</li>)}
                   </ul>
                 )}
                 {activeTab === 'compliance' && (
                   <div className="space-y-2">
-                    <p><span className="font-bold">RERA/Permit:</span> {(property as any).reraPermit || 'N/A'}</p>
-                    <p><span className="font-bold">NOC Status:</span> {(property as any).nocStatus || 'Pending'}</p>
+                    <p><span className="font-bold">RERA/Permit:</span> {property.reraNumber || 'N/A'}</p>
+                    <p><span className="font-bold">Escrow Required:</span> {property.escrowRequired ? 'Yes' : 'No'}</p>
                     <p><span className="font-bold">Estimated ROI:</span> AED {calculateROI(property.price)} / month</p>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Agent Section */}
+            {agent && (
+              <div className="pt-12 border-t border-gray-200">
+                <div className="flex items-center gap-4 mb-6">
+                  <User className="w-6 h-6 text-bayt-gold" />
+                  <h3 className="text-xl font-black italic uppercase tracking-widest">
+                    LICENSED AGENT
+                  </h3>
+                  {agent.status === 'verified' && (
+                    <div className="flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">
+                      <Shield className="w-3 h-3" />
+                      VERIFIED
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-8 p-6 bg-gray-50 rounded-xl">
+                  {agent.photo && (
+                    <img
+                      src={agent.photo}
+                      alt={agent.fullName}
+                      className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                    />
+                  )}
+                  
+                  <div className="flex-1">
+                    <h4 className="text-2xl font-black italic mb-2">{agent.fullName}</h4>
+                    
+                    {agent.brokerageName && (
+                      <p className="text-bayt-gold font-bold mb-4">
+                        {agent.brokerageName.toUpperCase()}
+                      </p>
+                    )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-bayt-gold/10 p-2 rounded-lg">
+                          <Phone className="w-4 h-4 text-bayt-gold" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-bold uppercase">PHONE</p>
+                          <p className="font-medium">{agent.phone}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="bg-bayt-gold/10 p-2 rounded-lg">
+                          <Mail className="w-4 h-4 text-bayt-gold" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-bold uppercase">EMAIL</p>
+                          <p className="font-medium truncate">{agent.email}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 p-4 bg-white rounded-lg border">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 bg-bayt-gold rounded-full" />
+                        <p className="text-sm font-bold text-gray-700">RERA LICENSED</p>
+                      </div>
+                      <p className="font-mono text-lg font-black">{agent.reraNumber}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-1">
             <div className="bg-bayt-dark text-white p-10 sticky top-24 shadow-[20px_20px_0px_#D4AF37]">
-              <h3 className="text-2xl font-black italic uppercase mb-2">{isRTL ? 'طلب الملف' : 'Request Dossier'}</h3>
+              <h3 className="text-2xl font-black italic uppercase mb-2">Request Dossier</h3>
               <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-8">
-                {isRTL ? 'استفسار عن العقار' : 'Asset Acquisition Inquiry'}
+                Asset Acquisition Inquiry
               </p>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
-                <input required type="text" placeholder={isRTL ? 'الاسم' : 'NAME'} className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
-                <input required type="email" placeholder={isRTL ? 'البريد' : 'EMAIL'} className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
-                <input required type="tel" placeholder={isRTL ? 'واتساب' : 'WHATSAPP NO.'} className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
-                
+                <input required type="text" placeholder="NAME" className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
+                <input required type="email" placeholder="EMAIL" className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
+                <input required type="tel" placeholder="WHATSAPP NO." className="w-full bg-white/5 border border-white/10 px-4 py-4 text-sm focus:border-bayt-gold outline-none font-bold" />
+
                 <button disabled={formStatus !== 'idle'} className="w-full bg-bayt-gold text-bayt-dark font-black italic uppercase py-5 flex items-center justify-center gap-3 hover:bg-white transition-all disabled:opacity-50">
-                  {formStatus === 'sent' ? (isRTL ? 'تم الإرسال' : 'SENT SUCCESSFULLY') : (
-                    <>
-                      {isRTL ? 'إرسال' : 'ACQUIRE DATA'}
-                      <Send className="w-4 h-4" />
-                    </>
-                  )}
+                  {formStatus === 'sent' ? 'SENT SUCCESSFULLY' : 'ACQUIRE DATA'}
+                  <Send className="w-4 h-4" />
                 </button>
               </form>
             </div>

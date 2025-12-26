@@ -1,108 +1,61 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import PropertyCard from './components/PropertyCard';
-import PropertyDetailsModal from './components/PropertyDetailsModal';
-import { useProperties, Property } from '@/context/useProperties';
-import { useLanguage } from '@/context/useLanguage';
-import { Search, Filter, LayoutGrid } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
+interface Property {
+  id: string;
+  title: string;
+  price: string | number;
+  image?: string;
+  city?: string;
+}
 
 export default function PropertiesPage() {
-  const { filteredProperties, searchQuery, setSearchQuery, setSelectedType, selectedType, setSelectedCity } = useProperties();
-  const { lang } = useLanguage();
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return null;
+  useEffect(() => {
+    const stored = JSON.parse(
+      localStorage.getItem('properties') || '[]'
+    ) as Property[];
+    setProperties(stored);
+    setLoading(false);
+  }, []);
 
-  const isRTL = lang === 'ar';
+  if (loading) return <div className="p-6">Loading Assets...</div>;
 
   return (
-    <div className="min-h-screen bg-bayt-dark pb-20">
-      {/* Search & Intelligence Header */}
-      <div className="border-b border-white/10 bg-bayt-dark/50 backdrop-blur-xl sticky top-0 z-30">
-        <main className="container mx-auto px-4 py-6">
-          <div className="flex flex-col lg:flex-row gap-6 items-center">
-            <div className="relative w-full lg:w-2/3">
-              <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-bayt-gold w-5 h-5`} />
-              <input
-                type="text"
-                placeholder={isRTL ? 'ابحث في محفظة الأصول...' : 'SEARCH ASSET PORTFOLIO...'}
-                className="w-full bg-white/5 border border-white/10 text-white pl-12 pr-4 py-4 focus:border-bayt-gold/50 outline-none transition-all font-black italic uppercase tracking-widest text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="flex gap-2 w-full lg:w-1/3 overflow-x-auto no-scrollbar">
-              {['all', 'villa', 'apartment', 'penthouse'].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedType(type)}
-                  className={`px-6 py-3 border transition-all whitespace-nowrap font-black italic text-[10px] tracking-[0.2em] uppercase ${
-                    selectedType === type 
-                      ? 'bg-bayt-gold text-bayt-dark border-bayt-gold' 
-                      : 'bg-transparent text-white border-white/10 hover:border-bayt-gold/50'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-        </main>
-      </div>
-
-      <main className="container mx-auto px-4 py-12">
-        {/* Market Status Strip */}
-        <div className="flex justify-between items-end mb-10 border-b border-bayt-gold/20 pb-4">
-          <div>
-            <h2 className="text-bayt-gold font-black italic uppercase tracking-tighter text-3xl">
-              {isRTL ? 'القائمة الحصرية' : 'EXCLUSIVE INVENTORY'}
-            </h2>
-            <p className="text-bayt-cool text-[10px] font-bold uppercase tracking-[0.3em] mt-1">
-              Showing {filteredProperties.length} Verified High-Yield Assets
-            </p>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-white/40">
-            <LayoutGrid className="w-5 h-5 text-bayt-gold" />
-            <Filter className="w-5 h-5" />
-          </div>
-        </div>
-
-        {filteredProperties.length === 0 ? (
-          <div className="text-center py-40 border-2 border-dashed border-white/5 rounded-3xl">
-            <p className="text-bayt-cool font-black italic uppercase tracking-widest mb-4">No assets match your criteria</p>
-            <button 
-              onClick={() => {setSearchQuery(''); setSelectedType('all'); setSelectedCity('all');}} 
-              className="px-8 py-3 bg-bayt-gold text-bayt-dark font-black italic uppercase text-xs active:scale-95 transition-transform"
+    <div className="max-w-6xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-8 italic uppercase tracking-widest">Available Assets</h1>
+      
+      {properties.length === 0 ? (
+        <p className="text-gray-500">No properties found in local storage.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {properties.map((property) => (
+            <Link 
+              key={property.id} 
+              href={`/properties/${property.id}`}
+              className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
             >
-              Reset Terminal
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {filteredProperties.map((property) => (
-              <div 
-                key={property.id} 
-                onClick={() => setSelectedProperty(property)}
-                className="cursor-pointer"
-              >
-                <PropertyCard property={property} language={lang} />
+              {property.image && (
+                <img 
+                  src={property.image} 
+                  alt={property.title} 
+                  className="w-full h-48 object-cover"
+                />
+              )}
+              <div className="p-4">
+                <h2 className="font-bold text-lg truncate">{property.title}</h2>
+                <p className="text-bayt-gold font-bold mt-2">
+                  ₦ {Number(property.price).toLocaleString()}
+                </p>
+                {property.city && <p className="text-sm text-gray-500">{property.city}</p>}
               </div>
-            ))}
-          </div>
-        )}
-      </main>
-
-      {selectedProperty && (
-        <PropertyDetailsModal
-          property={selectedProperty}
-          isOpen={!!selectedProperty}
-          onClose={() => setSelectedProperty(null)}
-          language={lang}
-        />
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -74,7 +74,7 @@ const features: Feature[] = [
     descriptionEn: 'Track sales performance, agent metrics, and financial analytics',
     descriptionAr: 'تتبع أداء المبيعات، مؤشرات الوكلاء، والتحليلات المالية',
     color: 'from-blue-500 to-indigo-700',
-    href: '/admin/dashboard',
+    href: '/admin',
   },
   {
     id: 'agent-portal',

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 import Link from 'next/link';
 
 export default function InvestorPage() {

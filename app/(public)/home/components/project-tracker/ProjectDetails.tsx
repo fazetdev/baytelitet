@@ -2,7 +2,7 @@
 
 import { Project } from './types';
 import ProgressBar from './ProgressBar';
-import { useLanguage } from '@/context/useLanguage';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ProjectDetailsProps {
   project: Project;

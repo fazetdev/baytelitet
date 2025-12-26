@@ -1,12 +1,12 @@
 'use client';
 
-import { useLanguage } from '@/context/useLanguage'; // Import the hook
+import { useLanguage } from '@/context/LanguageContext'; // Import the hook
 import HeroSection from './home/HeroSection';
 import ChooseRole from './home/components/ChooseRole';
 import MarketHighlights from './home/MarketHighlights';
 import FeaturesSection from './home/components/FeaturesSection';
 import TrustSection from './home/TrustSection';
-import MarketTools from './market-tools/page';
+import MarketTools from '../(tools)/market-tools/page';
 
 export default function HomePage() {
   const { lang } = useLanguage(); // Get the current language
