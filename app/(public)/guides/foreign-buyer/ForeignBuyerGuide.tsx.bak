@@ -21,7 +21,7 @@ interface GuidePageProps {
   lang?: 'en' | 'ar';
 }
 
-export default function ForeignBuyerGuide({ lang = 'en' }: GuidePageProps) {
+const ForeignBuyerGuide: FC<GuidePageProps> = ({ lang = 'en' }) => {
   const isRTL = lang === 'ar';
   const [activeStep, setActiveStep] = useState(1);
 

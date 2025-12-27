@@ -20,7 +20,7 @@ interface TrustSectionProps {
   lang: 'en' | 'ar';
 }
 
-export default function TrustSection({ lang }: TrustSectionProps) {
+const TrustSection: FC<TrustSectionProps> = ({ lang }) => {
   const isRTL = lang === 'ar';
 
   const trustItems: TrustItem[] = [

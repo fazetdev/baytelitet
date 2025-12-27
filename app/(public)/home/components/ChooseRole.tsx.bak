@@ -8,7 +8,7 @@ interface ChooseRoleProps {
   lang?: 'en' | 'ar';
 }
 
-export default function ChooseRole({ lang = 'en' }: ChooseRoleProps): JSX.Element {
+const ChooseRole: FC<ChooseRoleProps> = ({ lang = 'en' }): JSX.Element => {
   const isRTL = lang === 'ar';
 
   const roles = [

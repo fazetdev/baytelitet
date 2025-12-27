@@ -80,7 +80,7 @@ const countries: Country[] = [
   },
 ];
 
-export default function GoldenVisaChecker({ lang = 'en' }: GoldenVisaCheckerProps) {
+const GoldenVisaChecker: FC<GoldenVisaCheckerProps> = ({ lang = 'en' }) => {
   const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0]);
   const [investment, setInvestment] = useState<string>('');
   const [eligible, setEligible] = useState<boolean | null>(null);

@@ -87,7 +87,7 @@ const countryRentals: CountryRental[] = [
   },
 ];
 
-export default function RentalCalculator({ lang = 'en' }: RentalCalculatorProps) {
+const RentalCalculator: FC<RentalCalculatorProps> = ({ lang = 'en' }) => {
   const [selectedCountry, setSelectedCountry] = useState<CountryRental>(countryRentals[0]);
   const [propertySize, setPropertySize] = useState<string>(''); 
   const [purchasePrice, setPurchasePrice] = useState<string>('');

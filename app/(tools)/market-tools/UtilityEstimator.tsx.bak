@@ -109,7 +109,7 @@ const countryUtilities: CountryUtility[] = [
   },
 ];
 
-export default function UtilityEstimator({ lang = 'en' }: UtilityEstimatorProps) {
+const UtilityEstimator: FC<UtilityEstimatorProps> = ({ lang = 'en' }) => {
   const [selectedCountry, setSelectedCountry] = useState<CountryUtility>(countryUtilities[0]);
   const [propertySize, setPropertySize] = useState<string>('');
   const [occupants, setOccupants] = useState<string>('4');
