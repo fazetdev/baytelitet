@@ -169,4 +169,3 @@ export default function TrustSection({ lang }: TrustSectionProps) {
   );
 };
 
-export default TrustSection;

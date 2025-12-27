@@ -223,4 +223,3 @@ export default function ForeignBuyerGuide({ lang = 'en' }: GuidePageProps) {
   );
 };
 
-export default ForeignBuyerGuide;

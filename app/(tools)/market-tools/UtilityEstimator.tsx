@@ -466,4 +466,3 @@ export default function UtilityEstimator({ lang = 'en' }: UtilityEstimatorProps)
   );
 };
 
-export default UtilityEstimator;

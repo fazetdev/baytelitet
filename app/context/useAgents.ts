@@ -11,7 +11,7 @@ export interface Agent {
   phone: string;
   email: string;
   brokerageName?: string;
-  photo?: string; // base64 or object URL
+  photo?: string;
   status: AgentStatus;
 }
 
@@ -28,19 +28,22 @@ export const useAgents = create<AgentStore>((set, get) => ({
   agents: [],
 
   loadAgents: () => {
-    const saved = JSON.parse(localStorage.getItem('agents') || '[]');
-    set({ agents: saved });
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem('agents');
+      const saved: Agent[] = savedData ? JSON.parse(savedData) : [];
+      set({ agents: saved });
+    }
   },
 
-  addAgent: (agent) => {
-    const updated = [...get().agents, agent];
+  addAgent: (agent: Agent) => {
+    const updated: Agent[] = [...get().agents, agent];
     localStorage.setItem('agents', JSON.stringify(updated));
     set({ agents: updated });
   },
 
-  verifyAgent: (id) => {
-    const updated = get().agents.map(a =>
-      a.id === id ? { ...a, status: 'verified' } : a
+  verifyAgent: (id: string) => {
+    const updated: Agent[] = get().agents.map(a =>
+      a.id === id ? { ...a, status: 'verified' as AgentStatus } : a
     );
     localStorage.setItem('agents', JSON.stringify(updated));
     set({ agents: updated });
@@ -49,6 +52,6 @@ export const useAgents = create<AgentStore>((set, get) => ({
   getVerifiedAgents: () =>
     get().agents.filter(a => a.status === 'verified'),
 
-  getAgentById: (id) =>
+  getAgentById: (id: string) =>
     get().agents.find(a => a.id === id),
 }));

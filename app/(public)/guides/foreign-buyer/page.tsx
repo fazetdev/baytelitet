@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { CheckCircle, Shield, FileText, Globe, UserCheck, Building, CreditCard, PenTool, FileCheck, Home, ChevronRight, ExternalLink, Download } from 'lucide-react';
 
 export default function ForeignBuyerGuide() {
-  // Defaulting to 'en' as we are in the public/en-aligned route
-  const lang = 'en';
+  // Use 'as' to prevent the "no overlap" type error
+  const lang = 'en' as 'en' | 'ar';
   const isRTL = lang === 'ar';
   const [activeStep, setActiveStep] = useState(1);
 
@@ -193,7 +193,6 @@ export default function ForeignBuyerGuide() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-bayt-light to-white" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Hero Header */}
       <div className="bg-bayt-dark text-white py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
@@ -223,7 +222,6 @@ export default function ForeignBuyerGuide() {
 
       <div className="container mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Steps */}
           <div className="lg:col-span-2">
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-bayt-dark mb-4">
@@ -242,7 +240,6 @@ export default function ForeignBuyerGuide() {
               ))}
             </div>
 
-            {/* Key Points Section */}
             <div className="mt-12 p-8 bg-white rounded-2xl border border-gray-200 shadow-sm">
               <h3 className="text-2xl font-bold text-bayt-dark mb-6 flex items-center gap-2">
                 <Shield className="w-6 h-6 text-bayt-warm" />
@@ -259,9 +256,7 @@ export default function ForeignBuyerGuide() {
             </div>
           </div>
 
-          {/* Right Column - Resources & Progress */}
           <div className="space-y-8">
-            {/* Progress Tracker */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-xl font-bold text-bayt-dark mb-4">{isRTL ? 'تقدمك' : 'Your Progress'}</h3>
               <div className="space-y-4">
@@ -289,7 +284,6 @@ export default function ForeignBuyerGuide() {
               </div>
             </div>
 
-            {/* Official Resources */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-xl font-bold text-bayt-dark mb-4">{isRTL ? 'الموارد الرسمية' : 'Official Resources'}</h3>
               <div className="space-y-4">
@@ -324,7 +318,6 @@ export default function ForeignBuyerGuide() {
               </div>
             </div>
 
-            {/* CTA Card */}
             <div className="bg-gradient-to-br from-bayt-warm to-yellow-700 rounded-2xl p-6 text-white">
               <h3 className="text-xl font-bold mb-3">{isRTL ? 'بحاجة إلى مساعدة؟' : 'Need Help?'}</h3>
               <p className="mb-4 opacity-90">
@@ -340,7 +333,6 @@ export default function ForeignBuyerGuide() {
         </div>
       </div>
 
-      {/* Footer Note */}
       <div className="border-t border-gray-200 py-8">
         <div className="container mx-auto px-6 text-center">
           <p className="text-gray-600 text-sm">

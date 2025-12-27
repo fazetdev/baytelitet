@@ -87,4 +87,3 @@ export default function ChooseRole({ lang = 'en' }: ChooseRoleProps): JSX.Elemen
   );
 };
 
-export default ChooseRole;

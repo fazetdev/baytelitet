@@ -372,4 +372,3 @@ export default function RentalCalculator({ lang = 'en' }: RentalCalculatorProps)
   );
 };
 
-export default RentalCalculator;

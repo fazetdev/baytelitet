@@ -340,4 +340,3 @@ export default function GoldenVisaChecker({ lang = 'en' }: GoldenVisaCheckerProp
   );
 };
 
-export default GoldenVisaChecker;
