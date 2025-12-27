@@ -1,18 +1,44 @@
 'use client';
-
 import { useState, useMemo } from 'react';
 import {
-  Building2, Users, Shield, FileText, CheckCircle, XCircle,
+  Building2, Users, Shield, FileText, CheckCircle, XCircle, 
   Clock, AlertCircle, Search, Filter, Download, Plus,
-  MoreVertical, Globe, TrendingUp, DollarSign
+  MoreVertical, Globe, TrendingUp, DollarSign, X, Calendar
 } from 'lucide-react';
 import { useAgencyStore, Agency } from '@/lib/stores/agencyStore';
 
 export default function AgenciesPage() {
-  const { agencies, deleteAgency } = useAgencyStore();
+  const { agencies, addAgency, deleteAgency } = useAgencyStore();
   const [language, setLanguage] = useState<'en' | 'ar'>('en');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showForm, setShowForm] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    name: '',
+    licenseNumber: '',
+    jurisdiction: 'AE-DU (Dubai)',
+    licenseExpiry: '',
+    status: 'active' as Agency['status'],
+    totalAgents: 0,
+    activeProperties: 0,
+    complianceScore: 100,
+    lastAudit: new Date().toISOString().split('T')[0],
+    revenue: 'AED 0'
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    addAgency(formData);
+    setShowForm(false);
+    setFormData({
+      name: '', licenseNumber: '', jurisdiction: 'AE-DU (Dubai)',
+      licenseExpiry: '', status: 'active', totalAgents: 0,
+      activeProperties: 0, complianceScore: 100,
+      lastAudit: new Date().toISOString().split('T')[0], revenue: 'AED 0'
+    });
+  };
 
   const filteredAgencies = useMemo(() => agencies.filter(agency => {
     const matchesSearch = agency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -25,7 +51,7 @@ export default function AgenciesPage() {
     total: agencies.length,
     active: agencies.filter(a => a.status === 'active').length,
     expiring: agencies.filter(a => a.status === 'expiring').length,
-    revenue: 'AED 208.6M' // This can be calculated from store once revenue is numeric
+    revenue: 'AED 208.6M'
   }), [agencies]);
 
   const getStatusUI = (status: Agency['status']) => {
@@ -39,7 +65,7 @@ export default function AgenciesPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen relative" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm">
         <div className="flex items-center gap-4">
@@ -53,11 +79,53 @@ export default function AgenciesPage() {
           <button onClick={() => setLanguage(l => l === 'en' ? 'ar' : 'en')} className="flex-1 md:flex-none px-4 py-2 border rounded-lg font-bold">
             {language === 'en' ? 'العربية' : 'English'}
           </button>
-          <button className="flex-1 md:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center gap-2">
+          <button 
+            onClick={() => setShowForm(true)}
+            className="flex-1 md:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center gap-2"
+          >
             <Plus size={18} /> {language === 'en' ? 'Add Agency' : 'إضافة مكتب'}
           </button>
         </div>
       </div>
+
+      {/* Onboarding Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden">
+            <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+              <h2 className="font-black uppercase tracking-tight text-gray-900">Onboard New Agency</h2>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600"><X /></button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Agency Name</label>
+                  <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600" placeholder="Elite Properties LLC" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">License Number</label>
+                  <input required value={formData.licenseNumber} onChange={e => setFormData({...formData, licenseNumber: e.target.value})} className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600" placeholder="ORN-9988" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Jurisdiction</label>
+                  <select value={formData.jurisdiction} onChange={e => setFormData({...formData, jurisdiction: e.target.value})} className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600">
+                    <option>AE-DU (Dubai)</option>
+                    <option>AE-AZ (Abu Dhabi)</option>
+                    <option>SA-RY (Riyadh)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">License Expiry</label>
+                  <input type="date" required value={formData.licenseExpiry} onChange={e => setFormData({...formData, licenseExpiry: e.target.value})} className="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600" />
+                </div>
+              </div>
+              <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-blue-700 transition-all">
+                Finalize Registration
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -82,14 +150,14 @@ export default function AgenciesPage() {
         <div className="p-4 border-b bg-gray-50/50 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
+            <input
               className="w-full pl-10 pr-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-600"
               placeholder="Search by name or license..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
-          <select 
+          <select
             className="p-2 border rounded-lg bg-white"
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
@@ -133,15 +201,20 @@ export default function AgenciesPage() {
                     </td>
                     <td className="p-4">
                       <div className="w-24 bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${agency.complianceScore > 90 ? 'bg-green-500' : 'bg-amber-500'}`} 
+                        <div
+                          className={`h-full ${agency.complianceScore > 90 ? 'bg-green-500' : 'bg-amber-500'}`}
                           style={{ width: `${agency.complianceScore}%` }}
                         />
                       </div>
                       <p className="text-[10px] font-bold mt-1">{agency.complianceScore}% Score</p>
                     </td>
                     <td className="p-4 text-right">
-                      <button className="text-gray-400 hover:text-blue-600"><MoreVertical size={18} /></button>
+                      <button 
+                        onClick={() => deleteAgency(agency.id)}
+                        className="text-gray-300 hover:text-red-600"
+                      >
+                        <MoreVertical size={18} />
+                      </button>
                     </td>
                   </tr>
                 );
