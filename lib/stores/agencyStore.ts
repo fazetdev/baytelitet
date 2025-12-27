@@ -1,5 +1,3 @@
-'use client';
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -10,103 +8,61 @@ export interface Agency {
   jurisdiction: string;
   licenseExpiry: string;
   status: 'active' | 'expiring' | 'expired' | 'suspended';
-  contactEmail: string;
-  contactPhone: string;
-  website?: string;
-  address: string;
-  city: string;
   totalAgents: number;
   activeProperties: number;
   complianceScore: number;
   lastAudit: string;
-  createdAt: string;
-  updatedAt: string;
+  revenue: string;
 }
 
 interface AgencyStore {
   agencies: Agency[];
-  selectedAgency: Agency | null;
-  isLoading: boolean;
-  
-  // Actions
-  addAgency: (agency: Omit<Agency, 'id' | 'createdAt' | 'updatedAt' | 'complianceScore' | 'lastAudit' | 'activeProperties'>) => void;
-  updateAgency: (id: string, updates: Partial<Agency>) => void;
+  addAgency: (agency: Omit<Agency, 'id'>) => void;
   deleteAgency: (id: string) => void;
-  setSelectedAgency: (agency: Agency | null) => void;
-  calculateAgencyStats: () => {
-    totalAgencies: number;
-    activeAgencies: number;
-    expiringLicenses: number;
-    totalAgents: number;
-    avgCompliance: number;
-  };
+  updateAgency: (id: string, updates: Partial<Agency>) => void;
 }
 
 export const useAgencyStore = create<AgencyStore>()(
   persist(
-    (set, get) => ({
-      agencies: [],
-      selectedAgency: null,
-      isLoading: false,
-
-      addAgency: (agencyData) => {
-        const newAgency: Agency = {
-          ...agencyData,
-          id: `agency_${Date.now()}`,
-          complianceScore: 85 + Math.floor(Math.random() * 15), // Initial compliance score 85-99
-          activeProperties: Math.floor(Math.random() * 50) + 10, // Mock for now
-          lastAudit: new Date().toISOString().split('T')[0],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        
-        set((state) => ({
-          agencies: [...state.agencies, newAgency],
-        }));
-      },
-
-      updateAgency: (id, updates) => {
-        set((state) => ({
-          agencies: state.agencies.map((agency) =>
-            agency.id === id
-              ? { ...agency, ...updates, updatedAt: new Date().toISOString() }
-              : agency
-          ),
-        }));
-      },
-
-      deleteAgency: (id) => {
-        set((state) => ({
-          agencies: state.agencies.filter((agency) => agency.id !== id),
-          selectedAgency: state.selectedAgency?.id === id ? null : state.selectedAgency,
-        }));
-      },
-
-      setSelectedAgency: (agency) => {
-        set({ selectedAgency: agency });
-      },
-
-      calculateAgencyStats: () => {
-        const { agencies } = get();
-        const totalAgencies = agencies.length;
-        const activeAgencies = agencies.filter(a => a.status === 'active').length;
-        const expiringLicenses = agencies.filter(a => a.status === 'expiring').length;
-        const totalAgents = agencies.reduce((sum, a) => sum + a.totalAgents, 0);
-        const avgCompliance = agencies.length > 0 
-          ? agencies.reduce((sum, a) => sum + a.complianceScore, 0) / agencies.length
-          : 0;
-
-        return {
-          totalAgencies,
-          activeAgencies,
-          expiringLicenses,
-          totalAgents,
-          avgCompliance: Math.round(avgCompliance * 10) / 10,
-        };
-      },
+    (set) => ({
+      agencies: [
+        {
+          id: '1',
+          name: 'Bayt Real Estate',
+          licenseNumber: 'BRE-2023-001',
+          jurisdiction: 'AE-DU (Dubai)',
+          licenseExpiry: '2024-12-31',
+          status: 'active',
+          totalAgents: 24,
+          activeProperties: 156,
+          complianceScore: 98,
+          lastAudit: '2024-11-15',
+          revenue: 'AED 42.5M'
+        },
+        {
+          id: '2',
+          name: 'Gulf Properties LLC',
+          licenseNumber: 'GPL-2023-002',
+          jurisdiction: 'AE-AZ (Abu Dhabi)',
+          licenseExpiry: '2024-06-30',
+          status: 'expiring',
+          totalAgents: 18,
+          activeProperties: 89,
+          complianceScore: 92,
+          lastAudit: '2024-10-22',
+          revenue: 'AED 28.3M'
+        }
+      ],
+      addAgency: (data) => set((state) => ({
+        agencies: [...state.agencies, { ...data, id: Math.random().toString(36).substr(2, 9) }]
+      })),
+      deleteAgency: (id) => set((state) => ({
+        agencies: state.agencies.filter(a => a.id !== id)
+      })),
+      updateAgency: (id, updates) => set((state) => ({
+        agencies: state.agencies.map(a => a.id === id ? { ...a, ...updates } : a)
+      })),
     }),
-    {
-      name: 'agency-store',
-    }
+    { name: 'gulf-agency-storage' }
   )
 );

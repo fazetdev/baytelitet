@@ -5,16 +5,21 @@ export interface Agent {
   id: string;
   name: string;
   email: string;
+  phone: string;
+  photo: string;
+  agency: string;
   licenseNumber: string;
   specialization: string;
   city: string;
+  bio: string;
+  experience: string;
   status: 'active' | 'pending' | 'suspended';
   listingsCount: number;
 }
 
 interface AgentStore {
   agents: Agent[];
-  addAgent: (agent: Omit<Agent, 'id' | 'listingsCount' | 'status'> & { status?: Agent['status'] }) => void;
+  addAgent: (agentData: Omit<Agent, 'id' | 'listingsCount' | 'status'> & { status?: Agent['status'] }) => void;
   deleteAgent: (id: string) => void;
   updateAgent: (id: string, updates: Partial<Agent>) => void;
 }

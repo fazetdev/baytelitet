@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Upload, MapPin, Home, Shield, User, CheckCircle, 
-  XCircle, Building2, DollarSign, Camera, FileText, 
-  Percent, Lock 
+import {
+  Upload, MapPin, Home, Shield, User, CheckCircle,
+  XCircle, Building2, DollarSign, Camera, FileText,
+  Percent, Lock, Search, Briefcase
 } from 'lucide-react';
 import validateGulfReraNumber from '@/lib/validators/rera-validator';
 import { calculateGulfCommission } from '@/lib/calculators/gulf-commission';
 import { useGulfAssetStore } from '@/lib/stores/gulfAssetStore';
+import { useAgentStore } from '@/lib/stores/agentStore';
 
 interface PropertyFormProps {
   lang: 'en' | 'ar';
@@ -41,6 +42,7 @@ interface Property {
   agentEmail: string;
   agentLicense: string;
   commissionRate: number;
+  agentId?: string; // Link to store
 }
 
 const GULF_CITIES = [
@@ -68,6 +70,7 @@ const PROPERTY_TYPES = [
 
 export default function PropertyForm({ lang }: PropertyFormProps) {
   const { addProperty } = useGulfAssetStore();
+  const { agents } = useAgentStore();
   const [step, setStep] = useState(1);
   const [property, setProperty] = useState<Property>({
     title: '', price: 0, currency: 'AED', heroImage: null, gallery: [],
@@ -132,6 +135,20 @@ export default function PropertyForm({ lang }: PropertyFormProps) {
     }));
   };
 
+  const handleAgentSelect = (agentId: string) => {
+    const selectedAgent = agents.find(a => a.id === agentId);
+    if (selectedAgent) {
+      setProperty(prev => ({
+        ...prev,
+        agentId: selectedAgent.id,
+        agentName: selectedAgent.name,
+        agentPhone: selectedAgent.phone,
+        agentEmail: selectedAgent.email,
+        agentLicense: selectedAgent.licenseNumber
+      }));
+    }
+  };
+
   const handleFileUpload = (e: any, field: string) => {
     const files = e.target.files;
     if (!files) return;
@@ -145,7 +162,6 @@ export default function PropertyForm({ lang }: PropertyFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateStep()) {
-      // FIXED: Changed 'submitted' to 'pending' to match Store types
       addProperty({ ...property, complianceStatus: 'pending' });
       alert(lang === 'en' ? 'Property submitted successfully!' : 'تم إرسال العقار بنجاح!');
       localStorage.removeItem('gulf_property_draft');
@@ -274,10 +290,39 @@ export default function PropertyForm({ lang }: PropertyFormProps) {
 
         {step === 5 && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <input name="agentName" value={property.agentName} onChange={handleChange} placeholder="Agent Name" className="p-3 border rounded" />
-              <input name="agentLicense" value={property.agentLicense} onChange={handleChange} placeholder="Agent License" className="p-3 border rounded" />
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
+                <Briefcase size={14}/> Assign Professional Agent
+              </label>
+              <select 
+                value={property.agentId || ''} 
+                onChange={(e) => handleAgentSelect(e.target.value)}
+                className="w-full p-3 bg-white border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select an Agent...</option>
+                {agents.map(agent => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name} ({agent.agency})
+                  </option>
+                ))}
+              </select>
+              {agents.length === 0 && (
+                <p className="text-[10px] text-red-500 mt-2 italic">No agents found. Please onboard agents in the Admin Portal first.</p>
+              )}
             </div>
+
+            {property.agentName && (
+              <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-lg flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700 font-bold uppercase">
+                  {property.agentName.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">{property.agentName}</p>
+                  <p className="text-xs text-gray-600">License: {property.agentLicense}</p>
+                </div>
+              </div>
+            )}
+
             <textarea name="description" value={property.description} onChange={handleChange} placeholder="Description" className="w-full p-3 border rounded h-32" />
             <button type="submit" className="w-full bg-green-600 text-white py-4 rounded-lg font-bold shadow-lg">
               {lang === 'en' ? 'Submit Property' : 'إرسال العقار'}
