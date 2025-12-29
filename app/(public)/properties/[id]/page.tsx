@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import VirtualTourViewer from '../components/VirtualTourViewer';
 import PropertyMap from '@/components/PropertyMap';
@@ -23,29 +23,33 @@ export default function PropertyDetailPage() {
   const [mounted, setMounted] = useState(false);
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [activeTab, setActiveTab] = useState<'description' | 'features' | 'compliance'>('description');
-  
+
   const { getAgentById, loadAgents } = useAgents();
   const [agent, setAgent] = useState<any>(null);
 
   useEffect(() => {
-    // Load property from localStorage
-    const saved = localStorage.getItem('property');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.id === id || String(parsed.id) === String(id)) {
-        setProperty(parsed);
+    // Load ALL properties from localStorage - FIXED: 'gulf_properties' not 'property'
+    const savedProperties = localStorage.getItem('gulf_properties');
+    if (savedProperties) {
+      const allProperties = JSON.parse(savedProperties);
+      // Find the specific property by ID
+      const foundProperty = allProperties.find((p: any) => 
+        String(p.id) === String(id)
+      );
+      
+      if (foundProperty) {
+        setProperty(foundProperty);
+        
+        // Load agents and find assigned agent
+        loadAgents();
+        const storedAgents = JSON.parse(localStorage.getItem('agents') || '[]');
+        if (foundProperty.agentId) {
+          const foundAgent = storedAgents.find((a: any) => a.id === foundProperty.agentId);
+          setAgent(foundAgent);
+        }
       }
     }
-    
-    // Load agents and find assigned agent
-    loadAgents();
-    const storedAgents = JSON.parse(localStorage.getItem('agents') || '[]');
-    const propertyData = saved ? JSON.parse(saved) : null;
-    if (propertyData?.agentId) {
-      const foundAgent = storedAgents.find((a: any) => a.id === propertyData.agentId);
-      setAgent(foundAgent);
-    }
-    
+
     setMounted(true);
   }, [id, loadAgents]);
 
@@ -58,7 +62,7 @@ export default function PropertyDetailPage() {
   if (!property) return (
     <div className="h-screen flex items-center justify-center bg-white">
       <p className="text-bayt-dark font-black italic tracking-widest animate-pulse uppercase">
-        Asset Not Found
+        Property Not Found - Please try again or check if the property was saved correctly
       </p>
     </div>
   );
@@ -179,7 +183,7 @@ export default function PropertyDetailPage() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-8 p-6 bg-gray-50 rounded-xl">
                   {agent.photo && (
                     <img
@@ -188,16 +192,16 @@ export default function PropertyDetailPage() {
                       className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
                     />
                   )}
-                  
+
                   <div className="flex-1">
                     <h4 className="text-2xl font-black italic mb-2">{agent.fullName}</h4>
-                    
+
                     {agent.brokerageName && (
                       <p className="text-bayt-gold font-bold mb-4">
                         {agent.brokerageName.toUpperCase()}
                       </p>
                     )}
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                       <div className="flex items-center gap-3">
                         <div className="bg-bayt-gold/10 p-2 rounded-lg">
@@ -208,7 +212,7 @@ export default function PropertyDetailPage() {
                           <p className="font-medium">{agent.phone}</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-3">
                         <div className="bg-bayt-gold/10 p-2 rounded-lg">
                           <Mail className="w-4 h-4 text-bayt-gold" />
@@ -219,7 +223,7 @@ export default function PropertyDetailPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="mt-6 p-4 bg-white rounded-lg border">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-3 h-3 bg-bayt-gold rounded-full" />
