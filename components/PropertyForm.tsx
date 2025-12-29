@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import {
   Upload, MapPin, Home, Shield, User, CheckCircle,
@@ -13,6 +12,7 @@ import { useAgentStore } from '@/lib/stores/agentStore';
 
 interface PropertyFormProps {
   lang: 'en' | 'ar';
+  onSuccess?: () => void; // Added callback prop
 }
 
 interface Property {
@@ -42,7 +42,7 @@ interface Property {
   agentEmail: string;
   agentLicense: string;
   commissionRate: number;
-  agentId?: string; // Link to store
+  agentId?: string;
 }
 
 const GULF_CITIES = [
@@ -68,7 +68,7 @@ const PROPERTY_TYPES = [
   { value: 'land', label: { en: 'Land Plot', ar: 'قطعة أرض' } },
 ];
 
-export default function PropertyForm({ lang }: PropertyFormProps) {
+export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
   const { addProperty } = useGulfAssetStore();
   const { agents } = useAgentStore();
   const [step, setStep] = useState(1);
@@ -164,8 +164,12 @@ export default function PropertyForm({ lang }: PropertyFormProps) {
     if (validateStep()) {
       addProperty({ ...property, complianceStatus: 'pending' });
       alert(lang === 'en' ? 'Property submitted successfully!' : 'تم إرسال العقار بنجاح!');
+      
+      // Cleanup
       localStorage.removeItem('gulf_property_draft');
-      setStep(1);
+      
+      // Notify parent to switch views
+      if (onSuccess) onSuccess();
     }
   };
 
@@ -294,8 +298,8 @@ export default function PropertyForm({ lang }: PropertyFormProps) {
               <label className="block text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
                 <Briefcase size={14}/> Assign Professional Agent
               </label>
-              <select 
-                value={property.agentId || ''} 
+              <select
+                value={property.agentId || ''}
                 onChange={(e) => handleAgentSelect(e.target.value)}
                 className="w-full p-3 bg-white border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
               >
