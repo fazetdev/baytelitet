@@ -75,7 +75,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
   const [property, setProperty] = useState<Property>({
     title: '', price: 0, currency: 'AED', heroImage: null, gallery: [],
     virtualTour: null, address: '', city: 'dubai', jurisdiction: 'AE-DU',
-    lat: '', lng: '', beds: 0, baths: 0, area: 0, areaUnit: 'sqft',
+    lat: '', long: '', beds: 0, baths: 0, area: 0, areaUnit: 'sqft',
     propertyType: 'apartment', reraNumber: '', escrowRequired: false,
     offPlan: false, description: '', agentName: '', agentPhone: '',
     agentEmail: '', agentLicense: '', commissionRate: 2.0
@@ -251,7 +251,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
             </select>
             <div className="grid grid-cols-2 gap-4">
               <input name="lat" value={property.lat} onChange={handleChange} placeholder="Latitude" className="p-3 border rounded" />
-              <input name="lng" value={property.lng} onChange={handleChange} placeholder="Longitude" className="p-3 border rounded" />
+              <input name="long" value={property.long} onChange={handleChange} placeholder="Longitude" className="p-3 border rounded" />
             </div>
           </div>
         )}

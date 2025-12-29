@@ -38,6 +38,9 @@ export default function PropertyDetailPage() {
       );
       
       if (foundProperty) {
+      console.log("FOUND PROPERTY:", foundProperty);
+      console.log("Property coordinates - lat:", foundProperty?.lat, "type:", typeof foundProperty?.lat);
+      console.log("Property coordinates - lng:", foundProperty?.lng, "type:", typeof foundProperty?.lng);
         setProperty(foundProperty);
         
         // Load agents and find assigned agent
@@ -93,8 +96,8 @@ export default function PropertyDetailPage() {
         </div>
         <div className="h-[450px] border border-gray-200 shadow-2xl relative">
           <PropertyMap
-            latitude={Number(property.lat) || 25.2048}
-            longitude={Number(property.lng) || 55.2708}
+            latitude={property.lat}
+            longitude={property.long}
             title={property.title}
             zoom={16}
           />

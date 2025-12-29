@@ -14,7 +14,7 @@ export interface GulfProperty {
   city: string;
   jurisdiction: string;
   lat: string;
-  lng: string;
+  long: string;
   beds: number;
   baths: number;
   area: number;

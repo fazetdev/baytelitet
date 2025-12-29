@@ -1,31 +1,43 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Marker icons - using require for Leaflet images
+// Fix for Leaflet default icon in Next.js
 const markerIcon = require('leaflet/dist/images/marker-icon.png');
 const markerShadow = require('leaflet/dist/images/marker-shadow.png');
 
 interface PropertyMapProps {
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | string;
+  longitude?: number | string;
   zoom?: number;
   title?: string;
   className?: string;
 }
 
 export default function PropertyMap({
-  latitude = 25.2048,
-  longitude = 55.2708,
+  latitude,
+  longitude,
   zoom = 13,
-  title = "Asset Location",
+  title = "Property Location",
   className = '',
 }: PropertyMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Parse coordinates
+  const parseCoordinate = (coord: number | string | undefined): number | null => {
+    if (coord === undefined || coord === null || coord === '') {
+      return null;
+    }
+    const num = typeof coord === 'string' ? parseFloat(coord) : coord;
+    return isNaN(num) ? null : num;
+  };
+
+  const lat = parseCoordinate(latitude);
+  const lng = parseCoordinate(longitude);
 
   useEffect(() => {
     setMounted(true);
@@ -40,69 +52,92 @@ export default function PropertyMap({
   useEffect(() => {
     if (!mounted || !mapRef.current || mapInstance.current) return;
 
-    // Fix for Leaflet default icon issues in Next.js
-    const DefaultIcon = L.icon({
-      iconUrl: markerIcon.default.src || markerIcon.default,
-      shadowUrl: markerShadow.default.src || markerShadow.default,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-    });
-    L.Marker.prototype.options.icon = DefaultIcon;
+    if (lat === null || lng === null) {
+      setError('Coordinates not provided');
+      return;
+    }
 
-    // Initialize Map with Executive Dark Theme
-    mapInstance.current = L.map(mapRef.current, {
-      zoomControl: false,
-      attributionControl: false
-    }).setView([latitude, longitude], zoom);
+    try {
+      // Fix Leaflet icon
+      const DefaultIcon = L.icon({
+        iconUrl: markerIcon.default?.src || markerIcon.default || markerIcon,
+        shadowUrl: markerShadow.default?.src || markerShadow.default || markerShadow,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+      });
+      L.Marker.prototype.options.icon = DefaultIcon;
 
-    // CartoDB Dark Matter tiles for the 7-star aesthetic
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-    }).addTo(mapInstance.current);
+      // Create map
+      mapInstance.current = L.map(mapRef.current).setView([lat, lng], zoom);
 
-    // Add High-Contrast Gold Marker
-    L.circle([latitude, longitude], {
-      color: '#D4AF37',
-      fillColor: '#D4AF37',
-      fillOpacity: 0.2,
-      radius: 300
-    }).addTo(mapInstance.current);
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(mapInstance.current);
 
-    L.marker([latitude, longitude]).addTo(mapInstance.current)
-      .bindPopup(`<b style="color: #050505;">${title}</b>`)
-      .openPopup();
+      // Add marker
+      L.marker([lat, lng])
+        .addTo(mapInstance.current)
+        .bindPopup(`<b>${title}</b>`)
+        .openPopup();
 
-  }, [mounted, latitude, longitude, zoom, title]);
+      setError(null);
+    } catch (err) {
+      console.error('Map error:', err);
+      setError('Failed to load map');
+    }
+
+  }, [mounted, lat, lng, zoom, title]);
 
   if (!mounted) {
     return (
-      <div className={`h-[450px] bg-bayt-dark flex flex-col items-center justify-center gap-4 ${className}`}>
-        <div className="w-8 h-8 border-2 border-bayt-gold border-t-transparent animate-spin rounded-full" />
-        <p className="text-bayt-gold text-[10px] font-black italic tracking-[0.3em]">CALIBRATING GEOSPATIAL DATA</p>
+      <div className={`h-[450px] bg-gray-100 flex items-center justify-center ${className}`}>
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-bayt-gold border-t-transparent animate-spin rounded-full mx-auto mb-2" />
+          <p className="text-gray-600 text-sm">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`h-[450px] bg-gray-100 flex items-center justify-center ${className}`}>
+        <div className="text-center">
+          <p className="text-red-500 font-semibold mb-2">Map Error</p>
+          <p className="text-gray-600 text-sm">{error}</p>
+          <p className="text-gray-500 text-xs mt-2">
+            Coordinates: {lat === null ? 'No lat' : lat.toFixed(6)}, {lng === null ? 'No lng' : lng.toFixed(6)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (lat === null || lng === null) {
+    return (
+      <div className={`h-[450px] bg-gray-100 flex items-center justify-center ${className}`}>
+        <div className="text-center">
+          <p className="text-amber-600 font-semibold mb-2">No Coordinates</p>
+          <p className="text-gray-600 text-sm">This property has no location coordinates.</p>
+          <p className="text-gray-500 text-xs mt-2">
+            Please add latitude and longitude in the property form.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="relative group">
-      {/* HUD Border Overlay */}
-      <div className="absolute inset-0 border-2 border-bayt-gold/20 pointer-events-none z-10 group-hover:border-bayt-gold/40 transition-colors" />
-      
-      {/* Map Container */}
-      <div 
-        ref={mapRef} 
-        className={`w-full h-[450px] bg-bayt-dark grayscale-[0.5] contrast-[1.2] ${className}`}
+    <div className="relative">
+      <div
+        ref={mapRef}
+        className={`w-full h-[450px] rounded-lg ${className}`}
       />
-
-      {/* Tactical HUD Elements */}
-      <div className="absolute bottom-4 left-4 z-[1000] bg-bayt-dark/80 backdrop-blur-md border border-bayt-gold/30 p-3">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-white font-black italic text-[9px] tracking-widest uppercase">GPS SIGNAL: SECURE</span>
-          </div>
-          <span className="text-bayt-gold font-mono text-[9px]">LAT: {latitude.toFixed(4)} / LNG: {longitude.toFixed(4)}</span>
-        </div>
+      <div className="absolute bottom-4 left-4 bg-black/70 text-white p-2 rounded text-xs">
+        <div>Lat: {lat.toFixed(6)}</div>
+        <div>Lng: {lng.toFixed(6)}</div>
       </div>
     </div>
   );
