@@ -4,6 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// Marker icons - using require for Leaflet images
+const markerIcon = require('leaflet/dist/images/marker-icon.png');
+const markerShadow = require('leaflet/dist/images/marker-shadow.png');
+
 interface PropertyMapProps {
   latitude?: number;
   longitude?: number;
@@ -38,8 +42,8 @@ export default function PropertyMap({
 
     // Fix for Leaflet default icon issues in Next.js
     const DefaultIcon = L.icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconUrl: markerIcon.default.src || markerIcon.default,
+      shadowUrl: markerShadow.default.src || markerShadow.default,
       iconSize: [25, 41],
       iconAnchor: [12, 41],
     });

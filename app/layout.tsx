@@ -1,6 +1,7 @@
 import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { PropertiesProvider } from '@/context/useProperties';
+import { AgentProvider } from '@/context/useAgents'; // Add this import
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Script from 'next/script';
@@ -18,29 +19,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-        />
+        {/* Leaflet CSS is now imported in components */}
       </head>
       <body>
         <LanguageProvider>
           <PropertiesProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
+            <AgentProvider> {/* Add AgentProvider wrapper */}
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+              </div>
+            </AgentProvider>
           </PropertiesProvider>
         </LanguageProvider>
-        <Script
-          src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossOrigin=""
-          strategy="beforeInteractive"
-        />
+        {/* Leaflet JS is now imported in components */}
       </body>
     </html>
   );
