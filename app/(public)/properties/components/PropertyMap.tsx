@@ -1,40 +1,45 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { MapPin } from 'lucide-react';
 
 interface PropertyMapProps {
-  latitude?: number;
-  longitude?: number;
+  latitude?: any;
+  longitude?: any;
+  title?: string;
   zoom?: number;
-  className?: string;
 }
 
-export default function PropertyMap({
-  latitude = 25.276987,
-  longitude = 55.296249,
-  zoom = 12,
-  className = '',
-}: PropertyMapProps) {
-  const [mapLoaded, setMapLoaded] = useState(false);
-  
-  // Simulate loading delay for map library
-  useEffect(() => {
-    const timer = setTimeout(() => setMapLoaded(true), 300);
-    return () => clearTimeout(timer);
-  }, []);
+export default function PropertyMap({ latitude, longitude, title, zoom = 15 }: PropertyMapProps) {
+  // Ensure coordinates are treated as numbers
+  const lat = typeof latitude === 'string' ? parseFloat(latitude) : Number(latitude);
+  const lng = typeof longitude === 'string' ? parseFloat(longitude) : Number(longitude);
 
-  if (!mapLoaded) {
-    return <div className={`h-64 md:h-96 bg-gray-100 animate-pulse rounded-xl ${className}`} />;
-  }
+  // Check if we have valid numeric coordinates
+  const isValid = !isNaN(lat) && !isNaN(lng) && latitude !== undefined && longitude !== undefined;
 
   return (
-    <div className={`w-full h-64 md:h-96 bg-gradient-to-br from-gray-200 to-gray-300 flex flex-col items-center justify-center text-gray-700 rounded-xl ${className}`}>
-      <div className="text-center p-4">
-        <div className="text-lg font-semibold mb-2">Interactive Map</div>
-        <div className="text-sm">Coordinates: {latitude.toFixed(6)}, {longitude.toFixed(6)}</div>
-        <div className="text-sm mt-1">Zoom: {zoom}</div>
-        <div className="text-xs mt-4 text-gray-500">
-          (Mapbox/Google Maps integration coming soon)
+    <div className="w-full h-full bg-slate-50 flex flex-col items-center justify-center relative min-h-[300px] border-2 border-dashed border-gray-200 rounded-xl">
+      <div className="absolute inset-0 opacity-10" style={{ 
+        backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', 
+        backgroundSize: '40px 40px' 
+      }} />
+      
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="bg-blue-100 p-3 rounded-full mb-4">
+          <MapPin className="w-8 h-8 text-blue-600" />
+        </div>
+        
+        <div className="text-center px-6">
+          <div className="text-lg font-bold text-gray-900 mb-1">{title || 'Property Location'}</div>
+          <div className="text-sm font-mono text-gray-500 bg-white px-3 py-1 rounded-md border inline-block">
+            {isValid 
+              ? `${lat.toFixed(6)}, ${lng.toFixed(6)}` 
+              : 'Location data pending'}
+          </div>
+          <p className="text-xs text-gray-400 mt-6 uppercase tracking-widest font-medium">
+            Interactive Map Interface
+          </p>
         </div>
       </div>
     </div>
