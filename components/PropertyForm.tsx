@@ -130,7 +130,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
   };
 
   // File upload handler
-  const handleFileUpload = (e: any, field: 'heroImage' | 'gallery') => {
+  const handleFileUpload = (e: any, field: string) => {
     const files = e.target.files;
     if (!files) return;
 

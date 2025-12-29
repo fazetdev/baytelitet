@@ -54,7 +54,7 @@ const GULF_REGIONS = {
   Qatar: {
     name: { en: 'Qatar', ar: 'قطر' },
     states: {
-      'doha': { 
+      'doha': {
         name: { en: 'Doha', ar: 'الدوحة' },
         cities: ['Doha', 'West Bay', 'Al Waab', 'Al Sadd', 'Al Dafna']
       },
@@ -67,7 +67,7 @@ const GULF_REGIONS = {
   Kuwait: {
     name: { en: 'Kuwait', ar: 'الكويت' },
     states: {
-      'kuwait_city': { 
+      'kuwait_city': {
         name: { en: 'Kuwait City', ar: 'مدينة الكويت' },
         cities: ['Kuwait City', 'Sharq', 'Salmiya', 'Hawalli']
       },
@@ -92,7 +92,7 @@ const GULF_REGIONS = {
   Bahrain: {
     name: { en: 'Bahrain', ar: 'مملكة البحرين' },
     states: {
-      'manama': { 
+      'manama': {
         name: { en: 'Manama', ar: 'المنامة' },
         cities: ['Manama', 'Diplomatic Area', 'Juffair', 'Adliya']
       },
@@ -103,13 +103,13 @@ const GULF_REGIONS = {
   }
 };
 
-export default function LocationStep({ 
-  lang, 
-  property, 
+export default function LocationStep({
+  lang,
+  property,
   onChange,
-  errors 
+  errors
 }: LocationStepProps) {
-  
+
   const selectedCountry = property.country || 'UAE';
   const selectedState = property.state || '';
   const selectedCity = property.city || '';
@@ -139,7 +139,7 @@ export default function LocationStep({
   const getCurrentCities = () => {
     if (!selectedState) return [];
     const states = getCurrentStates();
-    const stateData = states[selectedState];
+    const stateData = (states as Record<string, any>)[selectedState];
     return stateData?.cities || [];
   };
 
@@ -154,8 +154,8 @@ export default function LocationStep({
               {lang === 'en' ? 'Gulf Region Location' : 'موقع منطقة الخليج'}
             </h3>
             <p className="text-blue-700 text-sm">
-              {lang === 'en' 
-                ? 'Select country, then state/province, then city' 
+              {lang === 'en'
+                ? 'Select country, then state/province, then city'
                 : 'اختر الدولة، ثم المنطقة/المحافظة، ثم المدينة'}
             </p>
           </div>
@@ -218,8 +218,8 @@ export default function LocationStep({
         </div>
         {!selectedState && selectedCountry && (
           <p className="text-amber-600 text-sm mt-2">
-            {lang === 'en' 
-              ? 'Please select a state/province to continue' 
+            {lang === 'en'
+              ? 'Please select a state/province to continue'
               : 'يرجى اختيار منطقة/محافظة للمتابعة'}
           </p>
         )}
@@ -255,8 +255,8 @@ export default function LocationStep({
         </div>
         {!selectedCity && selectedState && (
           <p className="text-amber-600 text-sm mt-2">
-            {lang === 'en' 
-              ? 'Please select a city to continue' 
+            {lang === 'en'
+              ? 'Please select a city to continue'
               : 'يرجى اختيار مدينة للمتابعة'}
           </p>
         )}
@@ -271,8 +271,8 @@ export default function LocationStep({
           name="address"
           value={property.address || ''}
           onChange={onChange}
-          placeholder={lang === 'en' 
-            ? 'Building name, street, district, landmark...' 
+          placeholder={lang === 'en'
+            ? 'Building name, street, district, landmark...'
             : 'اسم المبنى، الشارع، الحي، معلم بارز...'
           }
           rows={3}
@@ -318,8 +318,8 @@ export default function LocationStep({
       {/* Coordinate Help */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <p className="text-sm text-gray-600 mb-2">
-          {lang === 'en' 
-            ? '💡 Need coordinates? Use:' 
+          {lang === 'en'
+            ? '💡 Need coordinates? Use:'
             : '💡 تحتاج إحداثيات؟ استخدم:'}
         </p>
         <div className="text-xs text-gray-500 space-y-1">
