@@ -1,0 +1,66 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { propertySchema } from '@/lib/validators/property';
+import { connect } from '@/lib/db';
+import Property from '@/lib/models/Property';
+import { authenticate } from '@/lib/middleware/auth';
+
+const MAX_BODY_SIZE = 1024 * 1024; // 1MB
+
+export async function POST(req: NextRequest) {
+  const start = Date.now();
+  try {
+    // Limit request body size
+    const clone = req.clone();
+    const bodyText = await clone.text();
+    if (bodyText.length > MAX_BODY_SIZE) {
+      return NextResponse.json({ success: false, error: 'Request body too large' }, { status: 413 });
+    }
+
+    const body = JSON.parse(bodyText);
+
+    // Connect to DB
+    await connect();
+
+    // Authenticate user
+    let user;
+    try {
+      user = authenticate(req);
+    } catch (err: any) {
+      return NextResponse.json({ success: false, error: err.message }, { status: 401 });
+    }
+
+    if (!['agent', 'admin'].includes(user.role)) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Remove any agentId in body to prevent override
+    delete body.agentId;
+
+    // Validate request
+    const validatedData = propertySchema.parse(body);
+
+    // Create property
+    const property = new Property({
+      ...validatedData,
+      agentId: user.id,
+    });
+
+    await property.save();
+
+    // Response headers
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+    headers.set('X-Content-Type-Options', 'nosniff');
+    headers.set('X-Frame-Options', 'DENY');
+    headers.set('Cache-Control', 'no-store, max-age=0');
+
+    const duration = Date.now() - start;
+    console.log(`POST /api/v1/properties completed in ${duration}ms`);
+
+    return new NextResponse(JSON.stringify({ success: true, data: property }), { status: 201, headers });
+  } catch (err: any) {
+    let status = 500;
+    if (err.name === 'ZodError') status = 422;
+    return NextResponse.json({ success: false, error: err.message || 'Unknown error' }, { status });
+  }
+}
