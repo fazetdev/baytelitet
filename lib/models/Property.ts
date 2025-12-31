@@ -268,11 +268,5 @@ PropertySchema.virtual("fullAddress").get(function(this: IProperty) {
 // Pre-save hook for auto-generated fields
 
 // Query helper for active properties
-PropertySchema.query.active = function() {
-  return this.where({ 
-    status: "published", 
-    isPublished: true 
-  });
-};
 
 export default mongoose.models.Property || mongoose.model<IProperty>("Property", PropertySchema);
