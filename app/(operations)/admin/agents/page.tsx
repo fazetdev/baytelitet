@@ -1,202 +1,199 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  UserPlus, Search, Filter, MoreVertical, Mail, Phone, 
-  ShieldCheck, MapPin, Trash2, ExternalLink, Camera, Briefcase, Award
+import { useRouter } from 'next/navigation';
+import { 
+  User, Lock, Mail, Smartphone, Building, Award,
+  LogIn, Eye, EyeOff, Shield
 } from 'lucide-react';
-import { useAgentStore, Agent } from '@/lib/stores/agentStore';
 
-export default function AgentDirectory() {
-  const { agents, addAgent, deleteAgent, updateAgent } = useAgentStore();
-  const [isAdding, setIsAdding] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+export default function AgentLogin() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    photo: '',
-    agency: '',
-    licenseNumber: '',
-    specialization: 'Residential',
-    city: 'Dubai',
-    bio: '',
-    experience: ''
-  });
-
-  const handleAddAgent = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) return;
-    
-    // Now includes all professional fields required by the Store
-    addAgent(formData);
-    
-    // Reset form
-    setFormData({ 
-      name: '', email: '', phone: '', photo: '', 
-      agency: '', licenseNumber: '', specialization: 'Residential', 
-      city: 'Dubai', bio: '', experience: '' 
-    });
-    setIsAdding(false);
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // TODO: Connect to actual agent login API
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role: 'agent' })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store token and redirect to agent dashboard
+        localStorage.setItem('agentToken', data.token);
+        router.push('/agent');
+      } else {
+        setError(data.error || 'Login failed');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const filteredAgents = agents.filter(a =>
-    a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.agency.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleDemoLogin = () => {
+    // Demo credentials for testing
+    setEmail('agent@example.com');
+    setPassword('demo123');
+  };
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50/50 min-h-screen">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Agent Directory</h1>
-          <p className="text-gray-500">Manage and onboard real estate professionals</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
+            <User className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Agent Portal</h1>
+          <p className="text-gray-600 mt-2">Login to access your real estate dashboard</p>
         </div>
-        <button
-          onClick={() => setIsAdding(!isAdding)}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-all shadow-sm ${
-            isAdding ? 'bg-gray-200 text-gray-700' : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
-        >
-          {isAdding ? 'Cancel' : <><UserPlus size={18} /> Add New Agent</>}
-        </button>
-      </div>
 
-      {/* Professional Add Form */}
-      {isAdding && (
-        <form onSubmit={handleAddAgent} className="bg-white p-8 rounded-2xl border border-blue-100 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1">Full Name</label>
-              <input
-                required
-                className="w-full p-2.5 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                placeholder="e.g. Samir Al-Farsi"
-                value={formData.name}
-                onChange={e => setFormData({...formData, name: e.target.value})}
-              />
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+          {/* Demo Banner */}
+          <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-blue-900">Demo Access</p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Use demo credentials to test the agent portal. In production, agents will use their registered email.
+                </p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1">Email</label>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Agent Email
+              </label>
               <input
-                required
                 type="email"
-                className="w-full p-2.5 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                placeholder="samir@agency.com"
-                value={formData.email}
-                onChange={e => setFormData({...formData, email: e.target.value})}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1">Phone / WhatsApp</label>
-              <input
                 required
-                className="w-full p-2.5 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                placeholder="+971..."
-                value={formData.phone}
-                onChange={e => setFormData({...formData, phone: e.target.value})}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your.email@agency.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                disabled={isLoading}
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1">Agency Name</label>
-              <input
-                required
-                className="w-full p-2.5 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                placeholder="Elite Properties"
-                value={formData.agency}
-                onChange={e => setFormData({...formData, agency: e.target.value})}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1">License (RERA/ORB)</label>
-              <input
-                className="w-full p-2.5 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                placeholder="ORN-12345"
-                value={formData.licenseNumber}
-                onChange={e => setFormData({...formData, licenseNumber: e.target.value})}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1">Photo URL</label>
-              <input
-                className="w-full p-2.5 border rounded-xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                placeholder="https://..."
-                value={formData.photo}
-                onChange={e => setFormData({...formData, photo: e.target.value})}
-              />
-            </div>
-          </div>
-          <button type="submit" className="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 shadow-md">
-            Register Professional Agent
-          </button>
-        </form>
-      )}
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-        <input
-          className="w-full pl-10 pr-4 py-3 border rounded-xl bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Search agents by name, agency, or license..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      {/* Agent Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredAgents.map((agent) => (
-          <div key={agent.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
-            <div className="p-5 flex items-center gap-4">
-              <div className="h-16 w-16 bg-gray-100 rounded-full overflow-hidden flex-shrink-0 border border-gray-50">
-                {agent.photo ? (
-                  <img src={agent.photo} alt={agent.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-blue-600 font-bold text-xl uppercase bg-blue-50">
-                    {agent.name.charAt(0)}
-                  </div>
-                )}
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all pr-12"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-900">{agent.name}</h3>
-                <p className="text-sm text-blue-600 font-medium">{agent.agency}</p>
-                <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                  <MapPin size={12} /> {agent.city}
+            </div>
+
+            {/* Demo Login Button */}
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+              disabled={isLoading}
+            >
+              <User className="w-4 h-4" />
+              Load Demo Credentials
+            </button>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full py-3.5 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 ${
+                isLoading
+                  ? 'bg-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
+              }`}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-5 h-5" />
+                  Login to Agent Dashboard
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Footer Info */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-10 h-10 bg-green-50 rounded-full mb-2">
+                  <Building className="w-5 h-5 text-green-600" />
                 </div>
+                <p className="text-xs text-gray-600">Property Management</p>
               </div>
-              <button onClick={() => deleteAgent(agent.id)} className="text-gray-300 hover:text-red-500 self-start">
-                <Trash2 size={18} />
-              </button>
-            </div>
-
-            <div className="px-5 py-4 bg-gray-50/50 space-y-2 border-y border-gray-50">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail size={14} className="text-gray-400" /> {agent.email}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone size={14} className="text-gray-400" /> {agent.phone}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Award size={14} className="text-emerald-500" />
-                <span className="font-medium text-gray-900">{agent.licenseNumber}</span>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-10 h-10 bg-purple-50 rounded-full mb-2">
+                  <Award className="w-5 h-5 text-purple-600" />
+                </div>
+                <p className="text-xs text-gray-600">Commission Tracking</p>
               </div>
             </div>
-
-            <div className="p-4 flex items-center justify-between">
-              <div className="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-full font-bold">
-                {agent.listingsCount} Listings
-              </div>
-              <div className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                agent.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-              }`}>
-                {agent.status}
-              </div>
-            </div>
+            
+            <p className="text-xs text-gray-500 text-center mt-6">
+              Need access? Contact your agency admin to create an agent account.
+            </p>
           </div>
-        ))}
+        </div>
+
+        {/* Support Info */}
+        <div className="mt-6 text-center">
+          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+            <Smartphone className="inline w-4 h-4 mr-1" />
+            Having trouble logging in?
+          </button>
+        </div>
       </div>
     </div>
   );

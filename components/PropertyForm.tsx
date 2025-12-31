@@ -33,7 +33,7 @@ const initialPropertyState = {
   currency: 'AED',
   heroImage: null as string | null,
   gallery: [] as string[],
-  
+
   // Location
   country: 'UAE',
   state: '',
@@ -42,7 +42,7 @@ const initialPropertyState = {
   lat: '',
   long: '',
   jurisdiction: 'AE-DU',
-  
+
   // Specifications
   beds: '',
   baths: '',
@@ -51,18 +51,20 @@ const initialPropertyState = {
   propertyType: 'apartment',
   offPlan: false,
   escrowRequired: false,
-  
+
   // Compliance
   reraNumber: '',
   commissionRate: 2.0,
-  
+
   // Agent & Final
+  agentId: '', // Added agentId field
   agentName: '',
   agentPhone: '',
   agentEmail: '',
   agentLicense: '',
+  agentPicture: '', // Added agentPicture field
   description: '',
-  
+
   // Metadata
   complianceStatus: 'pending' as 'pending' | 'verified' | 'rejected' | 'draft',
 };
@@ -103,7 +105,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
       'Oman': 'OM-MU',
       'Bahrain': 'BH-MA',
     };
-    
+
     if (property.country && jurisdictionMap[property.country]) {
       setProperty(prev => ({ 
         ...prev, 
@@ -115,7 +117,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
   // Generic change handler
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
-    
+
     setProperty(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : 
@@ -176,8 +178,11 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
         break;
 
       case 5: // Agent & Final
-        if (!property.agentName.trim()) errors.agentName = lang === 'en' ? 'Agent name is required' : 'اسم الوكيل مطلوب';
-        if (!property.agentLicense.trim()) errors.agentLicense = lang === 'en' ? 'Agent license is required' : 'ترخيص الوكيل مطلوب';
+        // Require either agentId (selected from list) or agentName + agentLicense (manual entry)
+        if (!property.agentId && (!property.agentName.trim() || !property.agentLicense.trim())) {
+          if (!property.agentName.trim()) errors.agentName = lang === 'en' ? 'Agent name is required' : 'اسم الوكيل مطلوب';
+          if (!property.agentLicense.trim()) errors.agentLicense = lang === 'en' ? 'Agent license is required' : 'ترخيص الوكيل مطلوب';
+        }
         if (!property.description.trim() || property.description.length < 50) {
           errors.description = lang === 'en' ? 'Description must be at least 50 characters' : 'يجب أن يكون الوصف على الأقل 50 حرفاً';
         }
@@ -216,6 +221,10 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
           area: parseFloat(property.area),
           createdAt: new Date().toISOString(),
           complianceStatus: 'pending' as const,
+          // Ensure agentPicture is included
+          agentPicture: property.agentPicture || null,
+          // Ensure agentId is included if available
+          agentId: property.agentId || null,
         };
 
         // Save to store
@@ -333,7 +342,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
         <div className="flex justify-between relative">
           {/* Progress Line */}
           <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-200 -z-10"></div>
-          
+
           {stepConfig.map((stepItem) => {
             const isCompleted = stepItem.number < step;
             const isCurrent = stepItem.number === step;

@@ -26,7 +26,7 @@ const toBackendProperty = (gulfProp: GulfProperty): Omit<Property, 'id' | 'creat
   const lat = safeParseFloat(gulfProp.lat);
   const lng = safeParseFloat(gulfProp.long);
   const price = typeof gulfProp.price === 'string' ? safeParseFloat(gulfProp.price) : gulfProp.price;
-  
+
   // Derive country from jurisdiction (first 2 letters)
   const countryCode = gulfProp.jurisdiction.substring(0, 2);
   const countryMap: Record<string, string> = {
@@ -37,14 +37,14 @@ const toBackendProperty = (gulfProp: GulfProperty): Omit<Property, 'id' | 'creat
     'OM': 'Oman',
     'BH': 'Bahrain'
   };
-  
-  return {
+
+  const backendProperty: Omit<Property, 'id' | 'createdAt' | 'updatedAt'> = {
     title: gulfProp.title,
     price: price || 0,
     currency: gulfProp.currency,
-    type: gulfProp.propertyType, // Maps to Property.type (general field)
+    type: gulfProp.propertyType,
     country: countryMap[countryCode] || 'UAE',
-    state: '', // Will be populated from location data if available
+    state: '',
     city: gulfProp.city,
     address: gulfProp.address,
     lat: lat,
@@ -66,21 +66,29 @@ const toBackendProperty = (gulfProp: GulfProperty): Omit<Property, 'id' | 'creat
     agentLicense: gulfProp.agentLicense,
     agentPhone: gulfProp.agentPhone || undefined,
     agentEmail: gulfProp.agentEmail || undefined,
+    agentPicture: gulfProp.agentPicture || undefined, // Added agentPicture
     complianceStatus: gulfProp.complianceStatus || 'pending',
     isPublished: false,
   };
+
+  // Add agentId if it exists
+  if (gulfProp.agentId) {
+    backendProperty.agentId = gulfProp.agentId;
+  }
+
+  return backendProperty;
 };
 
 // Convert backend Property to GulfProperty format
 const toGulfProperty = (property: Property): GulfProperty => {
-  return {
+  const gulfProperty: GulfProperty = {
     id: property.id,
     title: property.title,
     price: property.price,
-    currency: property.currency,
+    currency: property.currency || 'AED',
     heroImage: property.heroImage || null,
     gallery: property.gallery || [],
-    address: property.address,
+    address: property.address || '',
     city: property.city,
     jurisdiction: property.jurisdiction || 'AE-DU',
     lat: property.lat?.toString() || '',
@@ -94,13 +102,17 @@ const toGulfProperty = (property: Property): GulfProperty => {
     escrowRequired: property.escrowRequired || false,
     offPlan: property.offPlan || false,
     description: property.description,
-    agentName: property.agentName,
+    agentId: property.agentId, // Added agentId
+    agentName: property.agentName || '',
     agentPhone: property.agentPhone || '',
     agentEmail: property.agentEmail || '',
-    agentLicense: property.agentLicense,
-    commissionRate: property.commissionRate,
+    agentLicense: property.agentLicense || '',
+    agentPicture: property.agentPicture || '', // Added agentPicture
+    commissionRate: property.commissionRate || 2.0,
     complianceStatus: property.complianceStatus,
   };
+
+  return gulfProperty;
 };
 
 export interface GulfProperty {
@@ -125,10 +137,12 @@ export interface GulfProperty {
   escrowRequired: boolean;
   offPlan: boolean;
   description: string;
+  agentId?: string; // Added agentId field
   agentName: string;
   agentPhone: string;
   agentEmail: string;
   agentLicense: string;
+  agentPicture: string; // Added agentPicture field
   commissionRate: number;
   complianceStatus?: 'pending' | 'verified' | 'rejected' | 'draft';
 }
@@ -165,21 +179,21 @@ export const useGulfAssetStore = create<GulfAssetStore>((set, get) => ({
     try {
       const apiProperties = await propertyApi.fetchProperties();
       const gulfProperties = apiProperties.map(toGulfProperty);
-      
+
       // Merge strategy: API properties replace local ones with same ID
       // Keep local drafts (IDs starting with 'local_')
       const currentProperties = get().properties;
       const apiIds = new Set(gulfProperties.map(p => p.id));
-      
+
       const mergedProperties = [
         // Keep local drafts that aren't in API
         ...currentProperties.filter(p => p.id?.startsWith('local_') || !apiIds.has(p.id)),
         // Add all API properties (overwrites local non-drafts)
         ...gulfProperties
       ];
-      
+
       set({ properties: mergedProperties, loading: false });
-      
+
       // Sync to localStorage for offline access (SSR-safe)
       setStorageItem('gulf_properties', JSON.stringify(mergedProperties));
     } catch (error: any) {
@@ -193,35 +207,35 @@ export const useGulfAssetStore = create<GulfAssetStore>((set, get) => ({
 
   addProperty: async (property) => {
     set({ loading: true, error: null });
-    
+
     try {
       // Convert to backend format
       const backendProperty = toBackendProperty(property);
-      
+
       // Submit to API
       const newProperty = await propertyApi.createProperty(backendProperty);
       const gulfProperty = toGulfProperty(newProperty);
-      
+
       // Update local state
       const updated = [...get().properties, gulfProperty];
       set({ properties: updated, loading: false });
-      
+
       // Update localStorage (SSR-safe)
       setStorageItem('gulf_properties', JSON.stringify(updated));
-      
+
     } catch (error: any) {
       console.error('Failed to add property via API:', error);
-      
+
       // Fallback: save locally as draft if API fails
       const localProperty: GulfProperty = {
         ...property,
         id: property.id || generateId(),
         complianceStatus: 'draft' as const
       };
-      
+
       const updated = [...get().properties, localProperty];
       setStorageItem('gulf_properties', JSON.stringify(updated));
-      
+
       set({ 
         properties: updated, 
         loading: false,
@@ -232,30 +246,30 @@ export const useGulfAssetStore = create<GulfAssetStore>((set, get) => ({
 
   deleteProperty: async (id) => {
     set({ loading: true, error: null });
-    
+
     // Check if it's a local draft (no need to call API)
     const isLocalDraft = id?.startsWith('local_');
-    
+
     try {
       // Only call API for non-local properties
       if (!isLocalDraft) {
         await propertyApi.deleteProperty(id!);
       }
-      
+
       // Update local state
       const updated = get().properties.filter(p => p.id !== id);
       set({ properties: updated, loading: false });
-      
+
       // Update localStorage (SSR-safe)
       setStorageItem('gulf_properties', JSON.stringify(updated));
-      
+
     } catch (error: any) {
       console.error('Failed to delete property:', error);
-      
+
       // Still remove from local state even if API fails
       const updated = get().properties.filter(p => p.id !== id);
       setStorageItem('gulf_properties', JSON.stringify(updated));
-      
+
       set({ 
         properties: updated, 
         loading: false,

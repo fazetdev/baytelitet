@@ -1,10 +1,10 @@
 import './globals.css';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { PropertiesProvider } from '@/context/useProperties';
-import { AgentProvider } from '@/context/useAgents'; // Add this import
+import { AgentProvider } from '@/context/useAgents';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Script from 'next/script';
+import AdminLayoutWrapper from './AdminLayoutWrapper';
 
 export const metadata = {
   title: 'BaytElite | Gulf Real Estate',
@@ -24,12 +24,10 @@ export default function RootLayout({
       <body>
         <LanguageProvider>
           <PropertiesProvider>
-            <AgentProvider> {/* Add AgentProvider wrapper */}
-              <div className="flex flex-col min-h-screen">
-                <Header />
-                <main className="flex-grow">{children}</main>
-                <Footer />
-              </div>
+            <AgentProvider>
+              <AdminLayoutWrapper>
+                {children}
+              </AdminLayoutWrapper>
             </AgentProvider>
           </PropertiesProvider>
         </LanguageProvider>
