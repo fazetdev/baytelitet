@@ -201,7 +201,13 @@ export default function PropertyDetailPage() {
 
               {activeTab === 'location' && (
                 <div className="h-[400px] rounded-xl overflow-hidden border">
-                  <PropertyMap latitude={property.lat} longitude={property.long} title={property.title} zoom={15} />
+                  {/* FIXED: Pass lat as latitude and long as longitude */}
+                  <PropertyMap 
+                    latitude={property.lat} 
+                    longitude={property.long} 
+                    title={property.title} 
+                    zoom={15} 
+                  />
                 </div>
               )}
 
