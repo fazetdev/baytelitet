@@ -39,3 +39,17 @@ export interface Property {
   country?: string;
   state?: string;
 }
+
+export interface PropertyFilters {
+  city?: string;
+  type?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  beds?: number;
+  baths?: number;
+  search?: string;
+  status?: string;
+  agentId?: string;
+  limit?: number;
+  page?: number;
+}

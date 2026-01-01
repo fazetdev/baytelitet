@@ -26,12 +26,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     await connect();
 
     // Find property and increment view count in parallel
-    const [property] = await Promise.all([
+    const [property]: any[] = await Promise.all([
       Property.findById(id)
         .select('title price beds baths area city emirate type status category location referenceNumber createdAt viewCount favoriteCount media coverImage description')
         .lean(),
       // Increment view count (fire and forget - doesn't block response)
-      Property.findByIdAndUpdate(id, { 
+      Property.findByIdAndUpdate(id, {
         $inc: { viewCount: 1 },
         $set: { lastViewedAt: new Date() }
       })

@@ -221,10 +221,10 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
           area: parseFloat(property.area),
           createdAt: new Date().toISOString(),
           complianceStatus: 'pending' as const,
-          // Ensure agentPicture is included
-          agentPicture: property.agentPicture || null,
-          // Ensure agentId is included if available
-          agentId: property.agentId || null,
+          // Fixed types: Ensure empty strings/nulls are passed as undefined to match GulfProperty interface
+          agentPicture: property.agentPicture || undefined,
+          agentId: property.agentId || undefined,
+          heroImage: property.heroImage || null,
         };
 
         // Save to store

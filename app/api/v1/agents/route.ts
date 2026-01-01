@@ -6,9 +6,9 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
-    
+
     const body = await request.json();
-    
+
     // Validate required fields
     const requiredFields = ['name', 'email', 'phone', 'password', 'reraLicense'];
     for (const field of requiredFields) {
@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
     // Hash the password
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
-    // Create new agent
-    const agentData = {
+    // Create new agent - Typed as any to allow optional agencyId assignment
+    const agentData: any = {
       name: body.name,
       email: body.email.toLowerCase(),
       phone: body.phone,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const agent = await Agent.create(agentData);
-    
+
     // Remove password from response
     const agentResponse = agent.toObject();
     delete agentResponse.password;
@@ -66,9 +66,9 @@ export async function POST(request: NextRequest) {
       message: 'Agent created successfully'
     }, { status: 201 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating agent:', error);
-    
+
     // Handle MongoDB duplicate key error
     if (error.code === 11000) {
       return NextResponse.json(
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     await dbConnect();
-    
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     // Build query
     const query: any = {};
-    
+
     // Search by name, email, or license if search param provided
     const search = searchParams.get('search');
     if (search) {
