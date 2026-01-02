@@ -11,7 +11,7 @@ export interface ILocation {
   type: "Point";
   coordinates: [number, number]; // [lng, lat]
   address: { en: string; ar: string };
-  emirate: "Dubai" | "Abu Dhabi" | "Sharjah" | "Ajman" | "Umm Al Quwain" | "Ras Al Khaimah" | "Fujairah";
+  emirate: string; // FIXED: Removed enum restriction
   city: string;
   neighborhood?: string;
   postalCode?: string;
@@ -23,7 +23,7 @@ export interface IProperty extends Document {
   description: { en: string; ar: string };
   type: "apartment" | "villa" | "townhouse" | "office" | "warehouse" | "land" | "penthouse";
   category: "rent" | "sale" | "off-plan";
-  
+
   // Pricing
   price: number;
   currency: "AED" | "SAR" | "QAR" | "USD";
@@ -33,7 +33,7 @@ export interface IProperty extends Document {
     percentage: number;
     dueDate?: Date;
   }>;
-  
+
   // Specifications
   beds: number;
   baths: number;
@@ -45,13 +45,14 @@ export interface IProperty extends Document {
   yearBuilt?: number;
   floors?: number;
   furnishing: "furnished" | "unfurnished" | "partially";
-  
+
   // Location (denormalized for queries)
-  emirate: string;
+  emirate: string; // FIXED: Keep field but remove enum restriction
   city: string;
+  address: string; // FIXED: Added address field with default
   neighborhood?: string;
   location: ILocation;
-  
+
   // Media
   media: IMedia[];
   coverImage: string;
@@ -60,7 +61,7 @@ export interface IProperty extends Document {
     caption: { en: string; ar: string };
     area: number;
   }>;
-  
+
   // Agent & Commission
   agentId: mongoose.Types.ObjectId;
   agencyId?: mongoose.Types.ObjectId;
@@ -69,7 +70,7 @@ export interface IProperty extends Document {
     fixed?: number;
     paymentTerms: string;
   };
-  
+
   // Gulf Compliance
   reraNumber: string;
   reraVerified: boolean;
@@ -81,19 +82,19 @@ export interface IProperty extends Document {
   };
   developerId?: mongoose.Types.ObjectId;
   projectName?: { en: string; ar: string };
-  
+
   // Status & Lifecycle
   status: "draft" | "under_review" | "published" | "reserved" | "sold" | "rented" | "archived";
   isFeatured: boolean;
   isPublished: boolean;
   viewCount: number;
   favoriteCount: number;
-  
+
   // SEO & Tracking
   slug: { en: string; ar: string };
   referenceNumber: string;
   tags: string[];
-  
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -121,13 +122,13 @@ const LocationSchema = new Schema<ILocation>({
     message: "Invalid coordinates"
   }},
   address: {
-    en: { type: String, required: true },
-    ar: { type: String, required: true }
+    en: { type: String, required: true, default: "Not specified" }, // FIXED: Added default
+    ar: { type: String, required: true, default: "غير محدد" }
   },
   emirate: { 
     type: String, 
-    enum: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Umm Al Quwain", "Ras Al Khaimah", "Fujairah"],
-    required: true 
+    required: true,
+    default: "" // FIXED: Removed enum restriction, added default
   },
   city: { type: String, required: true },
   neighborhood: String,
@@ -181,10 +182,15 @@ const PropertySchema = new Schema<IProperty>({
   },
   emirate: { 
     type: String, 
-    enum: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Umm Al Quwain", "Ras Al Khaimah", "Fujairah"],
-    required: true 
+    required: true,
+    default: "" // FIXED: Removed enum restriction
   },
   city: { type: String, required: true },
+  address: { 
+    type: String, 
+    required: true,
+    default: "Not specified" // FIXED: Added address field with default
+  },
   neighborhood: String,
   location: LocationSchema,
   media: [MediaSchema],
@@ -264,9 +270,5 @@ PropertySchema.index({ "title.en": "text", "title.ar": "text", "description.en":
 PropertySchema.virtual("fullAddress").get(function(this: IProperty) {
   return `${this.location.address.en}, ${this.location.neighborhood || ''}, ${this.location.city}, ${this.location.emirate}`;
 });
-
-// Pre-save hook for auto-generated fields
-
-// Query helper for active properties
 
 export default mongoose.models.Property || mongoose.model<IProperty>("Property", PropertySchema);

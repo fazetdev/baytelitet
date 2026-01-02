@@ -282,29 +282,32 @@ export default function PropertiesPage() {
             </div>
           </div>
         ) : viewMode === 'grid' ? (
-          // Grid View
+          // Grid View - FIXED: Properly map property data
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProperties.map((property) => {
-              // Convert property data to match PropertyCard interface
-              const cardProperty = {
-                id: property.id,
-                title: property.title,
-                price: property.price,
-                location: `${property.address}, ${property.city}`,
-                type: property.propertyType,
-                bedrooms: property.beds,
-                bathrooms: property.baths,
-                description: property.description,
-                area: property.area,
-                status: property.status,
-                rentalYield: '7.2%', // Default or calculate from property data
-                images: property.heroImage ? [property.heroImage] : [],
-              };
+              // Get all images including hero image and gallery
+              const allImages = [
+                property.heroImage,
+                ...(property.gallery || [])
+              ].filter(Boolean);
 
               return (
                 <PropertyCard
                   key={property.id}
-                  property={cardProperty}
+                  property={{
+                    id: property.id,
+                    title: property.title || 'Untitled Property',
+                    price: Number(property.price) || 0,
+                    location: `${property.address || ''}, ${property.city || ''}`,
+                    type: property.propertyType?.charAt(0).toUpperCase() + property.propertyType?.slice(1) || 'Property',
+                    bedrooms: property.beds || 0,
+                    bathrooms: property.baths || 0,
+                    description: property.description || '',
+                    area: property.area || 0,
+                    status: property.status || 'available',
+                    rentalYield: '7.2%',
+                    images: allImages, // Pass all images including gallery
+                  }}
                   language="en"
                 />
               );
@@ -314,30 +317,21 @@ export default function PropertiesPage() {
           // List View
           <div className="space-y-4">
             {filteredProperties.map((property) => {
-              const cardProperty = {
-                id: property.id,
-                title: property.title,
-                price: property.price,
-                location: `${property.address}, ${property.city}`,
-                type: property.propertyType,
-                bedrooms: property.beds,
-                bathrooms: property.baths,
-                description: property.description,
-                area: property.area,
-                status: property.status,
-                rentalYield: '7.2%',
-                images: property.heroImage ? [property.heroImage] : [],
-              };
+              // Get all images including hero image and gallery
+              const allImages = [
+                property.heroImage,
+                ...(property.gallery || [])
+              ].filter(Boolean);
 
               return (
                 <div key={property.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
                   <div className="flex flex-col md:flex-row gap-6">
-                    {/* Property Image */}
+                    {/* Property Image - Show first image from gallery or hero */}
                     <div className="md:w-64 md:h-48">
                       <div className="w-full h-48 md:h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
-                        {property.heroImage ? (
+                        {allImages[0] ? (
                           <img
-                            src={property.heroImage}
+                            src={allImages[0]}
                             alt={property.title}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                             onError={(e) => {
@@ -350,24 +344,30 @@ export default function PropertiesPage() {
                           </div>
                         )}
                       </div>
+                      {/* Show image count if there are more images */}
+                      {allImages.length > 1 && (
+                        <div className="text-xs text-gray-500 mt-2 text-center">
+                          +{allImages.length - 1} more images
+                        </div>
+                      )}
                     </div>
 
                     {/* Property Details */}
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-1">{property.title}</h3>
+                          <h3 className="text-xl font-bold text-gray-900 mb-1">{property.title || 'Untitled Property'}</h3>
                           <p className="text-gray-600 flex items-center gap-1">
                             <Search className="w-4 h-4" />
-                            {property.address}, {property.city}
+                            {property.address || ''}, {property.city || ''}
                           </p>
                         </div>
                         <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                          {property.propertyType?.charAt(0).toUpperCase() + property.propertyType?.slice(1)}
+                          {property.propertyType?.charAt(0).toUpperCase() + property.propertyType?.slice(1) || 'Property'}
                         </span>
                       </div>
 
-                      <p className="text-gray-600 mb-4 line-clamp-2">{property.description}</p>
+                      <p className="text-gray-600 mb-4 line-clamp-2">{property.description || 'No description available'}</p>
 
                       <div className="grid grid-cols-3 gap-4 mb-4">
                         <div className="text-center">
@@ -387,7 +387,7 @@ export default function PropertiesPage() {
                       <div className="flex justify-between items-center">
                         <div>
                           <div className="text-lg font-bold text-gray-900">
-                            {property.currency} {Number(property.price || 0).toLocaleString()}
+                            {property.currency || 'AED'} {Number(property.price || 0).toLocaleString()}
                           </div>
                           <div className="text-sm text-gray-600">Total Price</div>
                         </div>

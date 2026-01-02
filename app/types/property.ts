@@ -14,16 +14,16 @@ export interface Property {
   // Gulf-specific fields
   reraNumber?: string;
   escrowRequired?: boolean;
-  complianceStatus?: string;
+  complianceStatus?: 'pending' | 'verified' | 'rejected' | 'draft';
   isPublished?: boolean;
 
   // Agent fields
-  agentId?: string; // Added agentId for database reference
+  agentId?: string;
   agentName?: string;
   agentLicense?: string;
   agentPhone?: string;
   agentEmail?: string;
-  agentPicture?: string; // Added agent picture
+  agentPicture?: string;
   commissionRate?: number;
 
   // Additional fields from form/store
@@ -41,15 +41,8 @@ export interface Property {
 }
 
 export interface PropertyFilters {
-  city?: string;
   type?: string;
+  city?: string;
   minPrice?: number;
   maxPrice?: number;
-  beds?: number;
-  baths?: number;
-  search?: string;
-  status?: string;
-  agentId?: string;
-  limit?: number;
-  page?: number;
 }

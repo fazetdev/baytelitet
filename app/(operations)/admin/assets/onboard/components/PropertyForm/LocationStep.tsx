@@ -9,96 +9,113 @@ interface LocationStepProps {
   errors: any;
 }
 
-// Gulf Countries with their states/provinces and cities
+// Gulf Countries with their states/provinces and cities - FIXED FOR API COMPATIBILITY
 const GULF_REGIONS = {
   UAE: {
     name: { en: 'United Arab Emirates', ar: 'الإمارات العربية المتحدة' },
     states: {
-      'dubai': {
+      // Using proper API enum values as keys
+      'Dubai': {
         name: { en: 'Dubai', ar: 'دبي' },
         cities: ['Dubai', 'Jumeirah', 'Marina', 'Downtown', 'Business Bay', 'Palm Jumeirah']
       },
-      'abu_dhabi': {
+      'Abu Dhabi': {
         name: { en: 'Abu Dhabi', ar: 'أبو ظبي' },
         cities: ['Abu Dhabi', 'Al Ain', 'Al Raha', 'Yas Island', 'Saadiyat Island']
       },
-      'sharjah': {
+      'Sharjah': {
         name: { en: 'Sharjah', ar: 'الشارقة' },
         cities: ['Sharjah', 'Al Khan', 'Al Majaz', 'University City']
       },
-      'ajman': { name: { en: 'Ajman', ar: 'عجمان' }, cities: ['Ajman'] },
-      'ras_al_khaimah': { name: { en: 'Ras Al Khaimah', ar: 'رأس الخيمة' }, cities: ['Ras Al Khaimah'] },
-      'fujairah': { name: { en: 'Fujairah', ar: 'الفجيرة' }, cities: ['Fujairah'] },
-      'umm_al_quwain': { name: { en: 'Umm Al Quwain', ar: 'أم القيوين' }, cities: ['Umm Al Quwain'] }
+      'Ajman': { name: { en: 'Ajman', ar: 'عجمان' }, cities: ['Ajman'] },
+      'Ras Al Khaimah': { 
+        name: { en: 'Ras Al Khaimah', ar: 'رأس الخيمة' }, 
+        cities: ['Ras Al Khaimah'] 
+      },
+      'Fujairah': { name: { en: 'Fujairah', ar: 'الفجيرة' }, cities: ['Fujairah'] },
+      'Umm Al Quwain': { 
+        name: { en: 'Umm Al Quwain', ar: 'أم القيوين' }, 
+        cities: ['Umm Al Quwain'] 
+      }
     }
   },
   Saudi: {
     name: { en: 'Saudi Arabia', ar: 'المملكة العربية السعودية' },
     states: {
-      'riyadh': {
+      // For Saudi, we'll use province names that match typical real estate usage
+      'Riyadh Province': {
         name: { en: 'Riyadh Province', ar: 'منطقة الرياض' },
         cities: ['Riyadh', 'Diriyah', 'Al Kharj', 'Al Majma\'ah']
       },
-      'makkah': {
+      'Makkah Province': {
         name: { en: 'Makkah Province', ar: 'منطقة مكة' },
         cities: ['Jeddah', 'Makkah', 'Ta\'if', 'Al Lith']
       },
-      'eastern': {
+      'Eastern Province': {
         name: { en: 'Eastern Province', ar: 'المنطقة الشرقية' },
         cities: ['Dammam', 'Khobar', 'Dhahran', 'Jubail', 'Al Ahsa']
       },
-      'medina': { name: { en: 'Medina Province', ar: 'منطقة المدينة' }, cities: ['Medina', 'Yanbu'] },
-      'qassim': { name: { en: 'Al-Qassim Province', ar: 'منطقة القصيم' }, cities: ['Buraidah', 'Unaizah'] }
+      'Medina Province': { 
+        name: { en: 'Medina Province', ar: 'منطقة المدينة' }, 
+        cities: ['Medina', 'Yanbu'] 
+      },
+      'Al-Qassim Province': { 
+        name: { en: 'Al-Qassim Province', ar: 'منطقة القصيم' }, 
+        cities: ['Buraidah', 'Unaizah'] 
+      }
     }
   },
   Qatar: {
     name: { en: 'Qatar', ar: 'قطر' },
     states: {
-      'doha': {
+      'Doha': {
         name: { en: 'Doha', ar: 'الدوحة' },
         cities: ['Doha', 'West Bay', 'Al Waab', 'Al Sadd', 'Al Dafna']
       },
-      'al_rayyan': { name: { en: 'Al Rayyan', ar: 'الريان' }, cities: ['Al Rayyan', 'Al Wajbah'] },
-      'al_wakrah': { name: { en: 'Al Wakrah', ar: 'الوكرة' }, cities: ['Al Wakrah'] },
-      'al_khor': { name: { en: 'Al Khor', ar: 'الخور' }, cities: ['Al Khor'] },
-      'umm_salal': { name: { en: 'Umm Salal', ar: 'أم صلال' }, cities: ['Umm Salal'] }
+      'Al Rayyan': { name: { en: 'Al Rayyan', ar: 'الريان' }, cities: ['Al Rayyan', 'Al Wajbah'] },
+      'Al Wakrah': { name: { en: 'Al Wakrah', ar: 'الوكرة' }, cities: ['Al Wakrah'] },
+      'Al Khor': { name: { en: 'Al Khor', ar: 'الخور' }, cities: ['Al Khor'] },
+      'Umm Salal': { name: { en: 'Umm Salal', ar: 'أم صلال' }, cities: ['Umm Salal'] }
     }
   },
   Kuwait: {
     name: { en: 'Kuwait', ar: 'الكويت' },
     states: {
-      'kuwait_city': {
+      'Kuwait City': {
         name: { en: 'Kuwait City', ar: 'مدينة الكويت' },
         cities: ['Kuwait City', 'Sharq', 'Salmiya', 'Hawalli']
       },
-      'al_ahmadi': { name: { en: 'Al Ahmadi', ar: 'الأحمدي' }, cities: ['Al Ahmadi', 'Fahaheel'] },
-      'al_jahra': { name: { en: 'Al Jahra', ar: 'الجهراء' }, cities: ['Al Jahra'] },
-      'al_farwaniya': { name: { en: 'Al Farwaniya', ar: 'الفروانية' }, cities: ['Al Farwaniya'] },
-      'mubarak_al_kabeer': { name: { en: 'Mubarak Al-Kabeer', ar: 'مبارك الكبير' }, cities: ['Mubarak Al-Kabeer'] }
+      'Al Ahmadi': { name: { en: 'Al Ahmadi', ar: 'الأحمدي' }, cities: ['Al Ahmadi', 'Fahaheel'] },
+      'Al Jahra': { name: { en: 'Al Jahra', ar: 'الجهراء' }, cities: ['Al Jahra'] },
+      'Al Farwaniya': { name: { en: 'Al Farwaniya', ar: 'الفروانية' }, cities: ['Al Farwaniya'] },
+      'Mubarak Al-Kabeer': { 
+        name: { en: 'Mubarak Al-Kabeer', ar: 'مبارك الكبير' }, 
+        cities: ['Mubarak Al-Kabeer'] 
+      }
     }
   },
   Oman: {
     name: { en: 'Oman', ar: 'سلطنة عمان' },
     states: {
-      'muscat': {
+      'Muscat': {
         name: { en: 'Muscat', ar: 'مسقط' },
         cities: ['Muscat', 'Ruwi', 'Al Khuwair', 'Al Ghubra', 'Qurum']
       },
-      'dhofar': { name: { en: 'Dhofar', ar: 'ظفار' }, cities: ['Salalah'] },
-      'al_batinah': { name: { en: 'Al Batinah', ar: 'الباطنة' }, cities: ['Sohar', 'Barka'] },
-      'al_dakhiliyah': { name: { en: 'Al Dakhiliyah', ar: 'الداخلية' }, cities: ['Nizwa', 'Bahla'] }
+      'Dhofar': { name: { en: 'Dhofar', ar: 'ظفار' }, cities: ['Salalah'] },
+      'Al Batinah': { name: { en: 'Al Batinah', ar: 'الباطنة' }, cities: ['Sohar', 'Barka'] },
+      'Al Dakhiliyah': { name: { en: 'Al Dakhiliyah', ar: 'الداخلية' }, cities: ['Nizwa', 'Bahla'] }
     }
   },
   Bahrain: {
     name: { en: 'Bahrain', ar: 'مملكة البحرين' },
     states: {
-      'manama': {
+      'Manama': {
         name: { en: 'Manama', ar: 'المنامة' },
         cities: ['Manama', 'Diplomatic Area', 'Juffair', 'Adliya']
       },
-      'muharraq': { name: { en: 'Muharraq', ar: 'المحرق' }, cities: ['Muharraq'] },
-      'northern': { name: { en: 'Northern', ar: 'الشمالية' }, cities: ['Seef', 'Budaiya'] },
-      'southern': { name: { en: 'Southern', ar: 'الجنوبية' }, cities: ['Riffa', 'Isa Town'] }
+      'Muharraq': { name: { en: 'Muharraq', ar: 'المحرق' }, cities: ['Muharraq'] },
+      'Northern': { name: { en: 'Northern', ar: 'الشمالية' }, cities: ['Seef', 'Budaiya'] },
+      'Southern': { name: { en: 'Southern', ar: 'الجنوبية' }, cities: ['Riffa', 'Isa Town'] }
     }
   }
 };
@@ -244,7 +261,7 @@ export default function LocationStep({
               {lang === 'en' ? '-- Select City --' : '-- اختر المدينة --'}
             </option>
             {getCurrentCities().map((city: string) => (
-              <option key={city} value={city.toLowerCase().replace(/\s+/g, '_')}>
+              <option key={city} value={city}>
                 {city}
               </option>
             ))}

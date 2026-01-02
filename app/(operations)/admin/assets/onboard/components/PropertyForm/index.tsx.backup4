@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Camera, 
-  MapPin, 
-  Home, 
-  Shield, 
-  User, 
+import {
+  Camera,
+  MapPin,
+  Home,
+  Shield,
+  User,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
@@ -14,11 +14,12 @@ import {
   X
 } from 'lucide-react';
 import { useGulfAssetStore } from '@/lib/stores/gulfAssetStore';
-import MediaStep from './property-form/MediaStep';
-import LocationStep from './property-form/LocationStep';
-import SpecsStep from './property-form/SpecsStep';
-import ComplianceStep from './property-form/ComplianceStep';
-import AgentStep from './property-form/AgentStep';
+import { useProperties } from '@/app/context/useProperties';
+import MediaStep from './MediaStep';
+import LocationStep from './LocationStep';
+import SpecsStep from './SpecsStep';
+import ComplianceStep from './ComplianceStep';
+import AgentStep from './AgentStep';
 
 interface PropertyFormProps {
   lang: 'en' | 'ar';
@@ -57,12 +58,12 @@ const initialPropertyState = {
   commissionRate: 2.0,
 
   // Agent & Final
-  agentId: '', // Added agentId field
+  agentId: '',
   agentName: '',
   agentPhone: '',
   agentEmail: '',
   agentLicense: '',
-  agentPicture: '', // Added agentPicture field
+  agentPicture: '',
   description: '',
 
   // Metadata
@@ -70,19 +71,19 @@ const initialPropertyState = {
 };
 
 export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
-  const { addProperty } = useGulfAssetStore();
+  const { addProperty: addToGulfStore } = useGulfAssetStore();
+  const { addProperty: addToDatabase } = useProperties();
   const [step, setStep] = useState(1);
   const [property, setProperty] = useState(initialPropertyState);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load draft from localStorage
+  // Load draft from localStorage (temporary, for user convenience)
   useEffect(() => {
     const saved = localStorage.getItem('gulf_property_draft');
     if (saved) {
       try {
         const draft = JSON.parse(saved);
-        // Ensure all fields exist (backward compatibility)
         setProperty({ ...initialPropertyState, ...draft });
       } catch (e) {
         console.error('Failed to load saved property');
@@ -90,7 +91,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
     }
   }, []);
 
-  // Save draft to localStorage
+  // Save draft to localStorage (temporary, for user convenience)
   useEffect(() => {
     localStorage.setItem('gulf_property_draft', JSON.stringify(property));
   }, [property]);
@@ -99,7 +100,7 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
   useEffect(() => {
     const jurisdictionMap: Record<string, string> = {
       'UAE': 'AE-DU',
-      'Saudi': 'SA-RY', 
+      'Saudi': 'SA-RY',
       'Qatar': 'QA-DA',
       'Kuwait': 'KW-KU',
       'Oman': 'OM-MU',
@@ -107,9 +108,9 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
     };
 
     if (property.country && jurisdictionMap[property.country]) {
-      setProperty(prev => ({ 
-        ...prev, 
-        jurisdiction: jurisdictionMap[property.country] 
+      setProperty(prev => ({
+        ...prev,
+        jurisdiction: jurisdictionMap[property.country]
       }));
     }
   }, [property.country]);
@@ -120,8 +121,8 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
 
     setProperty(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : 
-              type === 'number' ? (value === '' ? '' : parseFloat(value)) : 
+      [name]: type === 'checkbox' ? checked :
+              type === 'number' ? (value === '' ? '' : parseFloat(value)) :
               value
     }));
 
@@ -178,7 +179,6 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
         break;
 
       case 5: // Agent & Final
-        // Require either agentId (selected from list) or agentName + agentLicense (manual entry)
         if (!property.agentId && (!property.agentName.trim() || !property.agentLicense.trim())) {
           if (!property.agentName.trim()) errors.agentName = lang === 'en' ? 'Agent name is required' : 'اسم الوكيل مطلوب';
           if (!property.agentLicense.trim()) errors.agentLicense = lang === 'en' ? 'Agent license is required' : 'ترخيص الوكيل مطلوب';
@@ -204,15 +204,59 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
     setStep(prev => Math.max(prev - 1, 1));
   };
 
-  // Form submission
+  // Form submission - SAVES TO DATABASE
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     if (validateStep()) {
       try {
-        // Prepare property data for submission
+        // Prepare property data for database submission
+        // MUST match your Property model requirements exactly
         const submissionData = {
+          title: property.title,
+          price: parseFloat(property.price),
+          city: property.city,  // REQUIRED by API
+          // RERA number must match format: RERA-[A-Z0-9]+
+          reraNumber: property.reraNumber.startsWith('RERA-') 
+            ? property.reraNumber 
+            : `RERA-${property.reraNumber.toUpperCase().replace(/[^A-Z0-9]/g, '')}`,
+          type: property.propertyType,
+          description: property.description,
+          currency: property.currency,
+          beds: parseInt(property.beds) || 0,
+          baths: parseInt(property.baths) || 0,
+          area: parseFloat(property.area) || 0,
+          areaUnit: property.areaUnit,
+          address: property.address,
+          state: property.state,
+          country: property.country,
+          // coverImage is REQUIRED by Property model (line 191: coverImage: { type: String, required: true })
+          coverImage: property.heroImage || 'https://via.placeholder.com/600x400?text=Property+Image',
+          heroImage: property.heroImage || '',
+          gallery: property.gallery || [],
+          agentId: property.agentId || '',
+          agentName: property.agentName || '',
+          agentLicense: property.agentLicense || '',
+          commissionRate: property.commissionRate || 2.0,
+          escrowRequired: property.escrowRequired || false,
+          offPlan: property.offPlan || false,
+          status: 'draft',
+          // Add other fields that might be required
+          category: 'sale',
+          emirate: property.state || 'Dubai',
+          jurisdiction: property.jurisdiction || 'AE-DU'
+        };
+
+        console.log('DEBUG - property.state:', property.state);
+        console.log('DEBUG - Full property object:', property);
+        console.log('Saving to database:', submissionData);
+
+        // 1. Save to MongoDB database (PRIMARY)
+        await addToDatabase(submissionData);
+
+        // 2. Also save to Gulf store for backward compatibility
+        const gulfPropertyData = {
           ...property,
           id: Date.now().toString(),
           price: parseFloat(property.price),
@@ -221,19 +265,16 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
           area: parseFloat(property.area),
           createdAt: new Date().toISOString(),
           complianceStatus: 'pending' as const,
-          // Fixed types: Ensure empty strings/nulls are passed as undefined to match GulfProperty interface
           agentPicture: property.agentPicture || '',
           agentId: property.agentId || '',
           heroImage: property.heroImage || null,
         };
-
-        // Save to store
-        addProperty(submissionData);
+        addToGulfStore(gulfPropertyData);
 
         // Success message
-        alert(lang === 'en' 
-          ? '✓ Property submitted successfully!' 
-          : '✓ تم إرسال العقار بنجاح!'
+        alert(lang === 'en'
+          ? '✓ Property saved to database successfully!'
+          : '✓ تم حفظ العقار في قاعدة البيانات بنجاح!'
         );
 
         // Cleanup
@@ -245,11 +286,15 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
         // Notify parent
         if (onSuccess) onSuccess();
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('Submission error:', error);
-        alert(lang === 'en' 
-          ? '✗ Error submitting property. Please try again.' 
-          : '✗ خطأ في إرسال العقار. يرجى المحاولة مرة أخرى.'
+        console.error('Error details:', error.message);
+        
+        // Show specific error message
+        const errorMsg = error.message || 'Unknown error';
+        alert(lang === 'en'
+          ? `✗ Error saving property to database: ${errorMsg}. Please check the console for details.`
+          : `✗ خطأ في حفظ العقار في قاعدة البيانات: ${errorMsg}. يرجى التحقق من وحدة التحكم للحصول على التفاصيل.`
         );
       } finally {
         setIsSubmitting(false);
@@ -261,8 +306,8 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
 
   // Clear form
   const handleClearForm = () => {
-    if (confirm(lang === 'en' 
-      ? 'Are you sure you want to clear the form? All unsaved data will be lost.' 
+    if (confirm(lang === 'en'
+      ? 'Are you sure you want to clear the form? All unsaved data will be lost.'
       : 'هل أنت متأكد من مسح النموذج؟ سيتم فقدان جميع البيانات غير المحفوظة.'
     )) {
       localStorage.removeItem('gulf_property_draft');
@@ -274,32 +319,32 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
 
   // Step configuration
   const stepConfig = [
-    { 
-      number: 1, 
+    {
+      number: 1,
       icon: <Camera className="w-5 h-5" />,
       name: { en: 'Media & Basic Info', ar: 'الصور والمعلومات' },
       description: { en: 'Upload images and basic details', ar: 'رفع الصور والتفاصيل الأساسية' }
     },
-    { 
-      number: 2, 
+    {
+      number: 2,
       icon: <MapPin className="w-5 h-5" />,
       name: { en: 'Location', ar: 'الموقع' },
       description: { en: 'Property address and coordinates', ar: 'عنوان العقار والإحداثيات' }
     },
-    { 
-      number: 3, 
+    {
+      number: 3,
       icon: <Home className="w-5 h-5" />,
       name: { en: 'Specifications', ar: 'المواصفات' },
       description: { en: 'Size, rooms, and property type', ar: 'المساحة، الغرف، ونوع العقار' }
     },
-    { 
-      number: 4, 
+    {
+      number: 4,
       icon: <Shield className="w-5 h-5" />,
       name: { en: 'Compliance', ar: 'الامتثال' },
       description: { en: 'Legal and regulatory requirements', ar: 'المتطلبات القانونية والتنظيمية' }
     },
-    { 
-      number: 5, 
+    {
+      number: 5,
       icon: <User className="w-5 h-5" />,
       name: { en: 'Agent & Final', ar: 'الوكيل والنهائي' },
       description: { en: 'Agent details and description', ar: 'تفاصيل الوكيل والوصف' }
@@ -352,8 +397,8 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
               <div key={stepItem.number} className="flex flex-col items-center relative z-10">
                 <div className={`
                   w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all duration-300
-                  ${isCompleted ? 'bg-green-500 text-white shadow-lg' : 
-                    isCurrent ? 'bg-blue-600 text-white shadow-lg ring-4 ring-blue-100' : 
+                  ${isCompleted ? 'bg-green-500 text-white shadow-lg' :
+                    isCurrent ? 'bg-blue-600 text-white shadow-lg ring-4 ring-blue-100' :
                     'bg-gray-100 text-gray-400'}
                 `}>
                   {isCompleted ? (
@@ -463,8 +508,8 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
                 <p className="flex items-center gap-2 mb-2">
                   <Save className="w-4 h-4" />
                   {lang === 'en'
-                    ? 'Your data will be saved locally and submitted for review.'
-                    : 'سيتم حفظ بياناتك محلياً وإرسالها للمراجعة.'}
+                    ? 'Your data will be saved to the database and submitted for review.'
+                    : 'سيتم حفظ بياناتك في قاعدة البيانات وإرسالها للمراجعة.'}
                 </p>
                 <p className="text-xs text-gray-500">
                   {lang === 'en'
@@ -490,12 +535,12 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
                   {isSubmitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      {lang === 'en' ? 'Submitting...' : 'جاري الإرسال...'}
+                      {lang === 'en' ? 'Saving to Database...' : 'جاري الحفظ في قاعدة البيانات...'}
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-5 h-5" />
-                      {lang === 'en' ? 'Submit Property' : 'إرسال العقار'}
+                      {lang === 'en' ? 'Save to Database' : 'حفظ في قاعدة البيانات'}
                     </>
                   )}
                 </button>
