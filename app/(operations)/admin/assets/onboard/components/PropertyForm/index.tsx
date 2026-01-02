@@ -11,9 +11,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Save,
-  X
+  X,
+  Eye,
+  EyeOff
 } from 'lucide-react';
-import { useGulfAssetStore } from '@/lib/stores/gulfAssetStore';
 import { useProperties } from '@/app/context/useProperties';
 import MediaStep from './MediaStep';
 import LocationStep from './LocationStep';
@@ -71,30 +72,12 @@ const initialPropertyState = {
 };
 
 export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
-  const { addProperty: addToGulfStore } = useGulfAssetStore();
-  const { addProperty: addToDatabase } = useProperties();
+  const { addProperty } = useProperties();
   const [step, setStep] = useState(1);
   const [property, setProperty] = useState(initialPropertyState);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Load draft from localStorage (temporary, for user convenience)
-  useEffect(() => {
-    const saved = localStorage.getItem('gulf_property_draft');
-    if (saved) {
-      try {
-        const draft = JSON.parse(saved);
-        setProperty({ ...initialPropertyState, ...draft });
-      } catch (e) {
-        console.error('Failed to load saved property');
-      }
-    }
-  }, []);
-
-  // Save draft to localStorage (temporary, for user convenience)
-  useEffect(() => {
-    localStorage.setItem('gulf_property_draft', JSON.stringify(property));
-  }, [property]);
+  const [showDataPreview, setShowDataPreview] = useState(false);
 
   // Update jurisdiction when country changes
   useEffect(() => {
@@ -197,14 +180,18 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
   const handleNext = () => {
     if (validateStep()) {
       setStep(prev => Math.min(prev + 1, 5));
+      // Scroll to top when moving to next step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handlePrev = () => {
     setStep(prev => Math.max(prev - 1, 1));
+    // Scroll to top when moving to previous step
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Form submission - SAVES TO DATABASE
+  // Form submission - SAVES TO DATABASE ONLY
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -212,64 +199,46 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
     if (validateStep()) {
       try {
         // Prepare property data for database submission
-        // MUST match your Property model requirements exactly
+        // Must match API expectations and Property model
         const submissionData = {
           title: property.title,
           price: parseFloat(property.price),
-          city: property.city,  // REQUIRED by API
-          // RERA number must match format: RERA-[A-Z0-9]+
+          city: property.city,
+          // Ensure RERA number format matches validation: RERA-[A-Z0-9]+
           reraNumber: property.reraNumber.startsWith('RERA-') 
             ? property.reraNumber 
             : `RERA-${property.reraNumber.toUpperCase().replace(/[^A-Z0-9]/g, '')}`,
           type: property.propertyType,
           description: property.description,
-          currency: property.currency,
+          currency: property.currency || 'AED',
           beds: parseInt(property.beds) || 0,
           baths: parseInt(property.baths) || 0,
           area: parseFloat(property.area) || 0,
-          areaUnit: property.areaUnit,
-          address: property.address || "Address not provided",
+          areaUnit: property.areaUnit || 'sqft',
+          address: property.address || "Not specified",
           state: property.state,
           country: property.country,
-          // coverImage is REQUIRED by Property model (line 191: coverImage: { type: String, required: true })
+          emirate: property.state || '',
           coverImage: property.heroImage || 'https://via.placeholder.com/600x400?text=Property+Image',
           heroImage: property.heroImage || '',
           gallery: property.gallery || [],
-          agentId: property.agentId || '',
+          agentId: property.agentId || '000000000000000000000001',
           agentName: property.agentName || '',
           agentLicense: property.agentLicense || '',
           commissionRate: property.commissionRate || 2.0,
           escrowRequired: property.escrowRequired || false,
           offPlan: property.offPlan || false,
           status: 'draft',
-          // Add other fields that might be required
           category: 'sale',
-          emirate: property.state || 'Dubai',
-          jurisdiction: property.jurisdiction || 'AE-DU'
+          jurisdiction: property.jurisdiction || 'AE-DU',
+          lat: property.lat ? parseFloat(property.lat) : 25.2048,
+          lng: property.long ? parseFloat(property.long) : 55.2708
         };
 
-        console.log('DEBUG - property.state:', property.state);
-        console.log('DEBUG - Full property object:', property);
-        console.log('Saving to database:', submissionData);
+        console.log('Saving property to MongoDB:', submissionData);
 
-        // 1. Save to MongoDB database (PRIMARY)
-        await addToDatabase(submissionData);
-
-        // 2. Also save to Gulf store for backward compatibility
-        const gulfPropertyData = {
-          ...property,
-          id: Date.now().toString(),
-          price: parseFloat(property.price),
-          beds: parseInt(property.beds),
-          baths: parseInt(property.baths),
-          area: parseFloat(property.area),
-          createdAt: new Date().toISOString(),
-          complianceStatus: 'pending' as const,
-          agentPicture: property.agentPicture || '',
-          agentId: property.agentId || '',
-          heroImage: property.heroImage || null,
-        };
-        addToGulfStore(gulfPropertyData);
+        // Save to MongoDB database via API
+        await addProperty(submissionData);
 
         // Success message
         alert(lang === 'en'
@@ -278,7 +247,6 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
         );
 
         // Cleanup
-        localStorage.removeItem('gulf_property_draft');
         setProperty(initialPropertyState);
         setStep(1);
         setFormErrors({});
@@ -288,13 +256,12 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
 
       } catch (error: any) {
         console.error('Submission error:', error);
-        console.error('Error details:', error.message);
         
         // Show specific error message
         const errorMsg = error.message || 'Unknown error';
         alert(lang === 'en'
-          ? `✗ Error saving property to database: ${errorMsg}. Please check the console for details.`
-          : `✗ خطأ في حفظ العقار في قاعدة البيانات: ${errorMsg}. يرجى التحقق من وحدة التحكم للحصول على التفاصيل.`
+          ? `✗ Error saving property to database: ${errorMsg}`
+          : `✗ خطأ في حفظ العقار في قاعدة البيانات: ${errorMsg}`
         );
       } finally {
         setIsSubmitting(false);
@@ -310,12 +277,53 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
       ? 'Are you sure you want to clear the form? All unsaved data will be lost.'
       : 'هل أنت متأكد من مسح النموذج؟ سيتم فقدان جميع البيانات غير المحفوظة.'
     )) {
-      localStorage.removeItem('gulf_property_draft');
       setProperty(initialPropertyState);
       setStep(1);
       setFormErrors({});
     }
   };
+
+  // Data preview component
+  const DataPreview = () => (
+    <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-medium text-gray-700 flex items-center gap-2">
+          {showDataPreview ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          {lang === 'en' ? 'Form Data Preview' : 'معاينة بيانات النموذج'}
+        </h4>
+        <button
+          type="button"
+          onClick={() => setShowDataPreview(!showDataPreview)}
+          className="text-sm text-blue-600 hover:text-blue-800"
+        >
+          {showDataPreview 
+            ? (lang === 'en' ? 'Hide' : 'إخفاء') 
+            : (lang === 'en' ? 'Show' : 'عرض')}
+        </button>
+      </div>
+      
+      {showDataPreview && (
+        <div className="text-sm text-gray-600 space-y-2 max-h-60 overflow-y-auto p-2 bg-white rounded border">
+          <div className="grid grid-cols-2 gap-2">
+            <div><strong>Title:</strong> {property.title || 'Not set'}</div>
+            <div><strong>Price:</strong> {property.price ? `${property.price} ${property.currency}` : 'Not set'}</div>
+            <div><strong>Type:</strong> {property.propertyType || 'Not set'}</div>
+            <div><strong>Location:</strong> {property.city ? `${property.city}, ${property.state}` : 'Not set'}</div>
+            <div><strong>Beds/Baths:</strong> {property.beds || '0'} / {property.baths || '0'}</div>
+            <div><strong>Area:</strong> {property.area ? `${property.area} ${property.areaUnit}` : 'Not set'}</div>
+            <div><strong>RERA:</strong> {property.reraNumber || 'Not set'}</div>
+            <div><strong>Agent:</strong> {property.agentName || 'Not set'}</div>
+          </div>
+          {property.description && (
+            <div className="mt-2 pt-2 border-t">
+              <strong>Description:</strong> 
+              <p className="text-xs mt-1 text-gray-500 line-clamp-2">{property.description}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   // Step configuration
   const stepConfig = [
@@ -323,33 +331,76 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
       number: 1,
       icon: <Camera className="w-5 h-5" />,
       name: { en: 'Media & Basic Info', ar: 'الصور والمعلومات' },
-      description: { en: 'Upload images and basic details', ar: 'رفع الصور والتفاصيل الأساسية' }
+      description: { en: 'Upload images and basic details', ar: 'رفع الصور والتفاصيل الأساسية' },
+      component: (
+        <MediaStep
+          lang={lang}
+          property={property}
+          onFileUpload={handleFileUpload}
+          onChange={handleChange}
+          errors={formErrors}
+        />
+      )
     },
     {
       number: 2,
       icon: <MapPin className="w-5 h-5" />,
       name: { en: 'Location', ar: 'الموقع' },
-      description: { en: 'Property address and coordinates', ar: 'عنوان العقار والإحداثيات' }
+      description: { en: 'Property address and coordinates', ar: 'عنوان العقار والإحداثيات' },
+      component: (
+        <LocationStep
+          lang={lang}
+          property={property}
+          onChange={handleChange}
+          errors={formErrors}
+        />
+      )
     },
     {
       number: 3,
       icon: <Home className="w-5 h-5" />,
       name: { en: 'Specifications', ar: 'المواصفات' },
-      description: { en: 'Size, rooms, and property type', ar: 'المساحة، الغرف، ونوع العقار' }
+      description: { en: 'Size, rooms, and property type', ar: 'المساحة، الغرف، ونوع العقار' },
+      component: (
+        <SpecsStep
+          lang={lang}
+          property={property}
+          onChange={handleChange}
+          errors={formErrors}
+        />
+      )
     },
     {
       number: 4,
       icon: <Shield className="w-5 h-5" />,
       name: { en: 'Compliance', ar: 'الامتثال' },
-      description: { en: 'Legal and regulatory requirements', ar: 'المتطلبات القانونية والتنظيمية' }
+      description: { en: 'Legal and regulatory requirements', ar: 'المتطلبات القانونية والتنظيمية' },
+      component: (
+        <ComplianceStep
+          lang={lang}
+          property={property}
+          onChange={handleChange}
+          errors={formErrors}
+        />
+      )
     },
     {
       number: 5,
       icon: <User className="w-5 h-5" />,
       name: { en: 'Agent & Final', ar: 'الوكيل والنهائي' },
-      description: { en: 'Agent details and description', ar: 'تفاصيل الوكيل والوصف' }
+      description: { en: 'Agent details and description', ar: 'تفاصيل الوكيل والوصف' },
+      component: (
+        <AgentStep
+          lang={lang}
+          property={property}
+          onChange={handleChange}
+          errors={formErrors}
+        />
+      )
     },
   ];
+
+  const currentStep = stepConfig[step - 1];
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border overflow-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -423,110 +474,33 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
 
       {/* Form Content */}
       <form onSubmit={handleSubmit} className="p-6 md:p-8">
-        {/* Step Navigation */}
-        <div className="flex justify-between items-center mb-8">
-          <button
-            type="button"
-            onClick={handlePrev}
-            disabled={step === 1}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors ${
-              step === 1
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            <ChevronLeft className="w-4 h-4" />
-            {lang === 'en' ? 'Previous' : 'السابق'}
-          </button>
-
-          {step < 5 ? (
-            <button
-              type="button"
-              onClick={handleNext}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {lang === 'en' ? 'Continue' : 'متابعة'}
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          ) : null}
-        </div>
-
         {/* Current Step Content */}
         <div className="min-h-[400px]">
-          {step === 1 && (
-            <MediaStep
-              lang={lang}
-              property={property}
-              onFileUpload={handleFileUpload}
-              onChange={handleChange}
-              errors={formErrors}
-            />
-          )}
-
-          {step === 2 && (
-            <LocationStep
-              lang={lang}
-              property={property}
-              onChange={handleChange}
-              errors={formErrors}
-            />
-          )}
-
-          {step === 3 && (
-            <SpecsStep
-              lang={lang}
-              property={property}
-              onChange={handleChange}
-              errors={formErrors}
-            />
-          )}
-
-          {step === 4 && (
-            <ComplianceStep
-              lang={lang}
-              property={property}
-              onChange={handleChange}
-              errors={formErrors}
-            />
-          )}
-
-          {step === 5 && (
-            <AgentStep
-              lang={lang}
-              property={property}
-              onChange={handleChange}
-              errors={formErrors}
-            />
-          )}
+          {currentStep.component}
+          
+          {/* Data Preview */}
+          <DataPreview />
         </div>
 
-        {/* Submission Section (Step 5 only) */}
-        {step === 5 && (
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-sm text-gray-600 max-w-md">
-                <p className="flex items-center gap-2 mb-2">
-                  <Save className="w-4 h-4" />
-                  {lang === 'en'
-                    ? 'Your data will be saved to the database and submitted for review.'
-                    : 'سيتم حفظ بياناتك في قاعدة البيانات وإرسالها للمراجعة.'}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {lang === 'en'
-                    ? 'All information must comply with Gulf region real estate regulations.'
-                    : 'يجب أن تلتزم جميع المعلومات بلائحة عقارات منطقة الخليج.'}
-                </p>
-              </div>
+        {/* Navigation Buttons - NOW AT BOTTOM */}
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="flex justify-between items-center">
+            <button
+              type="button"
+              onClick={handlePrev}
+              disabled={step === 1}
+              className={`flex items-center gap-2 px-5 py-3 rounded-lg transition-colors ${
+                step === 1
+                  ? 'text-gray-400 cursor-not-allowed bg-gray-100'
+                  : 'text-gray-700 hover:bg-gray-100 bg-white border border-gray-300'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {lang === 'en' ? 'Previous' : 'السابق'}
+            </button>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  type="button"
-                  onClick={handleClearForm}
-                  className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
-                >
-                  {lang === 'en' ? 'Clear Form' : 'مسح النموذج'}
-                </button>
-
+            <div className="flex items-center gap-3">
+              {step === 5 ? (
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -544,10 +518,34 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
                     </>
                   )}
                 </button>
-              </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+                >
+                  {lang === 'en' ? 'Continue to Next Step' : 'المتابعة للخطوة التالية'}
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
+              
+              <button
+                type="button"
+                onClick={handleClearForm}
+                className="px-5 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium hidden md:inline-flex"
+              >
+                {lang === 'en' ? 'Clear Form' : 'مسح النموذج'}
+              </button>
             </div>
           </div>
-        )}
+          
+          {/* Step progress indicator */}
+          <div className="mt-4 text-center text-sm text-gray-500">
+            {lang === 'en' 
+              ? `Step ${step}: ${currentStep.name.en}`
+              : `الخطوة ${step}: ${currentStep.name.ar}`}
+          </div>
+        </div>
 
         {/* Form Status */}
         {Object.keys(formErrors).length > 0 && (
@@ -555,23 +553,14 @@ export default function PropertyForm({ lang, onSuccess }: PropertyFormProps) {
             <p className="text-red-800 font-medium mb-2">
               {lang === 'en' ? 'Please fix the following errors:' : 'يرجى تصحيح الأخطاء التالية:'}
             </p>
-            <ul className="text-red-700 text-sm list-disc pl-5 space-y-1">
-              {Object.entries(formErrors).map(([field, error]) => (
-                <li key={field}>{error}</li>
+            <ul className="text-red-700 text-sm list-disc list-inside">
+              {Object.entries(formErrors).map(([field, message]) => (
+                <li key={field}>{message}</li>
               ))}
             </ul>
           </div>
         )}
       </form>
-
-      {/* Footer Note */}
-      <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
-        <p className="text-xs text-gray-500 text-center">
-          {lang === 'en'
-            ? '© 2024 BaytElite Gulf Real Estate Platform. All rights reserved.'
-            : '© 2024 منصة بيوت النخبة لعقارات الخليج. جميع الحقوق محفوظة.'}
-        </p>
-      </div>
     </div>
   );
 }

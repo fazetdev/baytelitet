@@ -6,42 +6,108 @@ import {
   TrendingUp, FileText, Download, Filter, Search,
   BarChart3, Building2, Users, Eye, RefreshCw,
   ChevronRight, Shield, Percent, Calendar, Banknote,
-  Plus, Trash2, Edit, ArrowUpRight, ArrowDownLeft
+  Plus, Trash2, Edit, ArrowUpRight, ArrowDownLeft,
+  Loader2
 } from 'lucide-react';
-import { useEscrowStore, EscrowAccount } from '@/lib/stores/escrowStore';
-import { useGulfAssetStore } from '@/lib/stores/gulfAssetStore';
+
+// Define types locally
+interface EscrowAccount {
+  id: string;
+  projectName: string;
+  developer: string;
+  jurisdiction: string;
+  status: 'healthy' | 'deficient' | 'critical';
+  currentBalance: number;
+  requiredBalance: number;
+  lastAudit: string;
+}
+
+interface EscrowTransaction {
+  id: string;
+  date: string;
+  type: 'deposit' | 'withdrawal';
+  projectId: string;
+  amount: number;
+  description: string;
+}
 
 export default function EscrowPage() {
   const [language, setLanguage] = useState<'en' | 'ar'>('en');
   const [activeTab, setActiveTab] = useState<'accounts' | 'transactions' | 'reports' | 'monitoring'>('accounts');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const [accounts, setAccounts] = useState<EscrowAccount[]>([]);
+  const [transactions, setTransactions] = useState<EscrowTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [properties, setProperties] = useState<any[]>([]);
 
-  const { 
-    accounts, 
-    transactions, 
-    deleteAccount,
-    calculateStats,
-    generateFromProperties
-  } = useEscrowStore();
-
-  const { properties: assetStoreProperties } = useGulfAssetStore();
-
+  // Load data from APIs
   useEffect(() => {
-    const escrowProperties = assetStoreProperties.filter(p => p.escrowRequired);
-    if (escrowProperties.length > 0 && accounts.length === 0) {
-      const mapped = escrowProperties.map(p => ({
-        id: p.id || Math.random().toString(36).substr(2, 9),
-        title: p.title,
-        price: typeof p.price === 'number' ? p.price.toString() : p.price,
-        city: p.city,
-        escrowRequired: p.escrowRequired
-      }));
-      generateFromProperties(mapped);
-    }
-  }, [assetStoreProperties, accounts.length, generateFromProperties]);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Fetch properties that require escrow
+        const propertiesRes = await fetch('/api/properties');
+        if (propertiesRes.ok) {
+          const propertiesData = await propertiesRes.json();
+          setProperties(propertiesData);
+          
+          // Create mock escrow accounts from properties that require escrow
+          const escrowProperties = propertiesData.filter((p: any) => p.escrowRequired);
+          const mockAccounts: EscrowAccount[] = escrowProperties.map((p: any) => ({
+            id: p.id || Math.random().toString(36).substr(2, 9),
+            projectName: p.title || 'Unnamed Project',
+            developer: p.developerName || 'Unknown Developer',
+            jurisdiction: p.jurisdiction || 'AE-DU',
+            status: Math.random() > 0.7 ? 'healthy' : (Math.random() > 0.5 ? 'deficient' : 'critical'),
+            currentBalance: Math.floor(Math.random() * 10000000) + 500000,
+            requiredBalance: Math.floor(Math.random() * 15000000) + 1000000,
+            lastAudit: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+          }));
+          
+          setAccounts(mockAccounts);
+          
+          // Create mock transactions
+          const mockTransactions: EscrowTransaction[] = [];
+          for (let i = 0; i < 10; i++) {
+            mockTransactions.push({
+              id: `tx-${i}`,
+              date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              type: Math.random() > 0.5 ? 'deposit' : 'withdrawal',
+              projectId: mockAccounts[Math.floor(Math.random() * mockAccounts.length)]?.id || 'unknown',
+              amount: Math.floor(Math.random() * 500000) + 10000,
+              description: Math.random() > 0.5 ? 'Property purchase deposit' : 'Developer withdrawal'
+            });
+          }
+          setTransactions(mockTransactions);
+        }
+      } catch (error) {
+        console.error('Failed to load escrow data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const stats = calculateStats();
+    fetchData();
+  }, []);
+
+  const calculateStats = () => {
+    const totalBalance = accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
+    const totalAccounts = accounts.length;
+    const deficientAccounts = accounts.filter(acc => acc.status === 'deficient' || acc.status === 'critical').length;
+    const avgCompliance = accounts.length > 0 
+      ? Math.round((accounts.filter(acc => acc.status === 'healthy').length / accounts.length) * 100)
+      : 100;
+    
+    return { totalBalance, totalAccounts, deficientAccounts, avgCompliance };
+  };
+
+  const deleteAccount = (id: string) => {
+    if (confirm('Are you sure you want to delete this escrow account?')) {
+      setAccounts(prev => prev.filter(acc => acc.id !== id));
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -59,6 +125,16 @@ export default function EscrowPage() {
     return matchesSearch && matchesStatus;
   });
 
+  const stats = calculateStats();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
@@ -72,7 +148,10 @@ export default function EscrowPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')} className="px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50">
+          <button 
+            onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')} 
+            className="px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50"
+          >
             {language === 'en' ? 'العربية' : 'English'}
           </button>
           <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700">
@@ -93,7 +172,6 @@ export default function EscrowPage() {
         </div>
         <div className="bg-white p-5 rounded-xl border shadow-sm">
           <p className="text-sm text-gray-500 font-medium">{language === 'en' ? 'Compliance Rate' : 'معدل الامتثال'}</p>
-          {/* FIXED: Changed stats.complianceRate to stats.avgCompliance */}
           <h3 className="text-2xl font-bold mt-1 text-green-600">{stats.avgCompliance}%</h3>
         </div>
         <div className="bg-white p-5 rounded-xl border shadow-sm">
@@ -121,14 +199,14 @@ export default function EscrowPage() {
         <div className="p-4 border-b flex flex-wrap gap-4 items-center justify-between">
           <div className="relative flex-1 min-w-[300px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input 
-              placeholder="Search project or developer..." 
+            <input
+              placeholder="Search project or developer..."
               className="w-full pl-10 pr-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <select 
+          <select
             className="border rounded-lg px-4 py-2 outline-none bg-white text-sm"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -150,7 +228,7 @@ export default function EscrowPage() {
                       <h3 className="text-lg font-bold text-gray-900">{account.projectName}</h3>
                       <p className="text-sm text-gray-500 font-medium">{account.developer} | {account.jurisdiction}</p>
                       <div className={`mt-2 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
-                        account.status === 'healthy' ? 'bg-green-100 text-green-700' : 
+                        account.status === 'healthy' ? 'bg-green-100 text-green-700' :
                         account.status === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
                       }`}>
                         {account.status}
@@ -160,8 +238,15 @@ export default function EscrowPage() {
                       <p className="text-xs text-gray-400 font-bold uppercase">Current Balance</p>
                       <p className="text-xl font-bold text-gray-900">{formatCurrency(account.currentBalance)}</p>
                       <div className="mt-4 flex gap-2 justify-end">
-                        <button className="p-2 border rounded hover:bg-gray-50 text-gray-600"><Eye className="h-4 w-4" /></button>
-                        <button onClick={() => deleteAccount(account.id)} className="p-2 border border-red-100 text-red-600 rounded hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
+                        <button className="p-2 border rounded hover:bg-gray-50 text-gray-600">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => deleteAccount(account.id)} 
+                          className="p-2 border border-red-100 text-red-600 rounded hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
                   </div>

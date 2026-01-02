@@ -11,14 +11,14 @@ import {
   FileText,
   Trash2
 } from 'lucide-react';
-import { useGulfAssetStore } from '@/lib/stores/gulfAssetStore';
+import { useProperties } from "/app/context/useProperties";
 import PropertyForm from './components/PropertyForm';
 
 export default function AssetOnboardingPage() {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [isAdding, setIsAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { properties, loadProperties, deleteProperty } = useGulfAssetStore();
+  const { properties, loadProperties, deleteProperty } = useProperties();
   const [lang, setLang] = useState<'en' | 'ar'>('en');
 
   useEffect(() => {

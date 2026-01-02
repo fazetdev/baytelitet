@@ -2,20 +2,35 @@
 import React, { useState, useEffect } from 'react';
 import {
   Building2, Users, ShieldAlert, BadgeDollarSign,
-  Search, Filter, Plus, ChevronRight, FileText, Trash2
+  Search, Filter, Plus, ChevronRight, FileText, Trash2,
+  Loader2
 } from 'lucide-react';
-import { useGulfAssetStore } from '@/lib/stores/gulfAssetStore';
+import { useProperties } from '@/app/context/useProperties';
 import { useAgents } from '@/app/context/useAgents';
 
 export default function ListingManager() {
   const [activeSubView, setActiveSubView] = useState<'inventory' | 'agents' | 'compliance'>('inventory');
-  const { properties, loadProperties, deleteProperty } = useGulfAssetStore();
-  const { agents, loadAgents } = useAgents();
+  const { properties, deleteProperty, loading: propertiesLoading } = useProperties();
+  const { agents, loading: agentsLoading } = useAgents();
 
-  useEffect(() => {
-    loadProperties();
-    loadAgents();
-  }, [loadProperties, loadAgents]);
+  const handleDeleteProperty = async (id: number) => {
+    if (confirm('Are you sure you want to delete this property?')) {
+      try {
+        await deleteProperty(id);
+      } catch (error) {
+        console.error('Failed to delete property:', error);
+        alert('Failed to delete property');
+      }
+    }
+  };
+
+  if (propertiesLoading || agentsLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="w-6 h-6 text-[#D4AF37] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-20">
@@ -73,12 +88,12 @@ export default function ListingManager() {
                     </div>
                     <div>
                       <h4 className="text-white text-sm font-bold">{prop.title}</h4>
-                      <p className="text-[10px] text-gray-500 uppercase font-black">{prop.city} • {prop.price} {prop.currency}</p>
+                      <p className="text-[10px] text-gray-500 uppercase font-black">{prop.city} • AED {prop.price?.toLocaleString()}</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => prop.id && deleteProperty(prop.id)}
-                    className="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity p-2"
+                  <button
+                    onClick={() => prop.id && handleDeleteProperty(prop.id)}
+                    className="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity p-2 hover:text-red-400"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -94,20 +109,20 @@ export default function ListingManager() {
           {agents.length === 0 ? (
             <p className="text-gray-500 text-center py-10 italic">No agents onboarded.</p>
           ) : (
-            agents.map((agent, i) => (
+            agents.map((agent) => (
               <div key={agent.id} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-800 rounded-full border border-[#D4AF37]/30 flex items-center justify-center text-white font-bold">
-                    {agent.fullName.charAt(0)}
+                    {agent.name?.charAt(0) || 'A'}
                   </div>
                   <div>
-                    <h4 className="text-white font-bold">{agent.fullName}</h4>
-                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-tighter">{agent.brokerageName}</p>
+                    <h4 className="text-white font-bold">{agent.name || 'Unknown Agent'}</h4>
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-tighter">{agent.agency || 'Independent'}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <span className={`text-[9px] font-black px-2 py-1 rounded-full ${agent.status === 'verified' ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                    {agent.status.toUpperCase()}
+                    {(agent.status || 'active').toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -125,7 +140,9 @@ export default function ListingManager() {
                {properties.filter(p => p.complianceStatus === 'pending').length} items require Trakheesi permit validation.
              </p>
           </div>
-          <button className="bg-red-500 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest">Begin Audit</button>
+          <button className="bg-red-500 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-colors">
+            Begin Audit
+          </button>
         </div>
       )}
     </div>

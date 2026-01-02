@@ -44,3 +44,15 @@ next-env.d.ts
 Thumbs.db
 .env.local
 .env.local
+
+# Temporary fix scripts
+fix-*.js
+fix-*.mjs
+fix-*.cjs
+fix-*.ts
+test-*-submission.js
+check-and-publish-properties.js
+
+# Backup files
+*.backup
+*.backup[0-9]

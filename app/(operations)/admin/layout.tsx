@@ -35,7 +35,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Agent Directory', href: '/admin/agents', icon: Users },
     { name: 'Compliance Control', href: '/admin/compliance', icon: ShieldCheck },
     { name: 'Escrow Accounts', href: '/admin/escrow', icon: FileText },
-    { name: 'Agencies', href: '/admin/agencies', icon: Smartphone },
     { name: 'System Settings', href: '/settings', icon: Settings },
   ];
 

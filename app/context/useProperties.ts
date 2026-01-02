@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { useEffect } from 'react';
 
-// Define the interface locally to ensure the build passes even if the alias is broken
+// Define the interface to match what admin page expects
 export interface Property {
   id: string;
   title: string;
@@ -18,17 +18,27 @@ export interface Property {
   agentId: string;
   status: 'available' | 'sold' | 'pending';
   features: string[];
+  
+  // ADD fields that admin page expects:
+  heroImage?: string;
+  currency?: string;
+  complianceStatus?: string;
+  areaUnit?: string;
+  city?: string;
+  country?: string;
+  area?: number;
 }
 
 interface PropertyStore {
   properties: Property[];
   loading: boolean;
   error: string | null;
-  
+
   // Actions
   loadProperties: () => Promise<void>;
   addProperty: (propertyData: Omit<Property, 'id'>) => Promise<void>;
   updateProperty: (id: string, updates: Partial<Property>) => Promise<void>;
+  deleteProperty: (id: string) => Promise<void>;
   getPropertyById: (id: string) => Property | undefined;
 }
 
@@ -41,11 +51,11 @@ export const useProperties = create<PropertyStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await fetch('/api/properties');
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch properties: ${response.status}`);
       }
-      
+
       const data = await response.json();
       set({ properties: data });
     } catch (error) {
@@ -72,7 +82,7 @@ export const useProperties = create<PropertyStore>((set, get) => ({
       }
 
       const newProperty = await response.json();
-      
+
       // Add the new property to the local state
       set((state) => ({
         properties: [...state.properties, newProperty],
@@ -89,7 +99,6 @@ export const useProperties = create<PropertyStore>((set, get) => ({
   updateProperty: async (id: string, updates: Partial<Property>) => {
     set({ loading: true, error: null });
     try {
-      // Note: You'll need to create a PUT endpoint for updates
       const response = await fetch(`/api/properties/${id}`, {
         method: 'PUT',
         headers: {
@@ -103,7 +112,7 @@ export const useProperties = create<PropertyStore>((set, get) => ({
       }
 
       const updatedProperty = await response.json();
-      
+
       // Update the property in local state
       set((state) => ({
         properties: state.properties.map((p) =>
@@ -112,6 +121,30 @@ export const useProperties = create<PropertyStore>((set, get) => ({
       }));
     } catch (error) {
       console.error('Failed to update property:', error);
+      set({ error: error instanceof Error ? error.message : 'Unknown error' });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  deleteProperty: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`/api/properties/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete property: ${response.status}`);
+      }
+
+      // Remove the property from local state
+      set((state) => ({
+        properties: state.properties.filter((p) => p.id !== id),
+      }));
+    } catch (error) {
+      console.error('Failed to delete property:', error);
       set({ error: error instanceof Error ? error.message : 'Unknown error' });
       throw error;
     } finally {

@@ -1,28 +1,77 @@
 'use client';
 
-import { useMemo, useEffect } from 'react';
-import { 
-  TrendingUp, Wallet, ArrowUpRight, 
+import { useMemo, useEffect, useState } from 'react';
+import {
+  TrendingUp, Wallet, ArrowUpRight,
   MapPin, ShieldCheck, Info,
-  Activity, Building2
+  Activity, Building2, Loader2
 } from 'lucide-react';
-import { useGulfAssetStore } from '@/lib/stores/gulfAssetStore';
+
+interface Property {
+  id: string;
+  price: number;
+  complianceStatus: string;
+  // other properties...
+}
 
 export default function InvestorDashboard() {
-  const { properties, loadProperties } = useGulfAssetStore();
-  
-  // Ensure properties are loaded from localStorage on mount
-  useEffect(() => {
-    loadProperties();
-  }, [loadProperties]);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Calculate Portfolio Intelligence based on your Store Schema
+  // Load properties from API
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/properties');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch properties: ${response.status}`);
+        }
+        const data = await response.json();
+        setProperties(data);
+      } catch (err) {
+        console.error('Failed to load properties:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  // Calculate Portfolio Intelligence based on API data
   const stats = useMemo(() => {
+    if (loading) {
+      return { totalValue: 0, avgYield: 7.2, activeRequests: 0 };
+    }
+    
     const totalValue = properties.reduce((acc, curr) => acc + Number(curr.price || 0), 0);
     const avgYield = 7.2; // Mock market data for Dubai
     const activeRequests = properties.filter(p => p.complianceStatus === 'verified').length;
     return { totalValue, avgYield, activeRequests };
-  }, [properties]);
+  }, [properties, loading]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+          <h2 className="text-xl font-bold text-red-700 mb-2">Error Loading Dashboard</h2>
+          <p className="text-red-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 space-y-8">
@@ -98,16 +147,20 @@ export default function InvestorDashboard() {
           </h3>
           <div className="space-y-4">
             {[
-              { area: 'Palm Jumeirah', trend: '+18.2%', color: 'bg-green-500' },
-              { area: 'Business Bay', trend: '+11.5%', color: 'bg-blue-500' },
-              { area: 'Dubai Hills', trend: '+9.8%', color: 'bg-indigo-500' }
-            ].map((spot, i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
+              { location: 'Dubai Marina', yield: '8.2%', trend: 'up' },
+              { location: 'Downtown Dubai', yield: '7.8%', trend: 'stable' },
+              { location: 'Jumeirah Village', yield: '9.1%', trend: 'up' },
+              { location: 'Business Bay', yield: '7.5%', trend: 'stable' }
+            ].map((spot, index) => (
+              <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${spot.color}`} />
-                  <span className="font-bold text-gray-900">{spot.area}</span>
+                  <Building2 size={16} className="text-blue-600" />
+                  <span className="font-bold">{spot.location}</span>
                 </div>
-                <span className="text-xs font-black text-gray-500">{spot.trend} growth</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-blue-700">{spot.yield}</span>
+                  <ArrowUpRight size={14} className={spot.trend === 'up' ? 'text-green-500' : 'text-gray-400'} />
+                </div>
               </div>
             ))}
           </div>
